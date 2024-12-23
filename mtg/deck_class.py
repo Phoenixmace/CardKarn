@@ -1,5 +1,6 @@
 from mtg.card_class import Card
 from mtg.data_management import get_data, dump_data
+import requests
 '''
 methods to add:
     load from text (on PC) add to init
@@ -27,8 +28,8 @@ class Deck():
             self.decklist = []
             self.name = deck_name
             if self.format == 'commander':
-                self.commander_name = commander
                 self.commander = Card(commander)
+                self.commander_name = self.commander.name
 
     def save(self):
         data = get_data()
@@ -262,3 +263,37 @@ class Deck():
                 print(set)
                 self.add_card(**args)
                 print(i[index+1:], 'was added')
+
+    def _get_edhrec_data(self):
+        if not self.commander_name:
+            print('Please specify your Commander')
+            return
+        cleaned_name = self.commander_name.lower()
+        cleaned_name = cleaned_name.replace(' ', '-')
+        to_delete = [',']
+        for i in to_delete:
+            cleaned_name = cleaned_name.replace(i, '')
+        url = f'https://json.edhrec.com/pages/commanders/{cleaned_name}.json'
+        try:
+            data = requests.get(url).json()
+        except:
+            print('Error getting Data')
+            return
+        usable_data = dict()
+        usable_data['recommended_cards'] = dict()
+        usable_data['creatures'] = data['creature']
+        usable_data['battles'] = data['battle']
+        usable_data['instants'] = data['instant']
+        usable_data['sorceries'] = data['sorcery']
+        usable_data['lands'] = data['land']
+        usable_data['basics'] = data['basic']
+        usable_data['planeswalker'] = data['planeswalker']
+        usable_data['nonbasics'] = data['nonbasic']
+        usable_data['enchantments'] = data['enchantment']
+        usable_data['artifacts'] = data['artifact']
+        for i in data['container']['json_dict']['cardlists']:
+            for card in i['cardviews']:
+                name = card['name']
+                usable_data['recommended_cards'][name] = dict()
+                usable_data['recommended_cards'][name]['synergy'] = card['synergy']
+        return usable_data
