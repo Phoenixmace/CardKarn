@@ -143,7 +143,7 @@ class Card():
                 data[main_folder][subfolder][self.key] = self.to_dict()
             #in case of the same set code add number of card
             elif version_key in data[main_folder][subfolder][self.key]['versions']:
-                data[main_folder][subfolder][self.key]['versions']['number'] += self.number
+                data[main_folder][subfolder][self.key]['versions'][version_key]['number'] += self.number
             # card saved but not the version
             else:
                 data[main_folder][subfolder][self.key]['versions'][version_key] = self.to_dict()['versions'][version_key]
@@ -155,7 +155,7 @@ class Card():
                 data[main_folder][self.key] = self.to_dict()
             # in case of the same set code add number of card
             elif version_key in data[main_folder][self.key]['versions']:
-                data[main_folder][self.key]['versions']['number'] += self.number
+                data[main_folder][self.key]['versions'][version_key]['number'] += self.number
             # card saved but not the version
             else:
                 data[main_folder][self.key]['versions'][version_key] = self.to_dict()['versions'][version_key]
@@ -171,6 +171,7 @@ class Card():
             version_key = self.set_code + '_n'
             version_key = (version_key.lower()).replace(' ', '_')
         dict_ = {}
+        dict_['versions'] = {}
         dict_['versions'][version_key] = {}
         for attr in dir(self):
             # Get the attribute value
@@ -186,12 +187,16 @@ class Card():
     def load_g(self, folder, subfolder=None):
         data = get_data()
         # get versionkey
-        if self.foil:
-            version_key = self.set_code + '_f'
-            version_key = (version_key.lower()).replace(' ', '_')
+        if self.set_code and self.foil:
+            if self.foil:
+                version_key = self.set_code + '_f'
+                version_key = (version_key.lower()).replace(' ', '_')
+            else:
+                version_key = self.set_code + '_n'
+                version_key = (version_key.lower()).replace(' ', '_')
         else:
-            version_key = self.set_code + '_n'
-            version_key = (version_key.lower()).replace(' ', '_')
+            self.set_scryfall_att()
+            return
 
         # in case subfolder is given
         if subfolder:
