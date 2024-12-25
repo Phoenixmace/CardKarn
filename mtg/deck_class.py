@@ -221,11 +221,14 @@ class Deck():
             found = False
             #check bulk
             for sub in data['bulk']:
-                if sub != 'memory':
-                    if card.key in data['bulk'][sub]:
-                        if data['bulk'][sub][card.key]['number'] < card.number:
-                            found = True
-                            cards_missing.append([card.name, card.number-data['bulk'][sub][card.key]['number']])
+                if card.key in data['bulk'][sub]:
+                    # get sum of all cards
+                    sum = 0
+                    for version in data['bulk'][sub][card.key]['versions']:
+                        sum += data['bulk'][sub][card.key]['versions'][version]['number']
+            if sum < card.number:
+                found = True
+                cards_missing.append([card.name, card.number- sum])
             if not found:
                 cards_missing.append([card.name, card.number])
         if len(cards_missing) > 0:
@@ -319,7 +322,7 @@ class Deck():
                     owned_dict[card]['synergy'] = dict['recommended_cards'][tag][card]['synergy']
                     owned_dict[card]['tag'] = tag
         return owned_dict # #
-    # (useless)
+    # (useless) delet after
 
     def _get_all_cards_for_building_(self, data):
         cardlist = {}

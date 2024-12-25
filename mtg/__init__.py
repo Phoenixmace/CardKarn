@@ -2,7 +2,11 @@ import json
 import os
 
 def get_card_data_path():
-    file_path = os.getcwd()+'\\mtg\\data.json'
+    file_path = os.getcwd()
+    if 'mtg' in file_path:
+        file_path = file_path + '\\data.json'
+    else:
+        file_path = file_path + '\\mtg\\data.json'
     file_path = file_path.replace('\\','/')
     return file_path
 
@@ -20,7 +24,11 @@ def create_data_strucure():
                 json.dump(data, f, indent=4)
             create_data_strucure()
 def create_necessairy_files():
-    file_path = os.getcwd() + '\\mtg\\images'
+    file_path = os.getcwd()
+    if 'mtg' in file_path:
+        file_path = file_path + '\\images'
+    else:
+        file_path = file_path + '\\mtg\\images'
     file_path = file_path.replace('\\', '/')
     if not os.path.exists(file_path):
         os.makedirs(file_path)
@@ -30,3 +38,4 @@ def create_necessairy_files():
             f.write('{}')
 create_necessairy_files()
 create_data_strucure()
+print(get_card_data_path())

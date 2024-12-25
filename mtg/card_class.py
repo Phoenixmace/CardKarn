@@ -18,22 +18,22 @@ class Card():
         self.number = number
         self.foil = foil
         data = get_data()
-        if set_code:
-            self.key = ((self.name).lower() + '_' + self.set_code.lower()).replace(' ', '_') # Create
-            if self.key in data['bulk']['main']:
-                self.load_g( 'bulk', 'main')
-            elif self.key in data['memory']:
-                self.load_g('memory')
-            else:
-                self.set_scryfall_att()
-                self.save_to('memory')
+        self.key = ((self.name).lower()).replace(' ', '_')
+        loaded = False
+        for subfolder in data['bulk']:
+            if self.key in data['bulk'][subfolder]:
+                self.load_g('bulk', 'main')
+                loaded = True
+        if loaded == False and self.key in data['memory']:
+            self.load_g('memory')
         else:
             self.set_scryfall_att()
-            if hasattr(self, 'key'):
-                self.number = number
-                self.save_to('memory')
+            self.save_to('memory')
+        self.key = ((self.name).lower()).replace(' ', '_')
         self.number = number
         self.foil = foil
+        # Necessairy?
+
 
     def set_scryfall_att(self):
         search_params = {'fuzzy':self.name}
@@ -66,7 +66,6 @@ class Card():
             self.mana_cost = self.scryfall_data.mana_cost()
             self.subtypes = self.get_subtypes(self.typeline)
             self.cmc = self.scryfall_data.cmc()
-            self.key = (self.name.lower() +'_'+ self.set_code.lower()).replace(' ', '_')
             #Set supertypes
             self.supertypes = []
             supertypes = ['Legendary', 'Tribal', 'Basic', 'Snow']
@@ -122,44 +121,91 @@ class Card():
 
     def save_to(self, main_folder='bulk', subfolder=None):
         # Read the existing data from the JSON file
-        data = get_data()
+        data = get_data() # get data
+        # set setkey
+        if self.foil:
+            version_key = self.set_code + '_f'
+            version_key = (version_key.lower()).replace(' ', '_')
+        else:
+            version_key = self.set_code + '_n'
+            version_key = (version_key.lower()).replace(' ', '_')
+
+        # create necessairy paths
         if main_folder not in data:
             data[main_folder] = dict()
         if subfolder not in data[main_folder] and subfolder:
             data[main_folder][subfolder] = dict()
+
+        # if subfolder provided
         if subfolder:
+            # case card not yet added
             if self.key not in data[main_folder][subfolder]:
                 data[main_folder][subfolder][self.key] = self.to_dict()
             #in case of the same set code add number of card
-            elif data[main_folder][subfolder][self.key]['set_code'] == self.set_code:
-                data[main_folder][subfolder][self.key]['number'] = data[main_folder][subfolder][self.key]['number'] + self.number
+            elif version_key in data[main_folder][subfolder][self.key]['versions']:
+                data[main_folder][subfolder][self.key]['versions']['number'] += self.number
+            # card saved but not the version
+            else:
+                data[main_folder][subfolder][self.key]['versions'][version_key] = self.to_dict()['versions'][version_key]
             dump_data(data)
+
         else: #no subfolder
+            # case card not yet added
             if self.key not in data[main_folder]:
                 data[main_folder][self.key] = self.to_dict()
-            #in case of the same set code add number of card
-            elif data[main_folder][self.key]['set_code'] == self.set_code:
-                data[main_folder][self.key]['number'] = data[main_folder][self.key]['number'] + self.number
+            # in case of the same set code add number of card
+            elif version_key in data[main_folder][self.key]['versions']:
+                data[main_folder][self.key]['versions']['number'] += self.number
+            # card saved but not the version
+            else:
+                data[main_folder][self.key]['versions'][version_key] = self.to_dict()['versions'][version_key]
             dump_data(data)
 
     def to_dict(self):
+        # version specific attributes key->versions-> setcode_f/n
+        save_to_versions = ['set_code', 'foil', 'number', 'cm_price']
+        if self.foil:
+            version_key = self.set_code + '_f'
+            version_key = (version_key.lower()).replace(' ', '_')
+        else:
+            version_key = self.set_code + '_n'
+            version_key = (version_key.lower()).replace(' ', '_')
         dict_ = {}
+        dict_['versions'][version_key] = {}
         for attr in dir(self):
             # Get the attribute value
             value = getattr(self, attr)
             # Check if the attribute value is an instance of str and not a method or built-in attribute
             if (isinstance(value, str) or isinstance(value, float) or isinstance(value, int) or isinstance(value, list) or isinstance(value, dict)) and not callable(value) and not attr.startswith('__'):
-                dict_[attr] = value
+                if attr in save_to_versions:
+                    dict_['versions'][version_key][attr] = value
+                else:
+                    dict_[attr] = value
         return dict_
 
     def load_g(self, folder, subfolder=None):
         data = get_data()
-        if subfolder:
-            for attr in data[folder][subfolder][self.key]:
-                setattr(self, attr, data[folder][subfolder][self.key][attr])
+        # get versionkey
+        if self.foil:
+            version_key = self.set_code + '_f'
+            version_key = (version_key.lower()).replace(' ', '_')
         else:
-            for attr in data[folder][self.key]:
-                setattr(self, attr, data[folder][self.key][attr])
+            version_key = self.set_code + '_n'
+            version_key = (version_key.lower()).replace(' ', '_')
+
+        # in case subfolder is given
+        if subfolder:
+            if version_key in data[folder][subfolder][self.key]['versions']:
+                for attr in data[folder][subfolder][self.key]:
+                    setattr(self, attr, data[folder][subfolder][self.key][attr])
+                for attr in data[folder][subfolder][self.key]['versions'][version_key]:
+                    setattr(self, attr, data[folder][subfolder][self.key]['versions'][version_key][attr])
+        else:
+            if version_key in data[folder][self.key]['versions']:
+                for attr in data[folder][self.key]:
+                    setattr(self, attr, data[folder][self.key][attr])
+                for attr in data[folder][self.key]['versions'][version_key]:
+                    setattr(self, attr, data[folder][self.key]['versions'][version_key][attr])
 
     def print(self):
         print('Name: ', self.name)
