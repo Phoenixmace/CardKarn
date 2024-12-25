@@ -264,7 +264,7 @@ class Deck():
                 self.add_card(**args)
                 print(i[index+1:], 'was added')
 
-    def _get_edhrec_data(self):
+    def _get_edhrec_data_(self):
         if not self.commander_name:
             print('Please specify your Commander')
             return
@@ -291,9 +291,47 @@ class Deck():
         usable_data['nonbasics'] = data['nonbasic']
         usable_data['enchantments'] = data['enchantment']
         usable_data['artifacts'] = data['artifact']
+        usable_data['commander_salt'] = data['container']['json_dict']['card']['salt']
         for i in data['container']['json_dict']['cardlists']:
+            usable_data['recommended_cards'][i['tag']] = dict()
             for card in i['cardviews']:
                 name = card['name']
-                usable_data['recommended_cards'][name] = dict()
-                usable_data['recommended_cards'][name]['synergy'] = card['synergy']
+                usable_data['recommended_cards'][i['tag']][name] = dict()
+                usable_data['recommended_cards'][i['tag']][name]['synergy'] = card['synergy']
         return usable_data
+
+
+    def _get_edhrec_owned_(self, dict):
+        owned_dict = {}
+        search_list = []
+        for tag in dict['recommended_cards']:
+            for card in dict['recommended_cards'][tag]:
+                search_list.append(card)
+        data = get_data()
+        owned_cards = []
+        for card in data['bulk']['main']:
+            if data['bulk']['main'][card]['name'] in search_list:
+                owned_cards.append(data['bulk']['main'][card]['name'])
+        for tag in dict['recommended_cards']:
+            for card in dict['recommended_cards'][tag]:
+                if card in owned_cards:
+                    owned_dict[card] = {}
+                    owned_dict[card]['synergy'] = dict['recommended_cards'][tag][card]['synergy']
+                    owned_dict[card]['tag'] = tag
+        return owned_dict # #
+    # (useless)
+
+    def _get_all_cards_for_building_(self, data):
+        cardlist = {}
+        #add cards from data
+        for tag in data['recommended_cards']:
+            for card in data['recommended_cards'][tag]:
+                tempcard = Card(card)
+                cardlist['card'] = {}
+                cardlist['card']['salt'] = tempcard.salt
+                cardlist['card']['synergy'] = data['recommended_cards'][tag][card]['synergy']
+                cardlist['card']['owned'] = False #change if in bulk
+                cardlist['card']['cmc'] = tempcard.cmc
+                cardlist['card']['price'] = tempcard.cm_price
+                cardlist['card']['types'] = tempcard.main_types #list
+                

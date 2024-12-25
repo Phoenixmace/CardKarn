@@ -1,6 +1,7 @@
 import scrython
 import json
 from mtg.data_management import get_data, dump_data
+import requests
 # what if wrong set/name code
 # setattr make sure all attributes are named the same wether loaded or not
 # make other lists than main first man
@@ -44,7 +45,6 @@ class Card():
         except:
             print(f'{self.name} not found')
             return
-
         # if not exactly the same
         if self.scryfall_data.name().lower() != self.name.lower():
             print(f'{self.name} was not found. Instead proceeded with: {self.scryfall_data.name()}')
@@ -87,6 +87,22 @@ class Card():
                         self.loyalty = self.scryfall_data.loyalty()
                     else:
                         self.loyalty = None
+        self.set_salt_score()
+    def set_salt_score(self):
+        cleaned_name = self.name.lower()
+        cleaned_name = cleaned_name.replace(' ', '-')
+        to_delete = [',']
+        for i in to_delete:
+            cleaned_name = cleaned_name.replace(i, '')
+        url = f'https://json.edhrec.com/pages/cards/{cleaned_name}.json'
+        try:
+            edhrec_data = requests.get(url).json()
+        except:
+            print('Error getting Data')
+            return
+        salt = edhrec_data['container']['json_dict']['card']['salt']
+        self.salt = salt
+
 
     def set_two_face(self):
         self.double_faced = True
