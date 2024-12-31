@@ -1,10 +1,17 @@
-# prerequisites
+# Prerequisites
 
-**installation:**
+## Get started
 
-```pip install scrython```
+```shell
+  # Clone Repository:
+  git clone https://github.com/Phoenixmace/CardKarn.git 
 
-**python libraries:**
-- scrython
-  - library for accessing the Scryfall api
+  # Run Main:
+  python ./main.py
+```
 
+## Dependencies
+
+|Dependency|Description|Installation|
+|----------|-----------|------------|
+|Scrython|Library for accessing the Scryfall API|``` pip install scrython ```|
