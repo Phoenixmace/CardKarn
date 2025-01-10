@@ -1,6 +1,8 @@
 from mtg.card_class import Card
 from mtg.data_management import get_data, dump_data
 import requests
+import threading
+from threading import Thread
 '''
 methods to add:
     load from text (on PC) add to init
@@ -30,11 +32,12 @@ class Deck():
             if self.format == 'commander':
                 self.commander = Card(commander)
                 self.commander_name = self.commander.name
-
+        del data
     def save(self):
         data = get_data()
         data['decks'][self.name] = self.to_dict()
         dump_data(data)
+        del data
 
     def to_dict(self):
         return {
@@ -213,6 +216,7 @@ class Deck():
             data = get_data()
             del data['decks'][self.name]
             dump_data(data)
+            del data
 
     def check_owned(self): #does not take other verions in considaration
         cards_missing=[] #[name, amount missing]
@@ -235,7 +239,7 @@ class Deck():
             print('You are missing:')
             for card in cards_missing:
                 print(f'    {card[1]} {card[0]}')
-
+        del data
     def import_deck(self, list=None): # 3 Hedron Crab  format
         if not list:
             list = input()
@@ -304,37 +308,195 @@ class Deck():
         return usable_data
 
 
-    def _get_edhrec_owned_(self, dict):
-        owned_dict = {}
-        search_list = []
-        for tag in dict['recommended_cards']:
-            for card in dict['recommended_cards'][tag]:
-                search_list.append(card)
-        data = get_data()
-        owned_cards = []
-        for card in data['bulk']['main']:
-            if data['bulk']['main'][card]['name'] in search_list:
-                owned_cards.append(data['bulk']['main'][card]['name'])
-        for tag in dict['recommended_cards']:
-            for card in dict['recommended_cards'][tag]:
-                if card in owned_cards:
-                    owned_dict[card] = {}
-                    owned_dict[card]['synergy'] = dict['recommended_cards'][tag][card]['synergy']
-                    owned_dict[card]['tag'] = tag
-        return owned_dict # #
-    # (useless) delet after
-
-    def _get_all_cards_for_building_(self, data):
+    def _get_all_cards_for_building_(self, load):
         cardlist = {}
+        data = self._get_edhrec_data_()
+        n_cards = 0
+        curr_count = 1
         #add cards from data
-        for tag in data['recommended_cards']:
-            for card in data['recommended_cards'][tag]:
-                tempcard = Card(card)
-                cardlist['card'] = {}
-                cardlist['card']['salt'] = tempcard.salt
-                cardlist['card']['synergy'] = data['recommended_cards'][tag][card]['synergy']
-                cardlist['card']['owned'] = False #change if in bulk
-                cardlist['card']['cmc'] = tempcard.cmc
-                cardlist['card']['price'] = tempcard.cm_price
-                cardlist['card']['types'] = tempcard.main_types #list
-                
+        deck_data = get_data('deckbuilding_data')
+
+        if load and self.commander_name in deck_data:
+            cardlist['to_buy'] = deck_data[self.commander_name]['to_buy']
+            #cardlist['owned'] = deck_data[self.commander_name]['owned']
+        else:
+            if load and self.commander_name not in deck_data:
+                deck_data[self.commander_name] = {}
+            for tag in data['recommended_cards']:
+                n_cards += len(data['recommended_cards'][tag])
+            for tag in data['recommended_cards']:
+                for card in data['recommended_cards'][tag]:
+                    print(f'Importing suggested cards: {curr_count/n_cards*100}%')
+                    tempcard = Card(card)
+                    cardlist[card] = {}
+                    try:
+                        cardlist[card]['salt'] = tempcard.salt
+                    except:
+                        cardlist[card]['salt'] = None
+                    cardlist[card]['synergy'] = data['recommended_cards'][tag][card]['synergy']
+                    cardlist[card]['owned'] = False #change if in bulk
+                    try:
+                        cardlist[card]['cmc'] = tempcard.cmc
+                    except:
+                        cardlist[card]['cmc'] = None
+                        print('card_cmc', tempcard.name)
+                    try:
+                        cardlist[card]['price'] = tempcard.cm_price
+                    except:
+                        cardlist[card]['price'] = None
+                    try:
+                        cardlist[card]['types'] = tempcard.main_types #list
+
+                    except:
+                        cardlist[card]['types'] = None #list
+                    try:
+                        cardlist[card]['rank'] = tempcard.edhrec_rank
+                    except:
+                        cardlist[card]['rank'] = tempcard.edhrec_rank
+                    cardlist[card]['tag'] = tag
+                    del tempcard
+                    curr_count+=1
+
+        if self.commander in deck_data and len(deck_data[self.commander_name])>1:
+            bulkdata = get_data()['bulk']
+            commander_colors = self.commander.color_identity
+            unusable_list  = ['token', 'emblem', 'planar', 'double_faced_token']
+            # get owned cards
+
+            n_cards = 0
+            curr_count = 0
+            for subfolder in bulkdata:
+                for card in bulkdata[subfolder]:
+                    n_cards +=1
+            print(n_cards)
+            for subfolder in bulkdata:
+                for card in bulkdata[subfolder]:
+                    card = bulkdata[subfolder][card]
+                    try:
+                        curr_count +=1
+                        print(f'iterating over bulk ({curr_count/n_cards*100}%)')
+                        print(card['name'])
+                        if card['legality']['commander'] == 'legal' and card['layout'] not in unusable_list:
+                            legal = True
+                            for color in card['color_identity']:
+                                if color not in commander_colors:
+                                    legal = False
+                        if legal:
+                            if card['name'] in cardlist:
+                                cardlist[card['name']]['owned'] = True
+                            else:
+                                tempcard = Card(card['name'])
+                                cardlist[tempcard.name] = {}
+                                try:
+                                    cardlist[tempcard.name]['salt'] = tempcard.salt
+                                except:
+                                    cardlist[tempcard.name]['salt'] = None
+                                cardlist[tempcard.name]['synergy'] = None
+                                cardlist[tempcard.name]['owned'] = True  # change if in bulk
+                                cardlist[tempcard.name]['cmc'] = tempcard.cmc
+                                try:
+                                    cardlist[tempcard.name]['price'] = tempcard.cm_price
+                                except:
+                                    cardlist[tempcard.name]['price'] = None
+                                try:
+                                    cardlist[tempcard.name]['types'] = tempcard.main_types  # list
+                                except:
+                                    cardlist[tempcard.name]['types'] = []
+                                    print(tempcard.name)
+                                try:
+                                    cardlist[tempcard.name]['rank'] = tempcard.edhrec_rank
+                                except:
+                                    cardlist[tempcard.name]['rank'] = None
+                                del tempcard
+                    except:
+                        print(f'Problem Loading {card}')
+                    del data
+        dump_data(deck_data, file_path='deckbuilding_data')
+        print(deck_data)
+        del deck_data
+        return cardlist
+    def generate_deck(self, budget, synergy_weight=1, salt_weight=1, rank_weight=-0.5, price_weight=0.2, load=False):
+
+        cardlist = self._get_all_cards_for_building_(load)
+        for card_name in cardlist:
+            card = cardlist[card_name]
+            scores = self._get_card_score_to_build_(card, synergy_weight, salt_weight, rank_weight, price_weight)
+            relative_score = scores[1]
+            absolute_score = scores[0]
+            return_message = scores[2]
+            if len(return_message)>1:
+                print('the following Attributes for ', card_name, 'were not found:', return_message)
+            cardlist[card_name]['absolute_score'] = absolute_score
+            cardlist[card_name]['relative_score'] = relative_score
+        #cardlist = dict(sorted(cardlist.items(), key=lambda item: item[1]['owned'], reverse=False))
+        to_buy = {}
+        owned = {}
+        for card in cardlist:
+            if not cardlist[card]['owned']:
+                to_buy[card] = cardlist[card]
+            else:
+                owned[card] = cardlist[card]
+            to_buy = dict(sorted(to_buy.items(), key=lambda item: item[1]['relative_score'], reverse=False))
+        for card in to_buy:
+            print(card, to_buy[card]['relative_score'], to_buy[card]['rank'], to_buy[card]['salt'], to_buy[card]['synergy'])
+        # save for testing
+        data = get_data('deckbuilding_data')
+        print(data)
+        data[self.commander_name] = {}
+        data[self.commander_name]['owned'] = owned
+        data[self.commander_name]['to_buy'] = to_buy
+        print(data)
+        dump_data(data, 'deckbuilding_data')
+    def _get_card_score_to_build_(self, card:dict, synergy_weight, salt_weight, rank_weight, price_weight): # returns absolute score and /eur
+        attributes = ['salt', 'rank', 'price', 'synergy']
+        default_values = {'salt': 0, 'rank': 30000, 'price': float('inf'), 'synergy': 0.0}  # Define sensible defaults
+
+        # Ensure all attributes are present in the card
+        for attribute in attributes:
+            if attribute not in card:
+                card[attribute] = default_values[attribute]
+
+        # Extract attributes
+        salt = card['salt']  # Community-based rating (0-4)
+        rank = card['rank']  # The rank of the card by EDHRec
+        price = card['price']
+        synergy = card['synergy'] # difference between general usage and specific usage for this certain commander (-1, 1)
+
+        return_message = f''
+
+        if not salt:
+            salt = 0
+            return_message = return_message+' salt score'
+        if not rank:
+            rank = 30000
+            return_message = return_message+' EDHRec rank'
+
+        normalized_salt = (salt-(0))/4-(1)
+        weighted_salt = normalized_salt*salt_weight
+
+        if synergy:
+            synergy += 0.3
+            normalized_synergy = (synergy-(-1))/1-(-1)
+            weighted_synergy = normalized_synergy* synergy_weight
+        else:
+            weighted_synergy = 0
+
+
+
+        owned = card['owned']
+        normalized_rank = (rank - (1)) / 30000 - 1
+        weighted_rank = normalized_rank * rank_weight
+
+        absolute_score = weighted_salt + weighted_synergy + weighted_rank
+        if not owned and price:
+            relative_score = absolute_score/(float(price)+1.7)*price_weight
+        elif not owned and not price:
+            relative_score = absolute_score/10
+            print(f'no price for {card['name']}')
+        else:
+            relative_score = None
+        # generate return massage
+
+
+        return absolute_score, relative_score, return_message
+    #def add_card_to_generatingdata(self, card):

@@ -38,4 +38,3 @@ def create_necessairy_files():
             f.write('{}')
 create_necessairy_files()
 create_data_strucure()
-print(get_card_data_path())

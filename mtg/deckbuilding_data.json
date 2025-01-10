@@ -1,0 +1,3718 @@
+{
+    "Niv-Mizzet, Parun": {
+        "to_buy": {
+            "Uncharted Voyage": {
+                "salt": 0,
+                "synergy": 0.0,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "0.15",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 19174,
+                "tag": "newcards"
+            },
+            "Niv-Mizzet, Visionary": {
+                "salt": 0,
+                "synergy": 0.51,
+                "owned": false,
+                "cmc": 6.0,
+                "price": "4.66",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 8020,
+                "tag": "newcards"
+            },
+            "Incinerating Blast": {
+                "salt": 0,
+                "synergy": 0.34,
+                "owned": false,
+                "cmc": 5.0,
+                "price": "0.07",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 18045,
+                "tag": "newcards"
+            },
+            "Rite of the Dragoncaller": {
+                "salt": 0,
+                "synergy": 0.21,
+                "owned": false,
+                "cmc": 6.0,
+                "price": "5.07",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 8610,
+                "tag": "newcards"
+            },
+            "Crackling Cyclops": {
+                "salt": 0,
+                "synergy": -0.04,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.11",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 17341,
+                "tag": "newcards"
+            },
+            "Curiosity": {
+                "salt": 0.4379084967320263,
+                "synergy": 0.54,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "0.16",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 840,
+                "tag": "highsynergycards"
+            },
+            "Ophidian Eye": {
+                "salt": 0.3068181818181818,
+                "synergy": 0.44,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "2.02",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 2669,
+                "tag": "highsynergycards"
+            },
+            "Strix Lookout": {
+                "salt": 0,
+                "synergy": 0.42,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.10",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 16568,
+                "tag": "highsynergycards"
+            },
+            "Tandem Lookout": {
+                "salt": 0.1935483870967742,
+                "synergy": 0.39,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.23",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 2778,
+                "tag": "highsynergycards"
+            },
+            "Niv-Mizzet, the Firemind": {
+                "salt": 0.688679245283019,
+                "synergy": 0.31,
+                "owned": false,
+                "cmc": 6.0,
+                "price": "0.62",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 1858,
+                "tag": "highsynergycards"
+            },
+            "Refute": {
+                "salt": 0,
+                "synergy": 0.3,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.10",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 7919,
+                "tag": "highsynergycards"
+            },
+            "Guttersnipe": {
+                "salt": 0.5240641711229945,
+                "synergy": 0.29,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.10",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 391,
+                "tag": "highsynergycards"
+            },
+            "Brainstorm": {
+                "salt": 0.25656565656565683,
+                "synergy": 0.29,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "2.19",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 56,
+                "tag": "highsynergycards"
+            },
+            "Izzet Charm": {
+                "salt": 0.16666666666666666,
+                "synergy": 0.28,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.14",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 1283,
+                "tag": "highsynergycards"
+            },
+            "Opt": {
+                "salt": 0.06508875739644973,
+                "synergy": 0.27,
+                "owned": false,
+                "cmc": 1.0,
+                "price": 0.08,
+                "types": [
+                    "Instant"
+                ],
+                "rank": 210,
+                "tag": "highsynergycards"
+            },
+            "Counterspell": {
+                "salt": 0.8853503184713378,
+                "synergy": 0.19,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "1.13",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 17,
+                "tag": "topcards"
+            },
+            "Frantic Search": {
+                "salt": 0.3069498069498069,
+                "synergy": 0.23,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.15",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 140,
+                "tag": "topcards"
+            },
+            "Preordain": {
+                "salt": 0.1031746031746032,
+                "synergy": 0.22,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "1.82",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 177,
+                "tag": "topcards"
+            },
+            "Ponder": {
+                "salt": 0.16880733944954124,
+                "synergy": 0.19,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "7.04",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 132,
+                "tag": "topcards"
+            },
+            "Goblin Electromancer": {
+                "salt": 0.2240437158469945,
+                "synergy": 0.22,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.08",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 661,
+                "tag": "topcards"
+            },
+            "Negate": {
+                "salt": 0.4854368932038834,
+                "synergy": 0.17,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.09",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 49,
+                "tag": "topcards"
+            },
+            "Faithless Looting": {
+                "salt": 0.13193116634799235,
+                "synergy": 0.21,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "0.40",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 90,
+                "tag": "topcards"
+            },
+            "Lightning Bolt": {
+                "salt": 0.19417475728155334,
+                "synergy": 0.21,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "1.38",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 180,
+                "tag": "topcards"
+            },
+            "Boltwave": {
+                "salt": 0,
+                "synergy": -0.04,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "2.65",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 6698,
+                "tag": "topcards"
+            },
+            "Blasphemous Act": {
+                "salt": 0.657250470809792,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 9.0,
+                "price": "2.49",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 25,
+                "tag": "topcards"
+            },
+            "Storm-Kiln Artist": {
+                "salt": 0.7384305835010062,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "1.10",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 237,
+                "tag": "creatures"
+            },
+            "Archmage Emeritus": {
+                "salt": 0.45114345114345117,
+                "synergy": 0.09,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "2.84",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 291,
+                "tag": "creatures"
+            },
+            "Coruscation Mage": {
+                "salt": 0.19148936170212766,
+                "synergy": -0.01,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.45",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 2591,
+                "tag": "creatures"
+            },
+            "Stormcatch Mentor": {
+                "salt": 0.21739130434782608,
+                "synergy": 0.02,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.21",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 3139,
+                "tag": "creatures"
+            },
+            "Talrand, Sky Summoner": {
+                "salt": 0.4669811320754718,
+                "synergy": 0.17,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "0.21",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 573,
+                "tag": "creatures"
+            },
+            "Harmonic Prodigy": {
+                "salt": 0.44505494505494503,
+                "synergy": 0.17,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "2.88",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 797,
+                "tag": "creatures"
+            },
+            "Baral, Chief of Compliance": {
+                "salt": 1.2481572481572483,
+                "synergy": 0.22,
+                "owned": false,
+                "cmc": 2.0,
+                "price": 1.36,
+                "types": [
+                    "Creature"
+                ],
+                "rank": 1008,
+                "tag": "creatures"
+            },
+            "Archmage of Runes": {
+                "salt": 0,
+                "synergy": 0.02,
+                "owned": false,
+                "cmc": 5.0,
+                "price": "1.07",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 6089,
+                "tag": "creatures"
+            },
+            "Psychosis Crawler": {
+                "salt": 0.6942675159235668,
+                "synergy": 0.21,
+                "owned": false,
+                "cmc": 5.0,
+                "price": "0.30",
+                "types": [
+                    "Creature",
+                    "Artifact"
+                ],
+                "rank": 473,
+                "tag": "creatures"
+            },
+            "Ojer Axonil, Deepest Might": {
+                "salt": 0.8212290502793296,
+                "synergy": 0.23,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "11.11",
+                "types": [
+                    "Creature",
+                    "Land"
+                ],
+                "rank": 1687,
+                "tag": "creatures"
+            },
+            "Electrostatic Field": {
+                "salt": 0.25000000000000017,
+                "synergy": 0.12,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.80",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 1148,
+                "tag": "creatures"
+            },
+            "Young Pyromancer": {
+                "salt": 0.16336633663366343,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.40",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 628,
+                "tag": "creatures"
+            },
+            "The Locust God": {
+                "salt": 0.7727272727272724,
+                "synergy": 0.16,
+                "owned": false,
+                "cmc": 6.0,
+                "price": "3.05",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 1294,
+                "tag": "creatures"
+            },
+            "Laboratory Maniac": {
+                "salt": 1.182716049382716,
+                "synergy": 0.17,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "3.29",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 633,
+                "tag": "creatures"
+            },
+            "Elementalist Adept": {
+                "salt": 0,
+                "synergy": 0.01,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.05",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 21369,
+                "tag": "creatures"
+            },
+            "Hydroelectric Specimen": {
+                "salt": 0.2452830188679245,
+                "synergy": 0.09,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.54",
+                "types": [
+                    "Creature",
+                    "Land"
+                ],
+                "rank": 1726,
+                "tag": "creatures"
+            },
+            "Erebor Flamesmith": {
+                "salt": 0.28,
+                "synergy": 0.08,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.19",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 1967,
+                "tag": "creatures"
+            },
+            "Third Path Iconoclast": {
+                "salt": 0.13636363636363644,
+                "synergy": -0.04,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.73",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 985,
+                "tag": "creatures"
+            },
+            "Ghyrson Starn, Kelermorph": {
+                "salt": 0.9047619047619045,
+                "synergy": 0.16,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "11.43",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 2883,
+                "tag": "creatures"
+            },
+            "Dockside Extortionist": {
+                "salt": 2.605299860529987,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "17.74",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 161,
+                "tag": "creatures"
+            },
+            "Torbran, Thane of Red Fell": {
+                "salt": 0.4946236559139787,
+                "synergy": 0.15,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "1.20",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 738,
+                "tag": "creatures"
+            },
+            "Ojer Pakpatiq, Deepest Epoch": {
+                "salt": 0.3961352657004831,
+                "synergy": 0.11,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "2.54",
+                "types": [
+                    "Creature",
+                    "Land"
+                ],
+                "rank": 2920,
+                "tag": "creatures"
+            },
+            "Firespitter Whelp": {
+                "salt": 0,
+                "synergy": -0.03,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.17",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 10660,
+                "tag": "creatures"
+            },
+            "Murmuring Mystic": {
+                "salt": 0.1881188118811882,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "0.30",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 1234,
+                "tag": "creatures"
+            },
+            "Imperial Recruiter": {
+                "salt": 0.7389558232931728,
+                "synergy": 0.09,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "6.36",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 433,
+                "tag": "creatures"
+            },
+            "Kessig Flamebreather": {
+                "salt": 0.17587939698492458,
+                "synergy": 0.02,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.79",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 983,
+                "tag": "creatures"
+            },
+            "Veyran, Voice of Duality": {
+                "salt": 0.7447916666666665,
+                "synergy": 0.0,
+                "owned": false,
+                "cmc": 3.0,
+                "price": 5.08,
+                "types": [
+                    "Creature"
+                ],
+                "rank": 1279,
+                "tag": "creatures"
+            },
+            "Spellskite": {
+                "salt": 0.8033707865168539,
+                "synergy": 0.11,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "5.49",
+                "types": [
+                    "Creature",
+                    "Artifact"
+                ],
+                "rank": 895,
+                "tag": "creatures"
+            },
+            "Urabrask": {
+                "salt": 0.6094674556213016,
+                "synergy": 0.01,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "11.59",
+                "types": [
+                    "Creature",
+                    "Enchantment"
+                ],
+                "rank": 1188,
+                "tag": "creatures"
+            },
+            "Crackling Drake": {
+                "salt": 0.375,
+                "synergy": 0.11,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "0.12",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 7537,
+                "tag": "creatures"
+            },
+            "Haughty Djinn": {
+                "salt": 0.32456140350877194,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "2.08",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 2297,
+                "tag": "creatures"
+            },
+            "Ragavan, Nimble Pilferer": {
+                "salt": 1.582432432432433,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "26.26",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 299,
+                "tag": "creatures"
+            },
+            "Thermo-Alchemist": {
+                "salt": 0.20903954802259886,
+                "synergy": 0.01,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.13",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 1138,
+                "tag": "creatures"
+            },
+            "Icewind Elemental": {
+                "salt": 0,
+                "synergy": 0.09,
+                "owned": false,
+                "cmc": 5.0,
+                "price": "0.07",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 23147,
+                "tag": "creatures"
+            },
+            "Pinnacle Monk": {
+                "salt": 0.20754716981132076,
+                "synergy": -0.05,
+                "owned": false,
+                "cmc": 5.0,
+                "price": "0.33",
+                "types": [
+                    "Creature",
+                    "Land"
+                ],
+                "rank": 1682,
+                "tag": "creatures"
+            },
+            "Solphim, Mayhem Dominus": {
+                "salt": 0.7727272727272727,
+                "synergy": 0.08,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "20.42",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 679,
+                "tag": "creatures"
+            },
+            "Homunculus Horde": {
+                "salt": 0,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "0.37",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 9231,
+                "tag": "creatures"
+            },
+            "Thunderclap Drake": {
+                "salt": 0.3225806451612902,
+                "synergy": -0.04,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "2.89",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 3245,
+                "tag": "creatures"
+            },
+            "Glint-Horn Buccaneer": {
+                "salt": 0.37037037037037035,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "1.10",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 1907,
+                "tag": "creatures"
+            },
+            "Body of Knowledge": {
+                "salt": 0.21551724137931033,
+                "synergy": 0.09,
+                "owned": false,
+                "cmc": 5.0,
+                "price": "0.20",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 2245,
+                "tag": "creatures"
+            },
+            "Scrawling Crawler": {
+                "salt": 0,
+                "synergy": 0.01,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "2.91",
+                "types": [
+                    "Creature",
+                    "Artifact"
+                ],
+                "rank": 4485,
+                "tag": "creatures"
+            },
+            "Dualcaster Mage": {
+                "salt": 0.53960396039604,
+                "synergy": 0.0,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.59",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 595,
+                "tag": "creatures"
+            },
+            "Faerie Mastermind": {
+                "salt": 0.6560846560846564,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "16.07",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 470,
+                "tag": "creatures"
+            },
+            "Pollywog Prodigy": {
+                "salt": 0.48717948717948717,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "17.14",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 1944,
+                "tag": "creatures"
+            },
+            "Exalted Flamer of Tzeentch": {
+                "salt": 0.39655172413793105,
+                "synergy": -0.02,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "10.98",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 2128,
+                "tag": "creatures"
+            },
+            "Triskaidekaphile": {
+                "salt": 0.5163043478260866,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.53",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 1281,
+                "tag": "creatures"
+            },
+            "Firebrand Archer": {
+                "salt": 0.18556701030927836,
+                "synergy": -0.02,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.10",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 1100,
+                "tag": "creatures"
+            },
+            "Mocking Sprite": {
+                "salt": 0.25581395348837205,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.05",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 3350,
+                "tag": "creatures"
+            },
+            "Consecrated Sphinx": {
+                "salt": 1.6258992805755401,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 6.0,
+                "price": "20.15",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 582,
+                "tag": "creatures"
+            },
+            "Niv-Mizzet, Dracogenius": {
+                "salt": 0.6428571428571429,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 6.0,
+                "price": "0.74",
+                "types": [
+                    "Creature"
+                ],
+                "rank": 7182,
+                "tag": "creatures"
+            },
+            "Arcane Denial": {
+                "salt": 0.6235741444866916,
+                "synergy": 0.15,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "2.02",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 63,
+                "tag": "instants"
+            },
+            "An Offer You Can't Refuse": {
+                "salt": 0.7005988023952093,
+                "synergy": 0.13,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "1.18",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 60,
+                "tag": "instants"
+            },
+            "Cyclonic Rift": {
+                "salt": 2.3954802259887,
+                "synergy": 0.1,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "26.56",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 36,
+                "tag": "instants"
+            },
+            "Pongify": {
+                "salt": 0.4981481481481482,
+                "synergy": 0.12,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "2.93",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 154,
+                "tag": "instants"
+            },
+            "Mystical Tutor": {
+                "salt": 1.0828828828828825,
+                "synergy": 0.14,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "7.91",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 108,
+                "tag": "instants"
+            },
+            "Consider": {
+                "salt": 0.05699481865284974,
+                "synergy": 0.17,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "0.89",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 441,
+                "tag": "instants"
+            },
+            "Chaos Warp": {
+                "salt": 0.47953216374269003,
+                "synergy": -0.09,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.80",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 29,
+                "tag": "instants"
+            },
+            "Flame of Anor": {
+                "salt": 0.34375000000000006,
+                "synergy": 0.2,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "4.64",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 1968,
+                "tag": "instants"
+            },
+            "Rapid Hybridization": {
+                "salt": 0.41338582677165353,
+                "synergy": 0.16,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "3.05",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 230,
+                "tag": "instants"
+            },
+            "Swan Song": {
+                "salt": 0.8876404494382024,
+                "synergy": 0.13,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "10.93",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 95,
+                "tag": "instants"
+            },
+            "Abrade": {
+                "salt": 0.14849624060150377,
+                "synergy": 0.12,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.10",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 163,
+                "tag": "instants"
+            },
+            "Thrill of Possibility": {
+                "salt": 0.028225806451612916,
+                "synergy": 0.18,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.05",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 195,
+                "tag": "instants"
+            },
+            "Snap": {
+                "salt": 0.484375,
+                "synergy": 0.1,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.86",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 341,
+                "tag": "instants"
+            },
+            "Fiery Annihilation": {
+                "salt": 0,
+                "synergy": 0.09,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.14",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 17116,
+                "tag": "instants"
+            },
+            "Fierce Guardianship": {
+                "salt": 2.3584637268847803,
+                "synergy": 0.08,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "36.58",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 81,
+                "tag": "instants"
+            },
+            "Quick Study": {
+                "salt": 0.08333333333333331,
+                "synergy": 0.21,
+                "owned": false,
+                "cmc": 3.0,
+                "price": 0.19,
+                "types": [
+                    "Instant"
+                ],
+                "rank": 2546,
+                "tag": "instants"
+            },
+            "Mana Drain": {
+                "salt": 1.9715447154471564,
+                "synergy": 0.1,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "34.13",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 104,
+                "tag": "instants"
+            },
+            "Strix Serenade": {
+                "salt": 0.552941176470588,
+                "synergy": 0.19,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "1.57",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 1616,
+                "tag": "instants"
+            },
+            "Untimely Malfunction": {
+                "salt": 0,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "1.89",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 1716,
+                "tag": "instants"
+            },
+            "Deflecting Swat": {
+                "salt": 1.7448377581120946,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "36.05",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 98,
+                "tag": "instants"
+            },
+            "Invert Polarity": {
+                "salt": 0.5434782608695652,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "1.45",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 3893,
+                "tag": "instants"
+            },
+            "Dispel": {
+                "salt": 0.30645161290322587,
+                "synergy": 0.17,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "0.40",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 618,
+                "tag": "instants"
+            },
+            "Force of Will": {
+                "salt": 1.9873239436619696,
+                "synergy": 0.1,
+                "owned": false,
+                "cmc": 5.0,
+                "price": "55.54",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 170,
+                "tag": "instants"
+            },
+            "Sink into Stupor": {
+                "salt": 0.2872340425531915,
+                "synergy": 0.02,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "5.55",
+                "types": [
+                    "Land",
+                    "Instant"
+                ],
+                "rank": 687,
+                "tag": "instants"
+            },
+            "Rewind": {
+                "salt": 0.6157894736842107,
+                "synergy": 0.15,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "0.21",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 1013,
+                "tag": "instants"
+            },
+            "Force of Negation": {
+                "salt": 1.921237693389592,
+                "synergy": 0.12,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "53.82",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 238,
+                "tag": "instants"
+            },
+            "Dig Through Time": {
+                "salt": 0.40119760479041916,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 8.0,
+                "price": "0.20",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 558,
+                "tag": "instants"
+            },
+            "Muddle the Mixture": {
+                "salt": 0.3489583333333333,
+                "synergy": 0.09,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.98",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 557,
+                "tag": "instants"
+            },
+            "Reality Shift": {
+                "salt": 0.3817097415506959,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.33",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 244,
+                "tag": "instants"
+            },
+            "Valakut Awakening": {
+                "salt": 0.26153846153846155,
+                "synergy": 0.09,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "8.46",
+                "types": [
+                    "Land",
+                    "Instant"
+                ],
+                "rank": 413,
+                "tag": "instants"
+            },
+            "Prismari Command": {
+                "salt": 0.17277486910994763,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "1.72",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 1426,
+                "tag": "instants"
+            },
+            "Pact of Negation": {
+                "salt": 1.442389758179233,
+                "synergy": 0.11,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "10.70",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 313,
+                "tag": "instants"
+            },
+            "Brainsurge": {
+                "salt": 0.02564102564102564,
+                "synergy": 0.12,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.33",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 3316,
+                "tag": "instants"
+            },
+            "Spell Pierce": {
+                "salt": 0.44827586206896564,
+                "synergy": 0.12,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "0.25",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 775,
+                "tag": "instants"
+            },
+            "Expansion // Explosion": {
+                "salt": 0.28846153846153844,
+                "synergy": 0.1,
+                "owned": false,
+                "cmc": 6.0,
+                "price": "0.26",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 3000,
+                "tag": "instants"
+            },
+            "Big Score": {
+                "salt": 0.1431372549019608,
+                "synergy": -0.04,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "1.39",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 240,
+                "tag": "instants"
+            },
+            "Misdirection": {
+                "salt": 0.8942307692307693,
+                "synergy": 0.14,
+                "owned": false,
+                "cmc": 5.0,
+                "price": "4.55",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 1686,
+                "tag": "instants"
+            },
+            "Narset's Reversal": {
+                "salt": 0.7727272727272727,
+                "synergy": 0.08,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "4.56",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 822,
+                "tag": "instants"
+            },
+            "Aetherize": {
+                "salt": 0.7897435897435897,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "0.58",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 480,
+                "tag": "instants"
+            },
+            "Flusterstorm": {
+                "salt": 0.8504854368932037,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "6.47",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 339,
+                "tag": "instants"
+            },
+            "Ionize": {
+                "salt": 0.25,
+                "synergy": 0.13,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.23",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 6361,
+                "tag": "instants"
+            },
+            "Counterflux": {
+                "salt": 0.43137254901960786,
+                "synergy": 0.1,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.56",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 3740,
+                "tag": "instants"
+            },
+            "Pyroblast": {
+                "salt": 0.47991543340380594,
+                "synergy": 0.09,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "5.32",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 405,
+                "tag": "instants"
+            },
+            "Red Elemental Blast": {
+                "salt": 0.4702495201535508,
+                "synergy": 0.09,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "8.35",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 379,
+                "tag": "instants"
+            },
+            "Unwind": {
+                "salt": 0.5112359550561796,
+                "synergy": 0.08,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.42",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 1080,
+                "tag": "instants"
+            },
+            "Demand Answers": {
+                "salt": 0.04098360655737707,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.31",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 841,
+                "tag": "instants"
+            },
+            "Mental Misstep": {
+                "salt": 0.7719298245614032,
+                "synergy": 0.08,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "5.71",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 423,
+                "tag": "instants"
+            },
+            "Delay": {
+                "salt": 0.34594594594594597,
+                "synergy": 0.09,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "2.18",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 1146,
+                "tag": "instants"
+            },
+            "Tolarian Winds": {
+                "salt": 0.10144927536231882,
+                "synergy": 0.08,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.66",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 3502,
+                "tag": "instants"
+            },
+            "Fateful Showdown": {
+                "salt": 0.1111111111111111,
+                "synergy": 0.09,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "0.20",
+                "types": [
+                    "Instant"
+                ],
+                "rank": 7554,
+                "tag": "instants"
+            },
+            "Windfall": {
+                "salt": 0.8931034482758621,
+                "synergy": 0.2,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "2.44",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 129,
+                "tag": "sorceries"
+            },
+            "Gitaxian Probe": {
+                "salt": 0.5518672199170128,
+                "synergy": 0.19,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "2.82",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 448,
+                "tag": "sorceries"
+            },
+            "Vandalblast": {
+                "salt": 0.8580750407830344,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "2.35",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 99,
+                "tag": "sorceries"
+            },
+            "Serum Visions": {
+                "salt": 0.06842105263157901,
+                "synergy": 0.14,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "0.59",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 654,
+                "tag": "sorceries"
+            },
+            "Treasure Cruise": {
+                "salt": 0.4041450777202073,
+                "synergy": 0.13,
+                "owned": false,
+                "cmc": 8.0,
+                "price": "0.14",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 533,
+                "tag": "sorceries"
+            },
+            "Gamble": {
+                "salt": 0.48686868686868645,
+                "synergy": 0.08,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "5.52",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 204,
+                "tag": "sorceries"
+            },
+            "Expressive Iteration": {
+                "salt": 0.2287234042553193,
+                "synergy": -0.02,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.95",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 1011,
+                "tag": "sorceries"
+            },
+            "Jeska's Will": {
+                "salt": 1.4342465753424651,
+                "synergy": -0.12,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "20.07",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 87,
+                "tag": "sorceries"
+            },
+            "Solve the Equation": {
+                "salt": 0.502392344497608,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "2.21",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 658,
+                "tag": "sorceries"
+            },
+            "Mizzix's Mastery": {
+                "salt": 0.6227544910179642,
+                "synergy": -0.01,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "0.82",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 899,
+                "tag": "sorceries"
+            },
+            "Mana Geyser": {
+                "salt": 0.7320388349514563,
+                "synergy": -0.06,
+                "owned": false,
+                "cmc": 5.0,
+                "price": "3.02",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 360,
+                "tag": "sorceries"
+            },
+            "L\u00f3rien Revealed": {
+                "salt": 0.18556701030927839,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 5.0,
+                "price": "2.05",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 1380,
+                "tag": "sorceries"
+            },
+            "Enter the Enigma": {
+                "salt": 0,
+                "synergy": -0.04,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "0.18",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 4636,
+                "tag": "sorceries"
+            },
+            "Winds of Change": {
+                "salt": 0.9042553191489362,
+                "synergy": 0.1,
+                "owned": false,
+                "cmc": 1.0,
+                "price": 4.39,
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 2485,
+                "tag": "sorceries"
+            },
+            "Grapeshot": {
+                "salt": 0.6802030456852792,
+                "synergy": -0.07,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.11",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 697,
+                "tag": "sorceries"
+            },
+            "Clear the Mind": {
+                "salt": 0.2222222222222222,
+                "synergy": 0.11,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.18",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 5758,
+                "tag": "sorceries"
+            },
+            "Chain Reaction": {
+                "salt": 0.23684210526315788,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "0.36",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 601,
+                "tag": "sorceries"
+            },
+            "Sea Gate Restoration": {
+                "salt": 0.39928057553956836,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 7.0,
+                "price": "33.60",
+                "types": [
+                    "Land",
+                    "Sorcery"
+                ],
+                "rank": 596,
+                "tag": "sorceries"
+            },
+            "Lock and Load": {
+                "salt": 0.1111111111111111,
+                "synergy": -0.02,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.49",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 5840,
+                "tag": "sorceries"
+            },
+            "Grab the Prize": {
+                "salt": 0,
+                "synergy": 0.02,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.21",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 4352,
+                "tag": "sorceries"
+            },
+            "Mystic Retrieval": {
+                "salt": 0.1111111111111111,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "0.22",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 4224,
+                "tag": "sorceries"
+            },
+            "Mizzium Mortars": {
+                "salt": 0.2621359223300972,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.23",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 2003,
+                "tag": "sorceries"
+            },
+            "Lunar Insight": {
+                "salt": 0,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.26",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 12496,
+                "tag": "sorceries"
+            },
+            "Beacon Bolt": {
+                "salt": 0.2727272727272727,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.10",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 9859,
+                "tag": "sorceries"
+            },
+            "Gandalf's Sanction": {
+                "salt": 0.375,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.15",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 7701,
+                "tag": "sorceries"
+            },
+            "Divination": {
+                "salt": 0.1,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.09",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 5528,
+                "tag": "sorceries"
+            },
+            "Echo of Eons": {
+                "salt": 0.7666666666666667,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 6.0,
+                "price": "15.47",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 2258,
+                "tag": "sorceries"
+            },
+            "Wheel of Fortune": {
+                "salt": 1.1937046004842615,
+                "synergy": 0.02,
+                "owned": false,
+                "cmc": 3.0,
+                "price": 152.36,
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 564,
+                "tag": "sorceries"
+            },
+            "Cathartic Reunion": {
+                "salt": 0.08000000000000002,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.17",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 854,
+                "tag": "sorceries"
+            },
+            "Deep Analysis": {
+                "salt": 0.03846153846153845,
+                "synergy": 0.02,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "0.14",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 1462,
+                "tag": "sorceries"
+            },
+            "Commit // Memory": {
+                "salt": 0.24242424242424243,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 10.0,
+                "price": "0.27",
+                "types": [
+                    "Instant",
+                    "Sorcery"
+                ],
+                "rank": 2316,
+                "tag": "sorceries"
+            },
+            "Tormenting Voice": {
+                "salt": 0.04597701149425287,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.04",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 1127,
+                "tag": "sorceries"
+            },
+            "Curse of the Swine": {
+                "salt": 0.33720930232558133,
+                "synergy": -0.0,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.28",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 656,
+                "tag": "sorceries"
+            },
+            "Fabricate": {
+                "salt": 0.6562499999999998,
+                "synergy": -0.03,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "3.35",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 429,
+                "tag": "sorceries"
+            },
+            "Compulsive Research": {
+                "salt": 0.11538461538461539,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.06",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 4254,
+                "tag": "sorceries"
+            },
+            "Molten Psyche": {
+                "salt": 0.7457627118644069,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "2.04",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 3244,
+                "tag": "sorceries"
+            },
+            "Sleight of Hand": {
+                "salt": 0.04878048780487805,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "0.20",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 4222,
+                "tag": "sorceries"
+            },
+            "Shatterskull Smashing": {
+                "salt": 0.25925925925925936,
+                "synergy": 0.01,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "6.84",
+                "types": [
+                    "Land",
+                    "Sorcery"
+                ],
+                "rank": 957,
+                "tag": "sorceries"
+            },
+            "Finale of Revelation": {
+                "salt": 0.25438596491228066,
+                "synergy": -0.0,
+                "owned": false,
+                "cmc": 2.0,
+                "price": 0.21,
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 1458,
+                "tag": "sorceries"
+            },
+            "Chart a Course": {
+                "salt": 0.06451612903225806,
+                "synergy": 0.02,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.15",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 1936,
+                "tag": "sorceries"
+            },
+            "Merchant Scroll": {
+                "salt": 0.5555555555555555,
+                "synergy": 0.01,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "3.80",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 1950,
+                "tag": "sorceries"
+            },
+            "Time Reversal": {
+                "salt": 1.0,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 5.0,
+                "price": "1.79",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 4838,
+                "tag": "sorceries"
+            },
+            "Strike It Rich": {
+                "salt": 0.08695652173913043,
+                "synergy": -0.02,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "0.33",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 1563,
+                "tag": "sorceries"
+            },
+            "Wheel of Misfortune": {
+                "salt": 0.9127906976744186,
+                "synergy": 0.01,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "5.51",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 733,
+                "tag": "sorceries"
+            },
+            "Ancestral Reminiscence": {
+                "salt": 0.15909090909090912,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "0.05",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 12331,
+                "tag": "sorceries"
+            },
+            "Past in Flames": {
+                "salt": 0.518918918918919,
+                "synergy": -0.06,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "2.09",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 1204,
+                "tag": "sorceries"
+            },
+            "Epic Experiment": {
+                "salt": 0.37931034482758635,
+                "synergy": -0.02,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.28",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 4816,
+                "tag": "sorceries"
+            },
+            "Timetwister": {
+                "salt": 1.7232704402515724,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 3.0,
+                "price": 2946.83,
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 2510,
+                "tag": "sorceries"
+            },
+            "Ravenform": {
+                "salt": 0.3072289156626507,
+                "synergy": 0.01,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.15",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 1127,
+                "tag": "sorceries"
+            },
+            "Into the Fire": {
+                "salt": 0.0,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.27",
+                "types": [
+                    "Sorcery"
+                ],
+                "rank": 4861,
+                "tag": "sorceries"
+            },
+            "Swiftfoot Boots": {
+                "salt": 0.3934426229508196,
+                "synergy": -0.05,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "1.34",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 12,
+                "tag": "utilityartifacts"
+            },
+            "Lightning Greaves": {
+                "salt": 0.6370808678500982,
+                "synergy": -0.08,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "4.92",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 13,
+                "tag": "utilityartifacts"
+            },
+            "The One Ring": {
+                "salt": 2.6968838526912173,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "49.86",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 110,
+                "tag": "utilityartifacts"
+            },
+            "Sensei's Divining Top": {
+                "salt": 1.4111888111888127,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "17.81",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 173,
+                "tag": "utilityartifacts"
+            },
+            "Isochron Scepter": {
+                "salt": 1.5139240506329115,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "8.82",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 578,
+                "tag": "utilityartifacts"
+            },
+            "Wayfarer's Bauble": {
+                "salt": 0.06508875739644976,
+                "synergy": -0.02,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "0.30",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 59,
+                "tag": "utilityartifacts"
+            },
+            "Basilisk Collar": {
+                "salt": 0.4415584415584415,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "1.44",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 325,
+                "tag": "utilityartifacts"
+            },
+            "Mindsplice Apparatus": {
+                "salt": 0.33944954128440374,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "0.62",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 1859,
+                "tag": "utilityartifacts"
+            },
+            "Elixir of Immortality": {
+                "salt": 0.12222222222222234,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "0.32",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 986,
+                "tag": "utilityartifacts"
+            },
+            "Grafdigger's Cage": {
+                "salt": 1.0760869565217381,
+                "synergy": 0.08,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "2.11",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 1482,
+                "tag": "utilityartifacts"
+            },
+            "Primal Amulet": {
+                "salt": 0.23129251700680276,
+                "synergy": 0.02,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "6.43",
+                "types": [
+                    "Land",
+                    "Artifact"
+                ],
+                "rank": 1443,
+                "tag": "utilityartifacts"
+            },
+            "The Magic Mirror": {
+                "salt": 0.18840579710144928,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 9.0,
+                "price": "2.18",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 3504,
+                "tag": "utilityartifacts"
+            },
+            "Teferi's Puzzle Box": {
+                "salt": 1.3731343283582098,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "3.05",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 1598,
+                "tag": "utilityartifacts"
+            },
+            "Cursed Totem": {
+                "salt": 1.560975609756097,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "1.42",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 1883,
+                "tag": "utilityartifacts"
+            },
+            "Spellbook": {
+                "salt": 0.12931034482758624,
+                "synergy": 0.02,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.58",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 1872,
+                "tag": "utilityartifacts"
+            },
+            "Rhystic Study": {
+                "salt": 2.607954545454544,
+                "synergy": 0.16,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "37.39",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 37,
+                "tag": "enchantments"
+            },
+            "Mystic Remora": {
+                "salt": 1.5578512396694209,
+                "synergy": 0.14,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "6.65",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 82,
+                "tag": "enchantments"
+            },
+            "Fiery Inscription": {
+                "salt": 0.2916666666666667,
+                "synergy": 0.14,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.22",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 1047,
+                "tag": "enchantments"
+            },
+            "Teferi's Ageless Insight": {
+                "salt": 0.44692737430167595,
+                "synergy": 0.18,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "2.02",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 549,
+                "tag": "enchantments"
+            },
+            "Wizard Class": {
+                "salt": 0.1428571428571429,
+                "synergy": 0.11,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "2.07",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 677,
+                "tag": "enchantments"
+            },
+            "Thousand-Year Storm": {
+                "salt": 0.8888888888888888,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 6.0,
+                "price": "0.88",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 1514,
+                "tag": "enchantments"
+            },
+            "Roaring Furnace // Steaming Sauna": {
+                "salt": 0,
+                "synergy": 0.09,
+                "owned": false,
+                "cmc": 7.0,
+                "price": "0.29",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 8713,
+                "tag": "enchantments"
+            },
+            "Propaganda": {
+                "salt": 1.23319027181688,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "2.20",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 150,
+                "tag": "enchantments"
+            },
+            "Case of the Ransacked Lab": {
+                "salt": 0.203125,
+                "synergy": 0.0,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.65",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 2953,
+                "tag": "enchantments"
+            },
+            "Artist's Talent": {
+                "salt": 0.26229508196721313,
+                "synergy": -0.0,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "6.35",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 4876,
+                "tag": "enchantments"
+            },
+            "Jace's Sanctum": {
+                "salt": 0.23000000000000004,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "1.10",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 2310,
+                "tag": "enchantments"
+            },
+            "Ominous Seas": {
+                "salt": 0.22885572139303503,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.94",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 1118,
+                "tag": "enchantments"
+            },
+            "Firemind's Research": {
+                "salt": 0.2727272727272727,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 2.0,
+                "price": 0.16,
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 10456,
+                "tag": "enchantments"
+            },
+            "Powerbalance": {
+                "salt": 0.4615384615384616,
+                "synergy": 0.01,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.28",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 3518,
+                "tag": "enchantments"
+            },
+            "Underworld Breach": {
+                "salt": 1.6191176470588242,
+                "synergy": -0.04,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "9.84",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 419,
+                "tag": "enchantments"
+            },
+            "Sorcerer Class": {
+                "salt": 0.07407407407407407,
+                "synergy": -0.03,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "1.07",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 2960,
+                "tag": "enchantments"
+            },
+            "Proft's Eidetic Memory": {
+                "salt": 0.39705882352941174,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "1.56",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 3269,
+                "tag": "enchantments"
+            },
+            "Stormchaser's Talent": {
+                "salt": 0.1,
+                "synergy": -0.13,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "8.22",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 7076,
+                "tag": "enchantments"
+            },
+            "Leyline of Anticipation": {
+                "salt": 0.8947368421052632,
+                "synergy": 0.02,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "1.69",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 641,
+                "tag": "enchantments"
+            },
+            "Arcane Bombardment": {
+                "salt": 0.46601941747572817,
+                "synergy": -0.02,
+                "owned": false,
+                "cmc": 6.0,
+                "price": "0.80",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 1850,
+                "tag": "enchantments"
+            },
+            "Counterbalance": {
+                "salt": 1.3108108108108105,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "7.48",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 2578,
+                "tag": "enchantments"
+            },
+            "Omniscience": {
+                "salt": 1.8715596330275237,
+                "synergy": 0.01,
+                "owned": false,
+                "cmc": 10.0,
+                "price": "6.82",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 1111,
+                "tag": "enchantments"
+            },
+            "Swarm Intelligence": {
+                "salt": 0.48514851485148514,
+                "synergy": 0.0,
+                "owned": false,
+                "cmc": 7.0,
+                "price": "0.34",
+                "types": [
+                    "Enchantment"
+                ],
+                "rank": 2682,
+                "tag": "enchantments"
+            },
+            "Ral, Crackling Wit": {
+                "salt": 0.5714285714285714,
+                "synergy": -0.03,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "6.19",
+                "types": [
+                    "Planeswalker"
+                ],
+                "rank": 4467,
+                "tag": "planeswalkers"
+            },
+            "Narset, Parter of Veils": {
+                "salt": 2.1056511056511042,
+                "synergy": 0.15,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.89",
+                "types": [
+                    "Planeswalker"
+                ],
+                "rank": 555,
+                "tag": "planeswalkers"
+            },
+            "Jace, Wielder of Mysteries": {
+                "salt": 1.1694915254237297,
+                "synergy": 0.1,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "2.89",
+                "types": [
+                    "Planeswalker"
+                ],
+                "rank": 843,
+                "tag": "planeswalkers"
+            },
+            "Ral, Storm Conduit": {
+                "salt": 0.30337078651685395,
+                "synergy": 0.02,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "1.57",
+                "types": [
+                    "Planeswalker"
+                ],
+                "rank": 2079,
+                "tag": "planeswalkers"
+            },
+            "Teferi, Temporal Pilgrim": {
+                "salt": 0.8514851485148515,
+                "synergy": 0.09,
+                "owned": false,
+                "cmc": 5.0,
+                "price": "5.86",
+                "types": [
+                    "Planeswalker"
+                ],
+                "rank": 1891,
+                "tag": "planeswalkers"
+            },
+            "Reliquary Tower": {
+                "salt": 0.2786885245901639,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "1.26",
+                "types": [
+                    "Land"
+                ],
+                "rank": 10,
+                "tag": "utilitylands"
+            },
+            "Mystic Sanctuary": {
+                "salt": 0.30718954248366015,
+                "synergy": 0.11,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "1.52",
+                "types": [
+                    "Land"
+                ],
+                "rank": 145,
+                "tag": "utilitylands"
+            },
+            "Otawara, Soaring City": {
+                "salt": 0.5641025641025641,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "18.39",
+                "types": [
+                    "Land"
+                ],
+                "rank": 96,
+                "tag": "utilitylands"
+            },
+            "Lonely Sandbar": {
+                "salt": 0.08771929824561409,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.13",
+                "types": [
+                    "Land"
+                ],
+                "rank": 911,
+                "tag": "utilitylands"
+            },
+            "Forgotten Cave": {
+                "salt": 0.07189542483660137,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.08",
+                "types": [
+                    "Land"
+                ],
+                "rank": 638,
+                "tag": "utilitylands"
+            },
+            "Urza's Saga": {
+                "salt": 1.3274999999999995,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "39.52",
+                "types": [
+                    "Land",
+                    "Enchantment"
+                ],
+                "rank": 113,
+                "tag": "utilitylands"
+            },
+            "Cephalid Coliseum": {
+                "salt": 0.16666666666666666,
+                "synergy": 0.08,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.27",
+                "types": [
+                    "Land"
+                ],
+                "rank": 1193,
+                "tag": "utilitylands"
+            },
+            "Restless Spire": {
+                "salt": 0.06153846153846159,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.42",
+                "types": [
+                    "Land"
+                ],
+                "rank": 4453,
+                "tag": "utilitylands"
+            },
+            "Castle Vantress": {
+                "salt": 0.019736842105263122,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.43",
+                "types": [
+                    "Land"
+                ],
+                "rank": 675,
+                "tag": "utilitylands"
+            },
+            "Desolate Lighthouse": {
+                "salt": 0.038961038961038946,
+                "synergy": 0.0,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.22",
+                "types": [
+                    "Land"
+                ],
+                "rank": 1827,
+                "tag": "utilitylands"
+            },
+            "Ancient Tomb": {
+                "salt": 1.3756345177664977,
+                "synergy": -0.01,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "68.78",
+                "types": [
+                    "Land"
+                ],
+                "rank": 55,
+                "tag": "utilitylands"
+            },
+            "Wandering Fumarole": {
+                "salt": 0.05882352941176469,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.27",
+                "types": [
+                    "Land"
+                ],
+                "rank": 5884,
+                "tag": "utilitylands"
+            },
+            "Great Hall of the Citadel": {
+                "salt": 0.12499999999999997,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.18",
+                "types": [
+                    "Land"
+                ],
+                "rank": 1726,
+                "tag": "utilitylands"
+            },
+            "Riptide Laboratory": {
+                "salt": 0.1304347826086957,
+                "synergy": 0.01,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.34",
+                "types": [
+                    "Land"
+                ],
+                "rank": 1552,
+                "tag": "utilitylands"
+            },
+            "Temple of the False God": {
+                "salt": 0.2781456953642385,
+                "synergy": -0.04,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.15",
+                "types": [
+                    "Land"
+                ],
+                "rank": 64,
+                "tag": "utilitylands"
+            },
+            "Tolaria West": {
+                "salt": 0.26060606060606084,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "1.11",
+                "types": [
+                    "Land"
+                ],
+                "rank": 2761,
+                "tag": "utilitylands"
+            },
+            "Halimar Depths": {
+                "salt": 0.0486111111111111,
+                "synergy": 0.02,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.30",
+                "types": [
+                    "Land"
+                ],
+                "rank": 1022,
+                "tag": "utilitylands"
+            },
+            "Arcane Signet": {
+                "salt": 0.8181818181818182,
+                "synergy": 0.0,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.40",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 3,
+                "tag": "manaartifacts"
+            },
+            "Sol Ring": {
+                "salt": 1.2509960159362548,
+                "synergy": -0.04,
+                "owned": false,
+                "cmc": 1.0,
+                "price": "0.71",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 1,
+                "tag": "manaartifacts"
+            },
+            "Izzet Signet": {
+                "salt": 0.0,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.40",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 122,
+                "tag": "manaartifacts"
+            },
+            "Talisman of Creativity": {
+                "salt": 0.0,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.96",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 119,
+                "tag": "manaartifacts"
+            },
+            "Commander's Sphere": {
+                "salt": 0.0,
+                "synergy": 0.2,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.13",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 31,
+                "tag": "manaartifacts"
+            },
+            "Fellwar Stone": {
+                "salt": 0.0,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.74",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 16,
+                "tag": "manaartifacts"
+            },
+            "Thought Vessel": {
+                "salt": 0.0,
+                "synergy": -0.02,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.79",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 24,
+                "tag": "manaartifacts"
+            },
+            "Decanter of Endless Water": {
+                "salt": 0.0,
+                "synergy": 0.19,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "1.21",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 218,
+                "tag": "manaartifacts"
+            },
+            "Midnight Clock": {
+                "salt": 0.1111111111111111,
+                "synergy": 0.08,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.29",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 530,
+                "tag": "manaartifacts"
+            },
+            "Jeweled Lotus": {
+                "salt": 2.2295719844357986,
+                "synergy": 0.1,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "34.51",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 165,
+                "tag": "manaartifacts"
+            },
+            "Izzet Locket": {
+                "salt": 0.0,
+                "synergy": 0.14,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.30",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 6210,
+                "tag": "manaartifacts"
+            },
+            "Lotus Petal": {
+                "salt": 0.8888888888888888,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 0.0,
+                "price": 13.03,
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 116,
+                "tag": "manaartifacts"
+            },
+            "Chrome Mox": {
+                "salt": 1.1548117154811721,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "65.85",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 128,
+                "tag": "manaartifacts"
+            },
+            "Sky Diamond": {
+                "salt": 0.0,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.09",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 566,
+                "tag": "manaartifacts"
+            },
+            "Gilded Lotus": {
+                "salt": 0.375,
+                "synergy": 0.08,
+                "owned": false,
+                "cmc": 5.0,
+                "price": "0.66",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 349,
+                "tag": "manaartifacts"
+            },
+            "Chromatic Lantern": {
+                "salt": 0.125,
+                "synergy": 0.1,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "1.94",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 66,
+                "tag": "manaartifacts"
+            },
+            "Mind Stone": {
+                "salt": 0.0,
+                "synergy": -0.16,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.30",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 23,
+                "tag": "manaartifacts"
+            },
+            "Mana Crypt": {
+                "salt": 2.160784313725492,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "52.21",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 94,
+                "tag": "manaartifacts"
+            },
+            "Fire Diamond": {
+                "salt": 0.0,
+                "synergy": 0.02,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.17",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 514,
+                "tag": "manaartifacts"
+            },
+            "Izzet Cluestone": {
+                "salt": 0.0,
+                "synergy": 0.08,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.14",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 8445,
+                "tag": "manaartifacts"
+            },
+            "Mox Diamond": {
+                "salt": 1.6293436293436292,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 0.0,
+                "price": 424.82,
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 243,
+                "tag": "manaartifacts"
+            },
+            "Firemind Vessel": {
+                "salt": 0.0,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 4.0,
+                "price": "0.09",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 3887,
+                "tag": "manaartifacts"
+            },
+            "Mox Opal": {
+                "salt": 1.21551724137931,
+                "synergy": 0.02,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "118.86",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 236,
+                "tag": "manaartifacts"
+            },
+            "Star Compass": {
+                "salt": 0.0,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.60",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 3422,
+                "tag": "manaartifacts"
+            },
+            "Coalition Relic": {
+                "salt": 0.125,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 3.0,
+                "price": "0.36",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 2611,
+                "tag": "manaartifacts"
+            },
+            "Pentad Prism": {
+                "salt": 0.1111111111111111,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 2.0,
+                "price": "0.31",
+                "types": [
+                    "Artifact"
+                ],
+                "rank": 7725,
+                "tag": "manaartifacts"
+            },
+            "Command Tower": {
+                "salt": 0.288135593220339,
+                "synergy": 0.0,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.17",
+                "types": [
+                    "Land"
+                ],
+                "rank": 2,
+                "tag": "lands"
+            },
+            "Sulfur Falls": {
+                "salt": 0.1111111111111111,
+                "synergy": -0.0,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "1.16",
+                "types": [
+                    "Land"
+                ],
+                "rank": 112,
+                "tag": "lands"
+            },
+            "Shivan Reef": {
+                "salt": 0.09803921568627451,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.89",
+                "types": [
+                    "Land"
+                ],
+                "rank": 137,
+                "tag": "lands"
+            },
+            "Steam Vents": {
+                "salt": 0.20270270270270271,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "13.49",
+                "types": [
+                    "Land"
+                ],
+                "rank": 78,
+                "tag": "lands"
+            },
+            "Izzet Boilerworks": {
+                "salt": 0.17567567567567569,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.21",
+                "types": [
+                    "Land"
+                ],
+                "rank": 303,
+                "tag": "lands"
+            },
+            "Temple of Epiphany": {
+                "salt": 0.14999999999999994,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.18",
+                "types": [
+                    "Land"
+                ],
+                "rank": 257,
+                "tag": "lands"
+            },
+            "Training Center": {
+                "salt": 0.06779661016949158,
+                "synergy": -0.0,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "9.83",
+                "types": [
+                    "Land"
+                ],
+                "rank": 133,
+                "tag": "lands"
+            },
+            "Frostboil Snarl": {
+                "salt": 0.09836065573770492,
+                "synergy": 0.0,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.37",
+                "types": [
+                    "Land"
+                ],
+                "rank": 392,
+                "tag": "lands"
+            },
+            "Cascade Bluffs": {
+                "salt": 0.0,
+                "synergy": 0.01,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "1.86",
+                "types": [
+                    "Land"
+                ],
+                "rank": 482,
+                "tag": "lands"
+            },
+            "Stormcarved Coast": {
+                "salt": 0.0714285714285714,
+                "synergy": -0.02,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "4.48",
+                "types": [
+                    "Land"
+                ],
+                "rank": 282,
+                "tag": "lands"
+            },
+            "Swiftwater Cliffs": {
+                "salt": 0.12307692307692306,
+                "synergy": 0.15,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.06",
+                "types": [
+                    "Land"
+                ],
+                "rank": 997,
+                "tag": "lands"
+            },
+            "Scalding Tarn": {
+                "salt": 0.33962264150943394,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "32.41",
+                "types": [
+                    "Land"
+                ],
+                "rank": 50,
+                "tag": "lands"
+            },
+            "Exotic Orchard": {
+                "salt": 0.08928571428571429,
+                "synergy": -0.01,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.18",
+                "types": [
+                    "Land"
+                ],
+                "rank": 9,
+                "tag": "lands"
+            },
+            "Ferrous Lake": {
+                "salt": 0.021739130434782608,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.57",
+                "types": [
+                    "Land"
+                ],
+                "rank": 1816,
+                "tag": "lands"
+            },
+            "Fiery Islet": {
+                "salt": 0.01587301587301587,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "2.26",
+                "types": [
+                    "Land"
+                ],
+                "rank": 902,
+                "tag": "lands"
+            },
+            "Riverglide Pathway": {
+                "salt": 0.07352941176470588,
+                "synergy": 0.0,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "8.18",
+                "types": [
+                    "Land"
+                ],
+                "rank": 692,
+                "tag": "lands"
+            },
+            "Izzet Guildgate": {
+                "salt": 0.055555555555555546,
+                "synergy": 0.16,
+                "owned": false,
+                "cmc": 0.0,
+                "price": 0.04,
+                "types": [
+                    "Land"
+                ],
+                "rank": 1346,
+                "tag": "lands"
+            },
+            "Evolving Wilds": {
+                "salt": 0.0,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.15",
+                "types": [
+                    "Land"
+                ],
+                "rank": 19,
+                "tag": "lands"
+            },
+            "Thundering Falls": {
+                "salt": 0.08163265306122447,
+                "synergy": 0.01,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "10.13",
+                "types": [
+                    "Land"
+                ],
+                "rank": 1366,
+                "tag": "lands"
+            },
+            "Myriad Landscape": {
+                "salt": 0.0,
+                "synergy": -0.03,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.25",
+                "types": [
+                    "Land"
+                ],
+                "rank": 21,
+                "tag": "lands"
+            },
+            "Terramorphic Expanse": {
+                "salt": 0.19444444444444445,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.13",
+                "types": [
+                    "Land"
+                ],
+                "rank": 28,
+                "tag": "lands"
+            },
+            "Volcanic Island": {
+                "salt": 0.7727272727272729,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 0.0,
+                "price": 424.28,
+                "types": [
+                    "Land"
+                ],
+                "rank": 385,
+                "tag": "lands"
+            },
+            "Molten Tributary": {
+                "salt": 0.03669724770642199,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.20",
+                "types": [
+                    "Land"
+                ],
+                "rank": 1775,
+                "tag": "lands"
+            },
+            "Misty Rainforest": {
+                "salt": 0.36231884057971014,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "21.30",
+                "types": [
+                    "Land"
+                ],
+                "rank": 40,
+                "tag": "lands"
+            },
+            "City of Brass": {
+                "salt": 0.2916666666666667,
+                "synergy": 0.07,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "11.84",
+                "types": [
+                    "Land"
+                ],
+                "rank": 91,
+                "tag": "lands"
+            },
+            "Polluted Delta": {
+                "salt": 0.2786885245901639,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "51.02",
+                "types": [
+                    "Land"
+                ],
+                "rank": 45,
+                "tag": "lands"
+            },
+            "Highland Lake": {
+                "salt": 0.05714285714285713,
+                "synergy": 0.08,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.10",
+                "types": [
+                    "Land"
+                ],
+                "rank": 4679,
+                "tag": "lands"
+            },
+            "Flooded Strand": {
+                "salt": 0.10344827586206896,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "10.98",
+                "types": [
+                    "Land"
+                ],
+                "rank": 51,
+                "tag": "lands"
+            },
+            "Eroded Canyon": {
+                "salt": 0.09473684210526316,
+                "synergy": 0.02,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.16",
+                "types": [
+                    "Land"
+                ],
+                "rank": 5103,
+                "tag": "lands"
+            },
+            "Mana Confluence": {
+                "salt": 0.3207547169811321,
+                "synergy": 0.06,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "25.07",
+                "types": [
+                    "Land"
+                ],
+                "rank": 106,
+                "tag": "lands"
+            },
+            "Path of Ancestry": {
+                "salt": 0.015625,
+                "synergy": -0.02,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.13",
+                "types": [
+                    "Land"
+                ],
+                "rank": 15,
+                "tag": "lands"
+            },
+            "Bloodstained Mire": {
+                "salt": 0.35714285714285715,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "11.85",
+                "types": [
+                    "Land"
+                ],
+                "rank": 54,
+                "tag": "lands"
+            },
+            "Spirebluff Canal": {
+                "salt": 0.1694915254237288,
+                "synergy": 0.01,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "3.87",
+                "types": [
+                    "Land"
+                ],
+                "rank": 2133,
+                "tag": "lands"
+            },
+            "Prismari Campus": {
+                "salt": 0.015384615384615382,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.08",
+                "types": [
+                    "Land"
+                ],
+                "rank": 3971,
+                "tag": "lands"
+            },
+            "Arid Mesa": {
+                "salt": 0.27692307692307694,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "20.14",
+                "types": [
+                    "Land"
+                ],
+                "rank": 52,
+                "tag": "lands"
+            },
+            "Prismatic Vista": {
+                "salt": 0.13924050632911394,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "27.88",
+                "types": [
+                    "Land"
+                ],
+                "rank": 171,
+                "tag": "lands"
+            },
+            "Wooded Foothills": {
+                "salt": 0.2878787878787879,
+                "synergy": 0.04,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "11.63",
+                "types": [
+                    "Land"
+                ],
+                "rank": 57,
+                "tag": "lands"
+            },
+            "Reflecting Pool": {
+                "salt": 0.11594202898550722,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "8.09",
+                "types": [
+                    "Land"
+                ],
+                "rank": 175,
+                "tag": "lands"
+            },
+            "Fabled Passage": {
+                "salt": 0.078125,
+                "synergy": 0.01,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "4.36",
+                "types": [
+                    "Land"
+                ],
+                "rank": 70,
+                "tag": "lands"
+            },
+            "Gemstone Caverns": {
+                "salt": 0.8958333333333335,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "34.83",
+                "types": [
+                    "Land"
+                ],
+                "rank": 199,
+                "tag": "lands"
+            },
+            "Volatile Fjord": {
+                "salt": 0.0,
+                "synergy": 0.01,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "1.69",
+                "types": [
+                    "Land"
+                ],
+                "rank": 3108,
+                "tag": "lands"
+            },
+            "Silverbluff Bridge": {
+                "salt": 0.0941780821917808,
+                "synergy": -0.03,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.34",
+                "types": [
+                    "Land",
+                    "Artifact"
+                ],
+                "rank": 1153,
+                "tag": "lands"
+            },
+            "Forbidden Orchard": {
+                "salt": 0.18032786885245902,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "4.55",
+                "types": [
+                    "Land"
+                ],
+                "rank": 475,
+                "tag": "lands"
+            },
+            "Peculiar Lighthouse": {
+                "salt": 0,
+                "synergy": 0.01,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.09",
+                "types": [
+                    "Land"
+                ],
+                "rank": 13621,
+                "tag": "lands"
+            },
+            "Horizon of Progress": {
+                "salt": 0.22772277227722773,
+                "synergy": 0.05,
+                "owned": false,
+                "cmc": 0.0,
+                "price": 2.59,
+                "types": [
+                    "Land"
+                ],
+                "rank": 3130,
+                "tag": "lands"
+            },
+            "Thriving Isle": {
+                "salt": 0.01694915254237288,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.06",
+                "types": [
+                    "Land"
+                ],
+                "rank": 1229,
+                "tag": "lands"
+            },
+            "Thriving Bluff": {
+                "salt": 0.0,
+                "synergy": 0.03,
+                "owned": false,
+                "cmc": 0.0,
+                "price": "0.09",
+                "types": [
+                    "Land"
+                ],
+                "rank": 1341,
+                "tag": "lands"
+            }
+        }
+    }
+}
