@@ -26,7 +26,7 @@ class Card():
         found = False
         for subfolder in data['bulk']:
             if self.key in data['bulk'][subfolder]:
-                print('loaded')
+                print(f'{self.name} loaded')
                 if not self.set_code: #maybe take cheapest
                     dict = data['bulk'][subfolder][self.key]['versions']
                     first_key = next(iter(dict))
@@ -51,7 +51,7 @@ class Card():
                 self.set_salt_score()
             except:
                 print(f'There was an Error while retrieving the Salt score with {self.name}')
-                self.salt = 0
+                self.salt = None
             self.save_to('memory')
         self.key = str(self.name)
         self.key = self.key.lower().replace(' ', '_')

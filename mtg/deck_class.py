@@ -53,7 +53,7 @@ class Deck():
             return
         card = Card(card_name, set_code=set_code, number=quantity, foil=foil)
         in_list = False
-        if hasattr(card, 'mana_cost'):
+        if 1==1:
             for card_in_list in self.name_list:
             # in case the card is already there just add it
                 if card_in_list[0] == card.name:
@@ -67,6 +67,7 @@ class Deck():
             if in_list == False:
                 self.decklist.append(card)
                 self.name_list.append([card.name, card.set_code, card.number, card.foil])
+
 
     def import_name(self, card_name, card_setcode, card_quantity, card_foil=False):
         args = {
@@ -103,10 +104,9 @@ class Deck():
 
         # average cmc
         for card in self.decklist:
-            if card.double_faced is not True:
-                if card.cmc != 0 :
-                    cmc_total += card.cmc*card.number
-                    cmc_cards += card.number
+            if 1 == 1:
+                cmc_total += card.cmc*card.number
+                cmc_cards += card.number
 
             # main types
                 for type in card.main_types:
@@ -275,6 +275,7 @@ class Deck():
         if not self.commander_name:
             print('Please specify your Commander')
             return
+        usable_data = dict()
         cleaned_name = self.commander_name.lower()
         cleaned_name = cleaned_name.replace(' ', '-')
         to_delete = [',']
@@ -286,7 +287,26 @@ class Deck():
         except:
             print('Error getting Data')
             return
-        usable_data = dict()
+        # get combos
+        if 'combocounts' in data['panels']:
+            usable_data['combos'] = {}
+            combos = data['panels']['combocounts']
+            combo_number = 0
+            for combo in combos:
+                combo_number += 1
+                combo_string = combo['value']
+                combo_string = combo_string.split(' + ')
+                if len(combo_string) > 1:
+                    usable_data['combos'][combo_number] = None
+                    combo_piece_list = []
+                    for combo_piece in combo_string[1:]:
+                        combo_piece_list.append(combo_piece)
+                    usable_data['combos'][combo_number] = combo_piece_list
+        else:
+            usable_data['combos'] = None
+
+
+        usable_data['mana_curve'] = data['panels']['mana_curve']
         usable_data['recommended_cards'] = dict()
         usable_data['creatures'] = data['creature']
         usable_data['battles'] = data['battle']
@@ -308,195 +328,314 @@ class Deck():
         return usable_data
 
 
-    def _get_all_cards_for_building_(self, load):
-        cardlist = {}
-        data = self._get_edhrec_data_()
-        n_cards = 0
-        curr_count = 1
-        #add cards from data
-        deck_data = get_data('deckbuilding_data')
 
-        if load and self.commander_name in deck_data:
-            cardlist['to_buy'] = deck_data[self.commander_name]['to_buy']
-            #cardlist['owned'] = deck_data[self.commander_name]['owned']
-        else:
-            if load and self.commander_name not in deck_data:
-                deck_data[self.commander_name] = {}
-            for tag in data['recommended_cards']:
-                n_cards += len(data['recommended_cards'][tag])
-            for tag in data['recommended_cards']:
-                for card in data['recommended_cards'][tag]:
-                    print(f'Importing suggested cards: {curr_count/n_cards*100}%')
-                    tempcard = Card(card)
-                    cardlist[card] = {}
-                    try:
-                        cardlist[card]['salt'] = tempcard.salt
-                    except:
-                        cardlist[card]['salt'] = None
-                    cardlist[card]['synergy'] = data['recommended_cards'][tag][card]['synergy']
-                    cardlist[card]['owned'] = False #change if in bulk
-                    try:
-                        cardlist[card]['cmc'] = tempcard.cmc
-                    except:
-                        cardlist[card]['cmc'] = None
-                        print('card_cmc', tempcard.name)
-                    try:
-                        cardlist[card]['price'] = tempcard.cm_price
-                    except:
-                        cardlist[card]['price'] = None
-                    try:
-                        cardlist[card]['types'] = tempcard.main_types #list
+    def build_2(self, budget, synergy_weight=1, salt_weight=1, rank_weight=1, price_weight=0.4, load=False): #price as an exponent
+        # convert synergys to dict
+        self.generated_decklist = {}
+        weights = {
+            'synergy': synergy_weight,
+            'salt': salt_weight,
+            'edhrec_rank': rank_weight,
+            'cm_price': price_weight,
+        }
 
-                    except:
-                        cardlist[card]['types'] = None #list
-                    try:
-                        cardlist[card]['rank'] = tempcard.edhrec_rank
-                    except:
-                        cardlist[card]['rank'] = tempcard.edhrec_rank
-                    cardlist[card]['tag'] = tag
-                    del tempcard
-                    curr_count+=1
+        card_data  = self._get_building_data_2(load, weights)
+        owned =card_data[0]
+        owned = dict(sorted(owned.items(), key=lambda item: item[1]['absolute'], reverse=True))
+        to_buy = card_data[1]
+        to_buy = dict(sorted(to_buy.items(), key=lambda item: item[1]['relative'], reverse=True))
+        edhrec_data = card_data[2]
+        mana_curve = edhrec_data['mana_curve']
+        for i in range(20):
+            if str(i) not in mana_curve:
+                mana_curve[str(i)] = 0
 
-        if self.commander in deck_data and len(deck_data[self.commander_name])>1:
-            bulkdata = get_data()['bulk']
-            commander_colors = self.commander.color_identity
-            unusable_list  = ['token', 'emblem', 'planar', 'double_faced_token']
-            # get owned cards
 
-            n_cards = 0
-            curr_count = 0
-            for subfolder in bulkdata:
-                for card in bulkdata[subfolder]:
-                    n_cards +=1
-            print(n_cards)
-            for subfolder in bulkdata:
-                for card in bulkdata[subfolder]:
-                    card = bulkdata[subfolder][card]
-                    try:
-                        curr_count +=1
-                        print(f'iterating over bulk ({curr_count/n_cards*100}%)')
-                        print(card['name'])
-                        if card['legality']['commander'] == 'legal' and card['layout'] not in unusable_list:
-                            legal = True
-                            for color in card['color_identity']:
-                                if color not in commander_colors:
-                                    legal = False
-                        if legal:
-                            if card['name'] in cardlist:
-                                cardlist[card['name']]['owned'] = True
-                            else:
-                                tempcard = Card(card['name'])
-                                cardlist[tempcard.name] = {}
-                                try:
-                                    cardlist[tempcard.name]['salt'] = tempcard.salt
-                                except:
-                                    cardlist[tempcard.name]['salt'] = None
-                                cardlist[tempcard.name]['synergy'] = None
-                                cardlist[tempcard.name]['owned'] = True  # change if in bulk
-                                cardlist[tempcard.name]['cmc'] = tempcard.cmc
-                                try:
-                                    cardlist[tempcard.name]['price'] = tempcard.cm_price
-                                except:
-                                    cardlist[tempcard.name]['price'] = None
-                                try:
-                                    cardlist[tempcard.name]['types'] = tempcard.main_types  # list
-                                except:
-                                    cardlist[tempcard.name]['types'] = []
-                                    print(tempcard.name)
-                                try:
-                                    cardlist[tempcard.name]['rank'] = tempcard.edhrec_rank
-                                except:
-                                    cardlist[tempcard.name]['rank'] = None
-                                del tempcard
-                    except:
-                        print(f'Problem Loading {card}')
-                    del data
-        dump_data(deck_data, file_path='deckbuilding_data')
-        print(deck_data)
-        del deck_data
-        return cardlist
-    def generate_deck(self, budget, synergy_weight=1, salt_weight=1, rank_weight=-0.5, price_weight=0.2, load=False):
 
-        cardlist = self._get_all_cards_for_building_(load)
-        for card_name in cardlist:
-            card = cardlist[card_name]
-            scores = self._get_card_score_to_build_(card, synergy_weight, salt_weight, rank_weight, price_weight)
-            relative_score = scores[1]
-            absolute_score = scores[0]
-            return_message = scores[2]
-            if len(return_message)>1:
-                print('the following Attributes for ', card_name, 'were not found:', return_message)
-            cardlist[card_name]['absolute_score'] = absolute_score
-            cardlist[card_name]['relative_score'] = relative_score
-        #cardlist = dict(sorted(cardlist.items(), key=lambda item: item[1]['owned'], reverse=False))
-        to_buy = {}
-        owned = {}
-        for card in cardlist:
-            if not cardlist[card]['owned']:
-                to_buy[card] = cardlist[card]
-            else:
-                owned[card] = cardlist[card]
-            to_buy = dict(sorted(to_buy.items(), key=lambda item: item[1]['relative_score'], reverse=False))
+        current_mana_distribution = {}
+        for i in range(20):
+            current_mana_distribution[str(i)] = 0
+        # add_basics
+
+
+        type_distribution = {
+            'Instant':edhrec_data['instants'],
+            'Sorcery':edhrec_data['sorceries'],
+            'Creature':edhrec_data['creatures'],
+            'Artifact':edhrec_data['artifacts'],
+            'Enchantment':edhrec_data['enchantments'],
+            'Battle':edhrec_data['battles'],
+            'Planeswalker':edhrec_data['planeswalker'],
+            'Land':edhrec_data['lands']-edhrec_data['basics']
+                             }
+
+        current_distribution = {
+            'Instant':0,
+            'Sorcery':0,
+            'Creature':0,
+            'Artifact':0,
+            'Enchantment':0,
+            'Battle':0,
+            'Planeswalker':0,
+            'Land':0
+                             }
+        basic_lands = [
+            "plains",
+            "island",
+            "swamp",
+            "mountain",
+            "forest",
+            "snow-covered plains",
+            "snow-covered island",
+            "snow-covered swamp",
+            "snow-covered mountain",
+            "snow-covered forest",
+            "wastes"
+        ]
+
+        budget_used = 0
+
+        # add to_buy cards
         for card in to_buy:
-            print(card, to_buy[card]['relative_score'], to_buy[card]['rank'], to_buy[card]['salt'], to_buy[card]['synergy'])
-        # save for testing
+            card_dict = to_buy[card]
+            try:
+                card_dict['cm_price'] = float(card_dict['cm_price'])
+            except:
+                card_dict['cm_price'] = None
+            if ('cm_price' in card_dict) and (card_dict['cm_price']+ 1.7 +budget_used < budget) and (current_distribution[card_dict['main_types'][0]]-1 < type_distribution[card_dict['main_types'][0]]) and (current_mana_distribution[str(int(card_dict['cmc']))]-3< mana_curve[str(int(card_dict['cmc']))])  and (len(self.generated_decklist)< 98) and (card_dict['name'].lower() not in basic_lands):
+                budget_used += card_dict['cm_price'] +1.7
+                current_distribution[card_dict['main_types'][0]] += 1
+                current_mana_distribution[str(int(card_dict['cmc']))] += 1
+                self.generated_decklist[card] = card_dict
+                self.generated_decklist[card]['number'] = 1
+                self.add_card(card_dict['name'])
+
+        # add owned cards
+        for card in owned:
+            card_dict = owned[card]
+            try:
+                card_dict['cm_price'] = float(card_dict['cm_price'])
+            except:
+                card_dict['cm_price'] = None
+            if  (current_distribution[card_dict['main_types'][0]]-1 < type_distribution[card_dict['main_types'][0]]) and (current_mana_distribution[str(int(card_dict['cmc']))]-3< mana_curve[str(int(card_dict['cmc']))] or 'Land' in card_dict['main_types']) and (len(self.generated_decklist)< 98) and (card_dict['name'].lower() not in basic_lands):
+                current_distribution[card_dict['main_types'][0]] += 1
+                current_mana_distribution[str(int(card_dict['cmc']))] += 1
+                self.generated_decklist[card] = card_dict
+                self.add_card(card_dict['name'])
+        basics_to_add = 99-len(self.generated_decklist)
+        extracard = False
+        for color in self.commander.color_identity:
+            n_colors = len(self.commander.color_identity)
+            number = round(basics_to_add/n_colors-0.5)
+            if not extracard:
+                extracard = True
+                number += 1
+            basics = {
+                'W':'plains',
+                'R':'mountain',
+                'U':'island',
+                'G':'forest',
+                'B':'swamp',
+                      }
+            self.generated_decklist[basics[color]] = owned[basics[color]]
+            self.generated_decklist[basics[color]]['number'] = number
+            self.add_card(basics[color], quantity=number)
+
+
+
+
+        '''
+        # print the results
+        rank = 0
+
+        for card in to_buy:
+            rank +=1
+            print(f'{rank}. {to_buy[card]['relative']}-{to_buy[card]['name']} ', end=' (')
+            for key in to_buy[card]:
+                if key != 'relative' and key != 'absolute' and key != 'name':
+                    print(f'{key}: {to_buy[card][key]}, ', end='')
+            print('', end=')\n')
+        rank = 0
+
+        for card in owned:
+            rank += 1
+            print(f'{rank}. {owned[card]['absolute']}-{owned[card]['name']} ', end=' (')
+            for key in owned[card]:
+                if key != 'relative' and key != 'absolute' and key != 'name':
+                    print(f'{key}: {owned[card][key]}, ', end='')
+            print('', end=')\n')
+'''
+
+    def _get_building_data_2(self, load, weights):
+        owned = {}
+        to_buy = {}
+        edhrec_data = self._get_edhrec_data_()
+        # if load is enabled
+        if load:
+            deckfile_data = get_data('deckbuilding_data')
+            if self.commander.key in deckfile_data:
+
+                # check if to buy is there
+                if 'to_buy' in deckfile_data[self.commander.key] and len(deckfile_data[self.commander.key]['to_buy']) > 0:
+                    to_buy = deckfile_data[self.commander.key]['to_buy']
+                #check owned
+                if 'owned' in deckfile_data[self.commander.key] and len(deckfile_data[self.commander.key]['owned']) > 0:
+                    owned = deckfile_data[self.commander.key]['owned']
+
+        attributes_to_add = ['salt', 'cmc', 'cm_price', 'main_types', 'edhrec_rank', 'name']
+
+        # if no buy
+        if len(to_buy) < 1:
+            n_edhrec_cards = 0
+            curr_count = 1
+            #count cards
+            print(edhrec_data)
+            for tag in edhrec_data['recommended_cards']:
+                for card in edhrec_data['recommended_cards'][tag]:
+                    n_edhrec_cards+=1
+            for tag in edhrec_data['recommended_cards']:
+                for card in edhrec_data['recommended_cards'][tag]:
+                    print(f'Importing suggested cards: {curr_count / n_edhrec_cards * 100}%')
+                    tempcard = Card(card)
+                    card_key = tempcard.key
+                    to_buy[card_key] = {}
+                    #set Card class atts
+                    for attribute in attributes_to_add:
+                        try:
+                            value = getattr(tempcard, attribute)
+                            to_buy[card_key][attribute] = value
+                        except:
+                            to_buy[card_key][attribute] = None
+                            print(f'Error while retrieving {attribute} from {card}')
+                    # other atts
+                    to_buy[card_key]['synergy'] = edhrec_data['recommended_cards'][tag][card]['synergy']
+                    to_buy[card_key]['tag'] = tag
+                    del tempcard
+                    curr_count += 1
+
+        # if no owned (later Threading
+        if len(owned) < 1:
+            bulkdata = get_data()['bulk']
+            unusable_list  = ['token', 'emblem', 'planar', 'double_faced_token']
+            commander_colors = self.commander.color_identity
+            n_bulkcards = 0
+            curr_count = 1
+            # count cards
+            for subfolder in bulkdata:
+                for card in bulkdata[subfolder]:
+                    n_bulkcards +=1
+
+            # add_cards
+            for subfolder in bulkdata:
+                for card in bulkdata[subfolder]:
+                    print(f'Importing suggested cards: {curr_count / n_bulkcards * 100}%', card)
+                    card_dict = bulkdata[subfolder][card]
+                    legal = True
+                    # check legality
+                    # layout
+                    if 'layout' not in card_dict or card_dict['layout'] in unusable_list:
+                        legal = False
+                    # legality
+                    elif 'legality' not in card_dict or card_dict['legality']['commander'] != 'legal':
+                        legal = False
+                    else:
+                        for color in card_dict['color_identity']:
+                            if color not in commander_colors:
+                                legal = False
+
+                    if card == 'opt':
+                        print('hurray here it is')  # delete later
+                        print(legal)
+
+                    if legal:
+                        owned[card] = {}
+                        # move in case recommended
+                        if card in to_buy:
+                            print('you already own', card)
+                            owned[card] = to_buy[card]
+                            del to_buy[card]
+                        else:
+                            owned[card]['synergy'] = None
+
+                            for attribute in attributes_to_add:
+                                try:
+                                    value = card_dict[attribute]
+                                    owned[card][attribute] =value
+                                except:
+                                    owned[card][attribute] = None
+                                    print(f'Error while retrieving {attribute} of {card_dict['name']}')
+
+                        # get eval
+                        curr_count += 1
+                        del card_dict
+
+        # evaluate cards
+        # to_buy
+        for card in to_buy:
+            scores = self._get_card_eval(to_buy[card], weights)
+            to_buy[card]['absolute'] = scores[0]
+            to_buy[card]['relative'] = scores[1]
+
+        for card in owned:
+            scores = self._get_card_eval(owned[card], weights)
+            owned[card]['absolute'] = scores[0]
+
+        # save
         data = get_data('deckbuilding_data')
-        print(data)
-        data[self.commander_name] = {}
-        data[self.commander_name]['owned'] = owned
-        data[self.commander_name]['to_buy'] = to_buy
-        print(data)
-        dump_data(data, 'deckbuilding_data')
-    def _get_card_score_to_build_(self, card:dict, synergy_weight, salt_weight, rank_weight, price_weight): # returns absolute score and /eur
-        attributes = ['salt', 'rank', 'price', 'synergy']
-        default_values = {'salt': 0, 'rank': 30000, 'price': float('inf'), 'synergy': 0.0}  # Define sensible defaults
+        data[self.commander.key] = {}
+        data[self.commander.key]['owned'] = owned
+        data[self.commander.key]['to_buy'] = to_buy
+        dump_data(data, file_path='deckbuilding_data')
+        del data
 
-        # Ensure all attributes are present in the card
-        for attribute in attributes:
-            if attribute not in card:
-                card[attribute] = default_values[attribute]
+        # return
+        return owned, to_buy, edhrec_data
 
-        # Extract attributes
-        salt = card['salt']  # Community-based rating (0-4)
-        rank = card['rank']  # The rank of the card by EDHRec
-        price = card['price']
-        synergy = card['synergy'] # difference between general usage and specific usage for this certain commander (-1, 1)
+    def _get_card_eval(self, card, weights):
+        default_values = {'salt': 0, 'edhrec_rank': 30000, 'cm_price': 10, 'synergy': 0.0}
 
-        return_message = f''
 
-        if not salt:
-            salt = 0
-            return_message = return_message+' salt score'
-        if not rank:
-            rank = 30000
-            return_message = return_message+' EDHRec rank'
-
-        normalized_salt = (salt-(0))/4-(1)
-        weighted_salt = normalized_salt*salt_weight
-
-        if synergy:
-            synergy += 0.3
-            normalized_synergy = (synergy-(-1))/1-(-1)
-            weighted_synergy = normalized_synergy* synergy_weight
+        # calculate salt
+        if card['salt']:
+            weighted_salt = card['salt']/4
+            weighted_salt = weighted_salt * weights['salt']
         else:
-            weighted_synergy = 0
+            weighted_salt = default_values['salt']
 
-
-
-        owned = card['owned']
-        normalized_rank = (rank - (1)) / 30000 - 1
-        weighted_rank = normalized_rank * rank_weight
-
-        absolute_score = weighted_salt + weighted_synergy + weighted_rank
-        if not owned and price:
-            relative_score = absolute_score/(float(price)+1.7)*price_weight
-        elif not owned and not price:
-            relative_score = absolute_score/10
-            print(f'no price for {card['name']}')
+        # calculate synergy
+        if card['synergy']:
+            weighted_synergy = (card['synergy']+1)/(2)
+            weighted_synergy = weighted_synergy * weights['synergy']
         else:
-            relative_score = None
-        # generate return massage
+            weighted_synergy = default_values['synergy']
+
+        # calculate synergy
+        if card['edhrec_rank']:
+            weighted_edhrec_rank = (30000-card['edhrec_rank']) / (29999)
+            weighted_edhrec_rank = weighted_edhrec_rank * weights['edhrec_rank']
+        else:
+            weighted_edhrec_rank = default_values['edhrec_rank']
+
+        absolute_value = weighted_edhrec_rank + weighted_synergy + weighted_salt
+
+        # define Price
+        if card['cm_price'] and type(card['cm_price']) == float:
+            price = card['cm_price'] + 1.7
+        else:
+            price = 25
+
+        # price mod
+        if price<5:
+            price_modifier = 1
+        elif price < 20:
+            price_modifier = 2
+        elif price < 60:
+            price_modifier = 3
+        else:
+            price_modifier = 4
+        # eval relative value
+
+        relative_value = absolute_value / price_modifier
+        return absolute_value, relative_value
 
 
-        return absolute_score, relative_score, return_message
-    #def add_card_to_generatingdata(self, card):
