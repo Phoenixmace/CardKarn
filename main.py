@@ -10,9 +10,9 @@ import mtg.data_management
 # python C:\Users\maxce\PycharmProjects\mtg_test\main.py
 if __name__ == '__main__':
     #import_collection_from_manabox('C:\\Users\\maxce\\Downloads\\ManaBox_Collection.csv', True, True)
-    deck = Deck('testdeck', commander='Niv-Mizzet, parun')
+    deck = Deck('testdeck', commander='Yarok, the Desecrated')
     edhrec = (deck._get_edhrec_data_())
-    deck.build_2(0, load=True)
+    deck.build_2(10, load=True)
     deck.print()
 
 

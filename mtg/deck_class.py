@@ -1,8 +1,7 @@
 from mtg.card_class import Card
 from mtg.data_management import get_data, dump_data
 import requests
-import threading
-from threading import Thread
+import math
 '''
 methods to add:
     load from text (on PC) add to init
@@ -329,14 +328,14 @@ class Deck():
 
 
 
-    def build_2(self, budget, synergy_weight=1, salt_weight=1, rank_weight=1, price_weight=0.4, load=False): #price as an exponent
+    def build_2(self, budget, synergy_weight=4, salt_weight=3, rank_weight=1, price_penalty_weight = 1,  load=False): #price as an exponent
         # convert synergys to dict
         self.generated_decklist = {}
         weights = {
             'synergy': synergy_weight,
             'salt': salt_weight,
             'edhrec_rank': rank_weight,
-            'cm_price': price_weight,
+            'price_penalty_weight': price_penalty_weight
         }
 
         card_data  = self._get_building_data_2(load, weights)
@@ -402,7 +401,7 @@ class Deck():
                 card_dict['cm_price'] = float(card_dict['cm_price'])
             except:
                 card_dict['cm_price'] = None
-            if ('cm_price' in card_dict) and (card_dict['cm_price']+ 1.7 +budget_used < budget) and (current_distribution[card_dict['main_types'][0]]-1 < type_distribution[card_dict['main_types'][0]]) and (current_mana_distribution[str(int(card_dict['cmc']))]-3< mana_curve[str(int(card_dict['cmc']))])  and (len(self.generated_decklist)< 98) and (card_dict['name'].lower() not in basic_lands):
+            if ('cm_price' in card_dict) and (card_dict['cm_price']+ 1.7 +budget_used < budget) and (current_distribution[card_dict['main_types'][0]]-1 < type_distribution[card_dict['main_types'][0]]) and (current_mana_distribution[str(int(card_dict['cmc']))]-3< mana_curve[str(int(card_dict['cmc']))])  and (len(self.generated_decklist)< 99-edhrec_data['basics']) and (card_dict['name'].lower() not in basic_lands):
                 budget_used += card_dict['cm_price'] +1.7
                 current_distribution[card_dict['main_types'][0]] += 1
                 current_mana_distribution[str(int(card_dict['cmc']))] += 1
@@ -417,54 +416,31 @@ class Deck():
                 card_dict['cm_price'] = float(card_dict['cm_price'])
             except:
                 card_dict['cm_price'] = None
-            if  (current_distribution[card_dict['main_types'][0]]-1 < type_distribution[card_dict['main_types'][0]]) and (current_mana_distribution[str(int(card_dict['cmc']))]-3< mana_curve[str(int(card_dict['cmc']))] or 'Land' in card_dict['main_types']) and (len(self.generated_decklist)< 98) and (card_dict['name'].lower() not in basic_lands):
+            if  (current_distribution[card_dict['main_types'][0]]-1 < type_distribution[card_dict['main_types'][0]]) and (current_mana_distribution[str(int(card_dict['cmc']))]-3< mana_curve[str(int(card_dict['cmc']))] or 'Land' in card_dict['main_types']) and (len(self.generated_decklist)< 99-edhrec_data['basics']) and (card_dict['name'].lower() not in basic_lands):
                 current_distribution[card_dict['main_types'][0]] += 1
                 current_mana_distribution[str(int(card_dict['cmc']))] += 1
                 self.generated_decklist[card] = card_dict
                 self.add_card(card_dict['name'])
         basics_to_add = 99-len(self.generated_decklist)
-        extracard = False
+        basics_added = 0
+        basics = {
+            'W': 'plains',
+            'R': 'mountain',
+            'U': 'island',
+            'G': 'forest',
+            'B': 'swamp',
+        }
+        print(basics_to_add)
         for color in self.commander.color_identity:
             n_colors = len(self.commander.color_identity)
-            number = round(basics_to_add/n_colors-0.5)
-            if not extracard:
-                extracard = True
-                number += 1
-            basics = {
-                'W':'plains',
-                'R':'mountain',
-                'U':'island',
-                'G':'forest',
-                'B':'swamp',
-                      }
+            number = round(basics_to_add/n_colors-0.4)
+            basics_added += number
             self.generated_decklist[basics[color]] = owned[basics[color]]
             self.generated_decklist[basics[color]]['number'] = number
             self.add_card(basics[color], quantity=number)
-
-
-
-
-        '''
-        # print the results
-        rank = 0
-
-        for card in to_buy:
-            rank +=1
-            print(f'{rank}. {to_buy[card]['relative']}-{to_buy[card]['name']} ', end=' (')
-            for key in to_buy[card]:
-                if key != 'relative' and key != 'absolute' and key != 'name':
-                    print(f'{key}: {to_buy[card][key]}, ', end='')
-            print('', end=')\n')
-        rank = 0
-
-        for card in owned:
-            rank += 1
-            print(f'{rank}. {owned[card]['absolute']}-{owned[card]['name']} ', end=' (')
-            for key in owned[card]:
-                if key != 'relative' and key != 'absolute' and key != 'name':
-                    print(f'{key}: {owned[card][key]}, ', end='')
-            print('', end=')\n')
-'''
+            if basics_added != basics_to_add and color ==self.commander.color_identity[-1]:
+                self.generated_decklist[basics[color]]['number'] = self.generated_decklist[basics[color]]['number'] + basics_to_add-basics_added
+                self.add_card(basics[color], quantity=basics_to_add-basics_added)
 
     def _get_building_data_2(self, load, weights):
         owned = {}
@@ -622,20 +598,12 @@ class Deck():
         if card['cm_price'] and type(card['cm_price']) == float:
             price = card['cm_price'] + 1.7
         else:
-            price = 25
+            price = default_values['cm_price']
 
-        # price mod
-        if price<5:
-            price_modifier = 1
-        elif price < 20:
-            price_modifier = 2
-        elif price < 60:
-            price_modifier = 3
-        else:
-            price_modifier = 4
+        price_penalty = weights['price_penalty_weight']*(math.log10(price) + 1)
         # eval relative value
 
-        relative_value = absolute_value / price_modifier
+        relative_value = absolute_value / price_penalty
         return absolute_value, relative_value
 
 
