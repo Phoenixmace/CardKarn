@@ -86,80 +86,82 @@ class Deck():
             print(f'{card.number} {card.name}')
 
     def get_stats(self):
-        stats = dict()
-        cmc_total = 0
-        cmc_cards = 0
-        total_cards = 0
-        creature_types = dict()
-        main_types = dict()
+        # setup dict
         pips = {
-            'B' : 0,
-            'U' : 0,
-            'G' : 0,
+            'B': 0,
+            'U': 0,
+            'G': 0,
             'R': 0,
             'W': 0,
-            'Generic': 0
+            'C': 0,
         }
+        stats = {
+            'average_cmc': None,
+            'mana_curve': dict(),
+            'pips': None,
+            'producer': pips,
+            'total_cards': 0,
+            'card_types': dict(),
+            'creature_types': dict(),
+            'price': 0
+                 }
+        pips['generic'] = 0
+        stats['pips'] = pips
+        cmc_total = 0
 
-        # average cmc
         for card in self.decklist:
-            if 1 == 1:
-                cmc_total += card.cmc*card.number
-                cmc_cards += card.number
+            # add to total cards
+            stats['total_cards'] += card.number
+            cmc_total += card.number*card.cmc
 
-            # main types
-                for type in card.main_types:
-                    if type in main_types:
-                        main_types[type] += card.number
-                    else:
-                        main_types[type] = card.number
+            # Mana Curve
+            if 'Land' not in card.main_types:
+                if str(int(card.cmc)) not in stats['mana_curve']:
+                    stats['mana_curve'][str(int(card.cmc))] = int(card.cmc*card.number)
+                else:
+                    stats['mana_curve'][str(int(card.cmc))] += int(card.cmc * card.number)
+
+            # card types
+            for type in card.main_types:
+                if type in stats['card_types']:
+                    stats['card_types'][type] += card.number
+                else:
+                    stats['card_types'][type] = card.number
 
 
             # price
-                if 'price' not in stats:
-                    stats['price'] = 0
-                if 'Basic' not in card.supertypes:
-                    if hasattr(card, 'cm_price'):
-                        stats['price'] += float(card.cm_price)*card.number
-                    else:
-                        print(f'no price for {card.name} found')
+            if 'Basic' not in card.supertypes:
+                if hasattr(card, 'cm_price'):
+                    stats['price'] += float(card.cm_price)*card.number
+                else:
+                    print(f'no price for {card.name} found')
 
-            # number of cards
-                total_cards += card.number
 
 
             # pips
-                for key in pips:
-                    if key != 'Generic':
-                        pips[key] += card.mana_cost.count(str('{'+key+'}'))*card.number
-            # generic
-                index = 1
-                generic = ''
-                while index < len(card.mana_cost) and card.mana_cost[index].isnumeric():
-                    generic = generic + card.mana_cost[index]
-                    index += 1
-                if len(generic) > 0:
-                    if 'Generic' in pips:
-                        pips['Generic'] += int(generic)
-                    else:
-                        pips['Generic'] = int(generic)
-
+                if hasattr(card, 'mana_cost'):
+                    for key in pips:
+                        if key != 'generic':
+                            stats['pips'][key] += card.mana_cost.count(str('{'+key+'}'))*card.number
+                # generic
+                    index = 1
+                    generic = ''
+                    while index < len(card.mana_cost) and card.mana_cost[index].isnumeric():
+                        generic = generic + card.mana_cost[index]
+                        index += 1
+                    if len(generic) > 0:
+                        stats['pips']['generic'] += int(generic)*card.number
+            # Producer
             # creature types
-                if 'Creature' in card.main_types:
-                    for type in card.subtypes:
-                        if type not in creature_types:
-                            creature_types[type] = card.number
-                        else:
-                            creature_types[type] += card.number
+            if 'Creature' in card.main_types:
+                for subtype in card.subtypes:
+                    if subtype not in stats['creature_types']:
+                        stats['creature_types'][subtype] = card.number
+                    else:
+                        stats['creature_types'][subtype] = card.number
 
-        # define open vars
-        if cmc_cards >0:
-            stats['avg_cmc'] = cmc_total / cmc_cards
 
-        stats['total_cards'] = total_cards
-        stats['total_pips'] = pips
-        stats['creature_types'] = creature_types
-        stats['main_types'] = main_types
+
         return stats
 
     def check_legality(self):
@@ -328,7 +330,7 @@ class Deck():
 
 
 
-    def build_2(self, budget, synergy_weight=4, salt_weight=3, rank_weight=1, price_penalty_weight = 1,  load=False): #price as an exponent
+    def generate_deck(self, budget, synergy_weight=4, salt_weight=3, rank_weight=1, price_penalty_weight = 1, load=False): #price as an exponent
         # convert synergys to dict
         self.generated_decklist = {}
         weights = {
@@ -338,7 +340,7 @@ class Deck():
             'price_penalty_weight': price_penalty_weight
         }
 
-        card_data  = self._get_building_data_2(load, weights)
+        card_data  = self._get_building_data(load, weights)
         owned =card_data[0]
         owned = dict(sorted(owned.items(), key=lambda item: item[1]['absolute'], reverse=True))
         to_buy = card_data[1]
@@ -442,7 +444,7 @@ class Deck():
                 self.generated_decklist[basics[color]]['number'] = self.generated_decklist[basics[color]]['number'] + basics_to_add-basics_added
                 self.add_card(basics[color], quantity=basics_to_add-basics_added)
 
-    def _get_building_data_2(self, load, weights):
+    def _get_building_data(self, load, weights):
         owned = {}
         to_buy = {}
         edhrec_data = self._get_edhrec_data_()

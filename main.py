@@ -11,8 +11,9 @@ import mtg.data_management
 if __name__ == '__main__':
     #import_collection_from_manabox('C:\\Users\\maxce\\Downloads\\ManaBox_Collection.csv', True, True)
     deck = Deck('testdeck', commander='Yarok, the Desecrated')
-    edhrec = (deck._get_edhrec_data_())
-    deck.build_2(10, load=True)
-    deck.print()
+    #edhrec = (deck._get_edhrec_data_())
+    deck.generate_deck(10, load=True)
+    print(deck.get_stats())
+    #deck.print()
 
 
