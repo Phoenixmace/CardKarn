@@ -330,7 +330,7 @@ class Deck():
 
 
 
-    def generate_deck(self, budget, synergy_weight=4, salt_weight=3, rank_weight=1, price_penalty_weight = 1, load=False): #price as an exponent
+    def generate_deck(self, budget, synergy_weight=1, salt_weight=1, rank_weight=1, price_penalty_weight = 1, load=False): #price as an exponent
         # convert synergys to dict
         self.generated_decklist = {}
         weights = {
@@ -341,12 +341,24 @@ class Deck():
         }
 
         card_data  = self._get_building_data(load, weights)
+
+        # prepare owned
         owned =card_data[0]
         owned = dict(sorted(owned.items(), key=lambda item: item[1]['absolute'], reverse=True))
+        for key in owned:
+            owned[key]['relative'] = owned[key]['absolute']
+
         to_buy = card_data[1]
-        to_buy = dict(sorted(to_buy.items(), key=lambda item: item[1]['relative'], reverse=True))
         edhrec_data = card_data[2]
         mana_curve = edhrec_data['mana_curve']
+
+        # prepare all
+        all_cards = to_buy
+        for key in owned:
+            all_cards[key] = owned[key]
+        all_cards = dict(sorted(to_buy.items(), key=lambda item: item[1]['relative'], reverse=True))
+
+
         for i in range(20):
             if str(i) not in mana_curve:
                 mana_curve[str(i)] = 0
@@ -367,7 +379,7 @@ class Deck():
             'Enchantment':edhrec_data['enchantments'],
             'Battle':edhrec_data['battles'],
             'Planeswalker':edhrec_data['planeswalker'],
-            'Land':edhrec_data['lands']-edhrec_data['basics']
+            'Land':edhrec_data['lands']
                              }
 
         current_distribution = {
@@ -396,34 +408,32 @@ class Deck():
 
         budget_used = 0
 
-        # add to_buy cards
-        for card in to_buy:
-            card_dict = to_buy[card]
+
+
+        # add all cards
+        for card in all_cards:
+            card_dict = all_cards[card]
+            if 'Land' in card_dict['main_types']:
+                print('h')
+            # check if owned
+            card_is_owned = False
+            if card_dict['absolute'] == card_dict['relative']:
+                card_is_owned = True
             try:
                 card_dict['cm_price'] = float(card_dict['cm_price'])
             except:
-                card_dict['cm_price'] = None
-            if ('cm_price' in card_dict) and (card_dict['cm_price']+ 1.7 +budget_used < budget) and (current_distribution[card_dict['main_types'][0]]-1 < type_distribution[card_dict['main_types'][0]]) and (current_mana_distribution[str(int(card_dict['cmc']))]-3< mana_curve[str(int(card_dict['cmc']))])  and (len(self.generated_decklist)< 99-edhrec_data['basics']) and (card_dict['name'].lower() not in basic_lands):
-                budget_used += card_dict['cm_price'] +1.7
+                card_dict['cm_price'] = False
+            if (card_dict['cm_price'] or card_is_owned) and (card_is_owned or card_dict['cm_price']+ 1.7 +budget_used < budget) and (current_distribution[card_dict['main_types'][0]] < type_distribution[card_dict['main_types'][0]]) and ((current_mana_distribution[str(int(card_dict['cmc']))]-3< mana_curve[str(int(card_dict['cmc']))]) or 'Land' in card_dict['main_types'])  and (len(self.generated_decklist)< 99-edhrec_data['basics']) and (card_dict['name'].lower() not in basic_lands):
+                if card_dict['relative'] == card_dict['absolute']:
+                    budget_used += card_dict['cm_price'] +1.7
                 current_distribution[card_dict['main_types'][0]] += 1
                 current_mana_distribution[str(int(card_dict['cmc']))] += 1
                 self.generated_decklist[card] = card_dict
                 self.generated_decklist[card]['number'] = 1
                 self.add_card(card_dict['name'])
 
-        # add owned cards
-        for card in owned:
-            card_dict = owned[card]
-            try:
-                card_dict['cm_price'] = float(card_dict['cm_price'])
-            except:
-                card_dict['cm_price'] = None
-            if  (current_distribution[card_dict['main_types'][0]]-1 < type_distribution[card_dict['main_types'][0]]) and (current_mana_distribution[str(int(card_dict['cmc']))]-3< mana_curve[str(int(card_dict['cmc']))] or 'Land' in card_dict['main_types']) and (len(self.generated_decklist)< 99-edhrec_data['basics']) and (card_dict['name'].lower() not in basic_lands):
-                current_distribution[card_dict['main_types'][0]] += 1
-                current_mana_distribution[str(int(card_dict['cmc']))] += 1
-                self.generated_decklist[card] = card_dict
-                self.add_card(card_dict['name'])
         basics_to_add = 99-len(self.generated_decklist)
+        print(basics_to_add)
         basics_added = 0
         basics = {
             'W': 'plains',
@@ -432,7 +442,6 @@ class Deck():
             'G': 'forest',
             'B': 'swamp',
         }
-        print(basics_to_add)
         for color in self.commander.color_identity:
             n_colors = len(self.commander.color_identity)
             number = round(basics_to_add/n_colors-0.4)
