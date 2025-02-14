@@ -330,7 +330,7 @@ class Deck():
 
 
 
-    def generate_deck(self, budget, synergy_weight=1, salt_weight=1, rank_weight=1, price_penalty_weight = 1, load=False): #price as an exponent
+    def generate_deck(self, budget, synergy_weight=1, salt_weight=3, rank_weight=1, price_penalty_weight = 1, load=False): #price as an exponent
         # convert synergys to dict
         self.generated_decklist = {}
         weights = {
@@ -340,7 +340,7 @@ class Deck():
             'price_penalty_weight': price_penalty_weight
         }
 
-        card_data  = self._get_building_data(load, weights)
+        card_data  = self._get_building_data(load, weights, budget)
 
         # prepare owned
         owned =card_data[0]
@@ -379,7 +379,7 @@ class Deck():
             'Enchantment':edhrec_data['enchantments'],
             'Battle':edhrec_data['battles'],
             'Planeswalker':edhrec_data['planeswalker'],
-            'Land':edhrec_data['lands']
+            'Land':edhrec_data['lands']-edhrec_data['basics']
                              }
 
         current_distribution = {
@@ -442,6 +442,7 @@ class Deck():
             'G': 'forest',
             'B': 'swamp',
         }
+        print(self.get_stats())
         for color in self.commander.color_identity:
             n_colors = len(self.commander.color_identity)
             number = round(basics_to_add/n_colors-0.4)
@@ -453,7 +454,7 @@ class Deck():
                 self.generated_decklist[basics[color]]['number'] = self.generated_decklist[basics[color]]['number'] + basics_to_add-basics_added
                 self.add_card(basics[color], quantity=basics_to_add-basics_added)
 
-    def _get_building_data(self, load, weights):
+    def _get_building_data(self, load, weights, budget):
         owned = {}
         to_buy = {}
         edhrec_data = self._get_edhrec_data_()
@@ -559,12 +560,12 @@ class Deck():
         # evaluate cards
         # to_buy
         for card in to_buy:
-            scores = self._get_card_eval(to_buy[card], weights)
+            scores = self._get_card_eval(to_buy[card], weights, budget)
             to_buy[card]['absolute'] = scores[0]
             to_buy[card]['relative'] = scores[1]
 
         for card in owned:
-            scores = self._get_card_eval(owned[card], weights)
+            scores = self._get_card_eval(owned[card], weights, budget)
             owned[card]['absolute'] = scores[0]
 
         # save
@@ -578,7 +579,7 @@ class Deck():
         # return
         return owned, to_buy, edhrec_data
 
-    def _get_card_eval(self, card, weights):
+    def _get_card_eval(self, card, weights, budget):
         default_values = {'salt': 0, 'edhrec_rank': 30000, 'cm_price': 10, 'synergy': 0.0}
 
 
@@ -612,6 +613,13 @@ class Deck():
             price = default_values['cm_price']
 
         price_penalty = weights['price_penalty_weight']*(math.log10(price) + 1)
+
+        # Budgets scaling factor
+        budget_scaling_factor = ((math.log10(budget))/4) + 0.5
+        if budget_scaling_factor > 1:
+            budget_scaling_factor = 1
+        if budget_scaling_factor < 0:
+            budget_scaling_factor = 0
         # eval relative value
 
         relative_value = absolute_value / price_penalty
