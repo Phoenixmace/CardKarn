@@ -48,6 +48,7 @@ class Deck():
         }
 
     def add_card(self, card_name, set_code=None, quantity=1, foil=False):
+        starting_decklist_length = self.get_stats()['total_cards']
         if self.format == 'commander' and card_name == self.commander_name:
             return
         card = Card(card_name, set_code=set_code, number=quantity, foil=foil)
@@ -67,7 +68,8 @@ class Deck():
                 self.decklist.append(card)
                 self.name_list.append([card.name, card.set_code, card.number, card.foil])
 
-
+        if starting_decklist_length == self.get_stats()['total_cards']:
+            print(f'Error while adding {card_name} to deck')
     def import_name(self, card_name, card_setcode, card_quantity, card_foil=False):
         args = {
             'name': card_name
@@ -272,7 +274,7 @@ class Deck():
                 self.add_card(**args)
                 print(i[index+1:], 'was added')
 
-    def _get_edhrec_data_(self):
+    def _get_edhrec_data_(self, price_class=False):
         if not self.commander_name:
             print('Please specify your Commander')
             return
@@ -282,7 +284,10 @@ class Deck():
         to_delete = [',']
         for i in to_delete:
             cleaned_name = cleaned_name.replace(i, '')
-        url = f'https://json.edhrec.com/pages/commanders/{cleaned_name}.json'
+        url = f'https://json.edhrec.com/pages/commanders/{cleaned_name}'
+        if price_class:
+            url += f'/{price_class}'
+        url += '.json'
         try:
             data = requests.get(url).json()
         except:
@@ -330,7 +335,7 @@ class Deck():
 
 
 
-    def generate_deck(self, budget, synergy_weight=1, salt_weight=3, rank_weight=1, price_penalty_weight = 1, load=False): #price as an exponent
+    def generate_deck(self, budget, synergy_weight=1.8, salt_weight=1.5, rank_weight=0.8, price_penalty_weight = 0.35, load=False): #price as an exponent
         # convert synergys to dict
         self.generated_decklist = {}
         weights = {
@@ -339,6 +344,7 @@ class Deck():
             'edhrec_rank': rank_weight,
             'price_penalty_weight': price_penalty_weight
         }
+
 
         card_data  = self._get_building_data(load, weights, budget)
 
@@ -356,6 +362,10 @@ class Deck():
         all_cards = to_buy
         for key in owned:
             all_cards[key] = owned[key]
+        try:
+            del all_cards[self.commander.key]
+        except:
+            pass
         all_cards = dict(sorted(to_buy.items(), key=lambda item: item[1]['relative'], reverse=True))
 
 
@@ -408,32 +418,35 @@ class Deck():
 
         budget_used = 0
 
-
+        temp_buylist = []
 
         # add all cards
         for card in all_cards:
             card_dict = all_cards[card]
-            if 'Land' in card_dict['main_types']:
-                print('h')
             # check if owned
             card_is_owned = False
-            if card_dict['absolute'] == card_dict['relative']:
+            if card in owned:
                 card_is_owned = True
             try:
                 card_dict['cm_price'] = float(card_dict['cm_price'])
             except:
                 card_dict['cm_price'] = False
+
+
             if (card_dict['cm_price'] or card_is_owned) and (card_is_owned or card_dict['cm_price']+ 1.7 +budget_used < budget) and (current_distribution[card_dict['main_types'][0]] < type_distribution[card_dict['main_types'][0]]) and ((current_mana_distribution[str(int(card_dict['cmc']))]-3< mana_curve[str(int(card_dict['cmc']))]) or 'Land' in card_dict['main_types'])  and (len(self.generated_decklist)< 99-edhrec_data['basics']) and (card_dict['name'].lower() not in basic_lands):
-                if card_dict['relative'] == card_dict['absolute']:
+                if not card_is_owned:
                     budget_used += card_dict['cm_price'] +1.7
+                    temp_buylist.append(card_dict['name'])
+
                 current_distribution[card_dict['main_types'][0]] += 1
                 current_mana_distribution[str(int(card_dict['cmc']))] += 1
                 self.generated_decklist[card] = card_dict
                 self.generated_decklist[card]['number'] = 1
                 self.add_card(card_dict['name'])
+                print(card_dict['name'], card_dict['relative'], card_dict['salt'], card_dict['edhrec_rank'], card_dict['synergy'])
 
         basics_to_add = 99-len(self.generated_decklist)
-        print(basics_to_add)
+
         basics_added = 0
         basics = {
             'W': 'plains',
@@ -442,22 +455,64 @@ class Deck():
             'G': 'forest',
             'B': 'swamp',
         }
-        print(self.get_stats())
-        for color in self.commander.color_identity:
-            n_colors = len(self.commander.color_identity)
-            number = round(basics_to_add/n_colors-0.4)
-            basics_added += number
-            self.generated_decklist[basics[color]] = owned[basics[color]]
-            self.generated_decklist[basics[color]]['number'] = number
-            self.add_card(basics[color], quantity=number)
-            if basics_added != basics_to_add and color ==self.commander.color_identity[-1]:
-                self.generated_decklist[basics[color]]['number'] = self.generated_decklist[basics[color]]['number'] + basics_to_add-basics_added
-                self.add_card(basics[color], quantity=basics_to_add-basics_added)
+        basics_distribution = self.get_stats()['pips']
+        # ddelete unused colors
+        keys_to_delete = []
+        for color in basics_distribution:
+            if color not in self.commander.color_identity:
+                keys_to_delete.append(color)
+        for key in keys_to_delete:
+            del basics_distribution[key]
+
+
+        total_pips = 1
+
+        #get total pips
+        for pip in basics_distribution:
+            total_pips += basics_distribution[pip]
+
+        # evaluate how many
+        for pip in basics_distribution:
+            basics_distribution[pip] = int(round((basics_distribution[pip]/total_pips*basics_to_add) - (2/len(self.commander.color_identity))))
+
+        # make the basics complete
+        # least used color
+        least_used_color = False
+        for color in basics_distribution:
+            if not least_used_color:
+                least_used_color = color
+            elif basics_distribution[least_used_color] > basics_distribution[color]:
+                least_used_color = color
+        # how many current basics
+        current_basics = 0
+        for color in basics_distribution:
+            current_basics += basics_distribution[color]
+
+        basics_distribution[least_used_color] +=  basics_to_add-current_basics
+        # actually add them
+        for color_key in basics_distribution:
+            self.generated_decklist[basics[color_key]] = owned[basics[color]]
+            self.generated_decklist[basics[color_key]]['number'] = basics_distribution[color_key]
+            self.add_card(basics[color_key], quantity=basics_distribution[color_key])
+        print(temp_buylist)
+
+
+
+
+
+
 
     def _get_building_data(self, load, weights, budget):
         owned = {}
         to_buy = {}
-        edhrec_data = self._get_edhrec_data_()
+        # set price class
+
+        if budget > 200:
+            price_class = 'expensive'
+        else:
+            price_class = False
+
+        edhrec_data = self._get_edhrec_data_(price_class=price_class)
         # if load is enabled
         if load:
             deckfile_data = get_data('deckbuilding_data')
@@ -477,7 +532,6 @@ class Deck():
             n_edhrec_cards = 0
             curr_count = 1
             #count cards
-            print(edhrec_data)
             for tag in edhrec_data['recommended_cards']:
                 for card in edhrec_data['recommended_cards'][tag]:
                     n_edhrec_cards+=1
@@ -531,9 +585,6 @@ class Deck():
                             if color not in commander_colors:
                                 legal = False
 
-                    if card == 'opt':
-                        print('hurray here it is')  # delete later
-                        print(legal)
 
                     if legal:
                         owned[card] = {}
@@ -592,7 +643,7 @@ class Deck():
 
         # calculate synergy
         if card['synergy']:
-            weighted_synergy = (card['synergy']+1)/(2)
+            weighted_synergy = (card['synergy']+1.2)/(2)
             weighted_synergy = weighted_synergy * weights['synergy']
         else:
             weighted_synergy = default_values['synergy']
@@ -615,12 +666,13 @@ class Deck():
         price_penalty = weights['price_penalty_weight']*(math.log10(price) + 1)
 
         # Budgets scaling factor
-        budget_scaling_factor = ((math.log10(budget))/4) + 0.5
+        budget_scaling_factor = ((4-math.log10(budget))/4)
         if budget_scaling_factor > 1:
             budget_scaling_factor = 1
         if budget_scaling_factor < 0:
             budget_scaling_factor = 0
         # eval relative value
+        price_penalty = price_penalty**budget_scaling_factor
 
         relative_value = absolute_value / price_penalty
         return absolute_value, relative_value

@@ -85,6 +85,8 @@ class Card():
         self.legality = self.scryfall_data.legalities()
         self.color_identity = self.scryfall_data.color_identity()
         self.cmc = self.scryfall_data.cmc()
+        self.image_uris = self.scryfall_data.image_uris()
+        print(self.image_uris)
         try:
             self.edhrec_rank = self.scryfall_data.edhrec_rank()
         except:
@@ -273,7 +275,7 @@ class Card():
 
     def to_dict(self):
         # version specific attributes key->versions-> setcode_f/n
-        save_to_versions = ['set_code', 'foil', 'number', 'cm_price']
+        save_to_versions = ['set_code', 'foil', 'number', 'cm_price', 'image_uris']
         if self.foil:
             version_key = self.set_code + '_f'
             version_key = (version_key.lower()).replace(' ', '_')
