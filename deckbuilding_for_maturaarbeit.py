@@ -20,4 +20,7 @@ for commander in decks_to_build:
     deckname = f'{commander}_{int(budget)}_CardKarn'
     deck = Deck(deck_name=deckname, format='commander', commander=commander)
     deck.generate_deck(budget=budget)
+    print('\n\n\nHere is the decklist of ', deckname, ':', end='\n')
+    deck.print()
+    print('\n\n\n')
     deck.save()
