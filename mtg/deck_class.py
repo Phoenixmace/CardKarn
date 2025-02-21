@@ -631,7 +631,7 @@ class Deck():
         return owned, to_buy, edhrec_data
 
     def _get_card_eval(self, card, weights, budget):
-        default_values = {'salt': 0, 'edhrec_rank': 30000, 'cm_price': 10, 'synergy': 0.0}
+        default_values = {'salt': 0, 'edhrec_rank': 36108, 'cm_price': 10, 'synergy': 0.0}
 
 
         # calculate salt
@@ -650,7 +650,7 @@ class Deck():
 
         # calculate synergy
         if card['edhrec_rank']:
-            weighted_edhrec_rank = (30000-card['edhrec_rank']) / (29999)
+            weighted_edhrec_rank = (36108-card['edhrec_rank']) / (36107)
             weighted_edhrec_rank = weighted_edhrec_rank * weights['edhrec_rank']
         else:
             weighted_edhrec_rank = default_values['edhrec_rank']
