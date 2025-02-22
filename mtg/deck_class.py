@@ -16,7 +16,7 @@ class Deck():
     def __init__(self, deck_name, format='commander', decklist=[], commander = None):
         data = get_data()
         if deck_name in data['decks']:
-            print('deck loaded')
+            # print('deck loaded')
             for arg in data['decks'][deck_name]:
                 setattr(self, arg, data['decks'][deck_name][arg])
             self.decklist = []
@@ -136,7 +136,8 @@ class Deck():
                 if hasattr(card, 'cm_price'):
                     stats['price'] += float(card.cm_price)*card.number
                 else:
-                    print(f'no price for {card.name} found')
+                    pass
+                    # print(f'no price for {card.name} found')
 
 
 
@@ -172,6 +173,7 @@ class Deck():
             if self.commander:
                 colors = self.commander.color_identity
             else:
+                pass
                 print('no commander found')
             if 'Legendary' not in self.commander.typeline and 'Creature' not in self.commander.typeline:
                 print('The Commander must be a legendary Creature')
@@ -215,7 +217,6 @@ class Deck():
 
     def delete(self):
         if  input('Do you really want to delete this deck? y/n').lower() == 'y':
-            print('woked')
             data = get_data()
             del data['decks'][self.name]
             dump_data(data)
@@ -269,10 +270,11 @@ class Deck():
                     args['card_name'] = i[index + 1:]
 
                 for key in args:
-                    print(args[key], end= '  |  ')
-                print(set)
+                    pass
+                    # print(args[key], end= '  |  ')
+                # print(set)
                 self.add_card(**args)
-                print(i[index+1:], 'was added')
+                # print(i[index+1:], 'was added')
 
     def _get_edhrec_data_(self, price_class=False):
         if not self.commander_name:
@@ -291,7 +293,7 @@ class Deck():
         try:
             data = requests.get(url).json()
         except:
-            print('Error getting Data')
+            # print('Error getting Data')
             return
         # get combos
         if 'combocounts' in data['panels']:
@@ -443,7 +445,7 @@ class Deck():
                 self.generated_decklist[card] = card_dict
                 self.generated_decklist[card]['number'] = 1
                 self.add_card(card_dict['name'])
-                print(card_dict['name'], card_dict['relative'], card_dict['salt'], card_dict['edhrec_rank'], card_dict['synergy'])
+                #print(card_dict['name'], card_dict['relative'], card_dict['salt'], card_dict['edhrec_rank'], card_dict['synergy'])
 
         basics_to_add = 99-len(self.generated_decklist)
 
@@ -494,7 +496,7 @@ class Deck():
             self.generated_decklist[basics[color_key]] = owned[basics[color]]
             self.generated_decklist[basics[color_key]]['number'] = basics_distribution[color_key]
             self.add_card(basics[color_key], quantity=basics_distribution[color_key])
-        print(temp_buylist)
+        #print(temp_buylist)
 
 
 
@@ -590,7 +592,7 @@ class Deck():
                         owned[card] = {}
                         # move in case recommended
                         if card in to_buy:
-                            print('you already own', card)
+                            # print('you already own', card)
                             owned[card] = to_buy[card]
                             del to_buy[card]
                         else:

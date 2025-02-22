@@ -66,14 +66,15 @@ class Card():
         # searches based on given params
         try:
             self.scryfall_data = scrython.cards.Named(**search_params)
-            print('made request')
-            print(self.key)
+            # print('made request')
+            # print(self.key)
         except:
             print(f'{self.name} not found')
             return False
         # if not exactly the same
         if self.scryfall_data.name().lower() != self.name.lower():
-            print(f'{self.name} was not found. Instead proceeded with: {self.scryfall_data.name()}')
+            # print(f'{self.name} was not found. Instead proceeded with: {self.scryfall_data.name()}')
+            pass
         self.name = self.scryfall_data.name()
         # Two faced
         self.layout = self.scryfall_data.layout()
@@ -86,7 +87,7 @@ class Card():
         self.color_identity = self.scryfall_data.color_identity()
         self.cmc = self.scryfall_data.cmc()
         self.image_uris = self.scryfall_data.image_uris()
-        print(self.image_uris)
+        # print(self.image_uris)
         try:
             self.edhrec_rank = self.scryfall_data.edhrec_rank()
         except:
@@ -121,7 +122,8 @@ class Card():
             try:
                 data = self.scryfall_data.card_faces()[side-1]
             except:
-                print(self.name, self.layout)
+                #print(self.name, self.layout)
+                pass
             side_dict = {}
         else:
             data = self.scryfall_data.__dict__['scryfallJson']
