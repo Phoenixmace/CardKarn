@@ -13,8 +13,11 @@ methods to add:
 '''
 # decklist as [[name, set, number, foil]]
 class Deck():
-    def __init__(self, deck_name, format='commander', decklist=[], commander = None):
+    def __init__(self, deck_name, format='commander', decklist=None, commander = None):
+        if decklist is None:
+            decklist = []
         data = get_data()
+        self.name_list = []
         if deck_name in data['decks']:
             # print('deck loaded')
             for arg in data['decks'][deck_name]:
@@ -24,7 +27,8 @@ class Deck():
                 self.import_name(card[0], card[1], card[2], card[3])
 
         else:
-            self.name_list = decklist
+            if decklist:
+                self.name_list = decklist
             self.format = format
             self.decklist = []
             self.name = deck_name
@@ -283,7 +287,7 @@ class Deck():
         usable_data = dict()
         cleaned_name = self.commander_name.lower()
         cleaned_name = cleaned_name.replace(' ', '-')
-        to_delete = [',']
+        to_delete = [',', '\'']
         for i in to_delete:
             cleaned_name = cleaned_name.replace(i, '')
         url = f'https://json.edhrec.com/pages/commanders/{cleaned_name}'
@@ -296,7 +300,7 @@ class Deck():
             # print('Error getting Data')
             return
         # get combos
-        if 'combocounts' in data['panels']:
+        if 'panels' in data and 'combocounts' in data['panels']:
             usable_data['combos'] = {}
             combos = data['panels']['combocounts']
             combo_number = 0
@@ -312,7 +316,6 @@ class Deck():
                     usable_data['combos'][combo_number] = combo_piece_list
         else:
             usable_data['combos'] = None
-
 
         usable_data['mana_curve'] = data['panels']['mana_curve']
         usable_data['recommended_cards'] = dict()
@@ -337,7 +340,7 @@ class Deck():
 
 
 
-    def generate_deck(self, budget, synergy_weight=1.8, salt_weight=1.5, rank_weight=0.8, price_penalty_weight = 0.35, load=False): #price as an exponent
+    def generate_deck(self, budget, synergy_weight=2, salt_weight=0.5, rank_weight=0.3, price_penalty_weight = 0.35, load=False): #price as an exponent
         # convert synergys to dict
         self.generated_decklist = {}
         weights = {
@@ -435,7 +438,7 @@ class Deck():
                 card_dict['cm_price'] = False
 
 
-            if (card_dict['cm_price'] or card_is_owned) and (card_is_owned or card_dict['cm_price']+ 1.7 +budget_used < budget) and (current_distribution[card_dict['main_types'][0]] < type_distribution[card_dict['main_types'][0]]) and ((current_mana_distribution[str(int(card_dict['cmc']))]-3< mana_curve[str(int(card_dict['cmc']))]) or 'Land' in card_dict['main_types'])  and (len(self.generated_decklist)< 99-edhrec_data['basics']) and (card_dict['name'].lower() not in basic_lands):
+            if card not in self.generated_decklist and (card_dict['cm_price'] or card_is_owned) and (card_is_owned or card_dict['cm_price']+ 1.7 +budget_used < budget) and (current_distribution[card_dict['main_types'][0]] < type_distribution[card_dict['main_types'][0]]) and ((current_mana_distribution[str(int(card_dict['cmc']))]-3< mana_curve[str(int(card_dict['cmc']))]) or 'Land' in card_dict['main_types'])  and (len(self.generated_decklist)< 99-edhrec_data['basics']) and (card_dict['name'].lower() not in basic_lands):
                 if not card_is_owned:
                     budget_used += card_dict['cm_price'] +1.7
                     temp_buylist.append(card_dict['name'])
@@ -493,9 +496,7 @@ class Deck():
         basics_distribution[least_used_color] +=  basics_to_add-current_basics
         # actually add them
         for color_key in basics_distribution:
-            self.generated_decklist[basics[color_key]] = owned[basics[color]]
-            self.generated_decklist[basics[color_key]]['number'] = basics_distribution[color_key]
-            self.add_card(basics[color_key], quantity=basics_distribution[color_key])
+            self.add_card(basics[color_key], quantity=basics_distribution[color_key]) #doesn't add to self.generated so idk if needed after that
         #print(temp_buylist)
 
 
@@ -521,16 +522,16 @@ class Deck():
             if self.commander.key in deckfile_data:
 
                 # check if to buy is there
-                if 'to_buy' in deckfile_data[self.commander.key] and len(deckfile_data[self.commander.key]['to_buy']) > 0:
+                if 'to_buy' in deckfile_data[self.commander.key] and len(deckfile_data[self.commander.key]['to_buy']) > 5:
                     to_buy = deckfile_data[self.commander.key]['to_buy']
                 #check owned
-                if 'owned' in deckfile_data[self.commander.key] and len(deckfile_data[self.commander.key]['owned']) > 0:
+                if 'owned' in deckfile_data[self.commander.key] and len(deckfile_data[self.commander.key]['owned']) > 5:
                     owned = deckfile_data[self.commander.key]['owned']
 
         attributes_to_add = ['salt', 'cmc', 'cm_price', 'main_types', 'edhrec_rank', 'name']
 
         # if no buy
-        if len(to_buy) < 1:
+        if len(to_buy) < 1 and budget > 2:
             n_edhrec_cards = 0
             curr_count = 1
             #count cards
@@ -605,7 +606,15 @@ class Deck():
                                 except:
                                     owned[card][attribute] = None
                                     print(f'Error while retrieving {attribute} of {card_dict['name']}')
-
+                            if ('subtypes' in card_dict and 'Eldrazi' in card_dict['subtypes']) or  ('mana_cost' in card_dict and  'C' in card_dict['mana_cost']): # Eldrazi penalty
+                                try:
+                                    owned[card]['edhrec_rank'] = owned[card]['edhrec_rank']*2
+                                except:
+                                    pass
+                                try:
+                                    owned[card]['salt'] = owned[card]['salt']/2
+                                except:
+                                    pass
                         # get eval
                         curr_count += 1
                         del card_dict
@@ -635,7 +644,6 @@ class Deck():
     def _get_card_eval(self, card, weights, budget):
         default_values = {'salt': 0, 'edhrec_rank': 36108, 'cm_price': 10, 'synergy': 0.0}
 
-
         # calculate salt
         if card['salt']:
             weighted_salt = card['salt']/4
@@ -645,7 +653,7 @@ class Deck():
 
         # calculate synergy
         if card['synergy']:
-            weighted_synergy = (card['synergy']+1.2)/(2)
+            weighted_synergy = (card['synergy']+2)/(2)
             weighted_synergy = weighted_synergy * weights['synergy']
         else:
             weighted_synergy = default_values['synergy']
@@ -668,14 +676,18 @@ class Deck():
         price_penalty = weights['price_penalty_weight']*(math.log10(price) + 1)
 
         # Budgets scaling factor
-        budget_scaling_factor = ((4-math.log10(budget))/4)
+        if budget <= 0: # eliminate math error
+            budget_scaling_factor = 1
+        else:
+            budget_scaling_factor = ((4-math.log10(budget))/4)
+
+
         if budget_scaling_factor > 1:
             budget_scaling_factor = 1
         if budget_scaling_factor < 0:
             budget_scaling_factor = 0
         # eval relative value
         price_penalty = price_penalty**budget_scaling_factor
-
         relative_value = absolute_value / price_penalty
         return absolute_value, relative_value
 

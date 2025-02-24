@@ -9,7 +9,11 @@ import mtg.data_management
 
 # python C:\Users\maxce\PycharmProjects\mtg_test\main.py
 if __name__ == '__main__':
-    import_collection_from_manabox('C:\\Users\\maxce\\Downloads\\ManaBox_Collection_für_ma.csv', True, True)
+    #card_night = Card('daybreak ranger')
+    #card_double = Card('jin-gitaxias, the great synthesis')
+    #card_adventure = Card('Cruel Somnophage // Can\'t Wake Up')
+    tutor = Card('diabolic intent')
+    # print(card_adventure.salt, card_adventure.typeline)
 
 
 

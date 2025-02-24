@@ -26,12 +26,18 @@ class Card():
         found = False
         for subfolder in data['bulk']:
             if self.key in data['bulk'][subfolder]:
-                print(f'{self.name} loaded')
+                #print(f'{self.name} loaded')
                 if not self.set_code: #maybe take cheapest
                     dict = data['bulk'][subfolder][self.key]['versions']
                     first_key = next(iter(dict))
                     self.version_key = first_key
                     self.set_code = first_key[:-2]
+                else:
+                    self.version_key = self.set_code
+                    if self.foil:
+                        self.version_key += '_f'
+                    else:
+                        self.version_key += '_n'
                 self.load_g('bulk', subfolder)
                 found = True
         if found == False and self.key in data['memory']:
@@ -41,12 +47,18 @@ class Card():
                 first_key = next(iter(dict))
                 self.version_key = first_key
                 self.set_code = first_key[:-2]
+            else:
+                self.version_key = self.set_code
+                if self.foil:
+                    self.version_key += '_f'
+                else:
+                    self.version_key += '_n'
             self.load_g('memory')
         if not found:
             if not self.set_scryfall_att():
                 print(f"Failed to initialize Card: {self.name}")
                 del self  # Break local reference in the constructor
-                return
+                return False
             try:
                 self.set_salt_score()
             except:
@@ -92,12 +104,13 @@ class Card():
             self.edhrec_rank = self.scryfall_data.edhrec_rank()
         except:
             self.edhrec_rank = None
-        normal_layouts = ['normal', 'class', 'case', 'saga']
         unusable_layouts = ['planar', 'token', 'emblem', 'double_faced_token']
+        print(hasattr(self.scryfall_data, 'card_faces'))
+        print(type(self.scryfall_data))
         if self.layout in unusable_layouts:
             print(f'{self.name} skipped because of unusable layout')
             return False
-        elif self.layout not in normal_layouts:
+        elif hasattr(self.scryfall_data, 'card_faces') and len(self.scryfall_data.card_faces())>1:
             self.side_1 = {}
             self.side_2 = {}
             self.supertypes = self.get_supertypes(self.typeline)
@@ -122,12 +135,12 @@ class Card():
             try:
                 data = self.scryfall_data.card_faces()[side-1]
             except:
-                #print(self.name, self.layout)
+                print(self.name, self.layout, 'layout error')
                 pass
             side_dict = {}
         else:
             data = self.scryfall_data.__dict__['scryfallJson']
-
+        # what was layout get
         for i in data_to_fetch:
             attribute_value = data[data_to_fetch[i]]
             if side:
@@ -189,19 +202,28 @@ class Card():
             name = self.name
 
         cleaned_name = name.lower()
+        replace_char_dict = {
+            'ó':'o',
+            ' ':'-',
+            '!':'',
+            ',':'',
+            '\'':'',
+        }
+        for char in replace_char_dict:
+            cleaned_name = cleaned_name.replace(char, replace_char_dict[char])
         cleaned_name = cleaned_name.replace(' ', '-')
         cleaned_name = cleaned_name.replace('ó', 'o')
-        to_delete = [',', '\'']
-        for i in to_delete:
-            cleaned_name = cleaned_name.replace(i, '')
         url = f'https://json.edhrec.com/pages/cards/{cleaned_name}.json'
+        print(url)
         try:
             edhrec_data = requests.get(url).json()
         except:
-            print('Error getting Data')
+            print('Error getting Data', self.name)
             return
         salt = edhrec_data['container']['json_dict']['card']['salt']
+        print(salt)
         self.salt = salt
+        print(self.salt)
         if not self.cm_price:
             self.cm_price = edhrec_data['container']['json_dict']['card']['prices']['cardmarket']['price']
 
@@ -229,7 +251,7 @@ class Card():
                 main_types.append(main_type)
         return main_types
 
-    def save_to(self, main_folder='bulk', subfolder=None, del_after_save=False):
+    def save_to(self, main_folder='bulk', subfolder='main', del_after_save=False):
         # Read the existing data from the JSON file
         data = get_data() # get data
         # set setkey
@@ -241,8 +263,7 @@ class Card():
             version_key = (version_key.lower()).replace(' ', '_')
         else:
             print(f'cannot save {self.name}')
-        if del_after_save:
-            del self
+
 
         # create necessairy paths
         if main_folder not in data:
@@ -274,6 +295,8 @@ class Card():
             else:
                 data[main_folder][self.key]['versions'][version_key] = self.to_dict()['versions'][version_key]
             dump_data(data)
+        if del_after_save:
+            del self
 
     def to_dict(self):
         # version specific attributes key->versions-> setcode_f/n

@@ -3,7 +3,7 @@ from mtg.deck_class import Deck
 decks_to_build = { #commander:budget
     'Arabella, Abandoned Doll': 0,
     'Nekusar, the Mindrazer': 0,
-    'luc 0': 0,
+    'Sythis, Harvest\'s Hand': 0,
     'Prosper, Tome-Bound': 100,
     'Storm, Force of Nature': 100,
     'luc 100': 100,
@@ -14,13 +14,13 @@ decks_to_build = { #commander:budget
     'Sisay, Weatherlight Captain': 10000,
     'Ratadrabik of Urborg': 10000
 }
-
 for commander in decks_to_build:
     budget = decks_to_build[commander]
-    deckname = f'{commander}_{int(budget)}_CardKarn'
-    deck = Deck(deck_name=deckname, format='commander', commander=commander)
-    deck.generate_deck(budget=budget)
-    print('\n\n\nHere is the decklist of ', deckname, ':', end='\n')
-    deck.print()
-    print('\n\n\n')
-    deck.save()
+    if budget ==0:
+        deckname = f'{commander}_{int(budget)}_CardKarn'
+        deck = Deck(deck_name=deckname, format='commander', commander=commander)
+        deck.generate_deck(budget=budget, load=False)
+        print('\n\n\nHere is the decklist of ', deckname, ':', end='\n')
+        deck.print()
+        print('\n\n\n')
+        deck.save()
