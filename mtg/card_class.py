@@ -14,46 +14,33 @@ import requests
 '''
 
 class Card():
-    def __init__(self, name, number=1, set_code=None, foil=False, language='eng', just_use_cheapest=False):
+    def __init__(self, name, number=1, set_code=None, finish='nonfoil', language='eng', just_use_cheapest=False):
         self.name = name
         self.language = language
         self.set_code = set_code
         self.number = number
-        self.foil = foil
-        data = get_data()
-        self.key = self.name
+        self.finish = finish
+
+        # make key
         self.key = self.key.lower().replace(' ', '_')
-        found = False
-        for subfolder in data['bulk']:
-            if self.key in data['bulk'][subfolder]:
-                #print(f'{self.name} loaded')
-                if not self.set_code: #maybe take cheapest
-                    dict = data['bulk'][subfolder][self.key]['versions']
-                    first_key = next(iter(dict))
-                    self.version_key = first_key
-                    self.set_code = first_key[:-2]
-                else:
-                    self.version_key = self.set_code
-                    if self.foil:
-                        self.version_key += '_f'
-                    else:
-                        self.version_key += '_n'
-                self.load_g('bulk', subfolder)
-                found = True
-        if found == False and self.key in data['memory']:
-            print('loaded')
+
+        # search memory
+        data = get_data()
+
+        if self.key in data['memory']:
             if not self.set_code:
-                dict  = data['memory'][self.key]['versions']
-                first_key = next(iter(dict))
-                self.version_key = first_key
-                self.set_code = first_key[:-2]
-            else:
-                self.version_key = self.set_code
-                if self.foil:
-                    self.version_key += '_f'
-                else:
-                    self.version_key += '_n'
+                self.set_code = next(iter(data['memory'][self.key]['versions']))
+                self.version_key = '_' + self.finish[0]
             self.load_g('memory')
+            return True
+        elif  self.set_card_from_scryfall():
+            return True
+
+        else:
+            print('failed initiating', self.name)
+            return False
+            del self
+
         if not found:
             if not self.set_scryfall_att():
                 print(f"Failed to initialize Card: {self.name}")
@@ -70,6 +57,62 @@ class Card():
         self.number = number
         self.foil = foil
 
+    def set_card_from_scryfall(self):
+        search_params = {'fuzzy': self.name}
+        if self.set_code:
+            search_params['set'] = self.set_code
+        # searches based on given params
+        try:
+            scryfall_data = scrython.cards.Named(**search_params)
+            # print('made request')
+            # print(self.key)
+        except:
+            print(f'{self.name} not found')
+            return False
+        # if not exactly the same
+        self.name = scryfall_data.name
+
+        self.scryfall_dict = scryfall_data.__dict__
+        self.cm_price = self.scryfall_data.prices('eur')
+
+
+        # general attributes
+        general_attributes = {
+    "layout": "layout",
+    "set_code": "set_code",
+    "legality": "legalities",
+    "color_identity": "color_identity",
+    "cmc": "cmc",
+    "image_uris": "image_uris",
+    "edhrec_rank":"edhrec_rank",
+}       face_related_attributes = {
+            "typeline": "type_line",
+            "mana_cost": "mana_cost",
+        }
+        unusable_layouts = ['planar', 'token', 'emblem', 'double_faced_token']
+        for key in general_attributes:
+            try:
+                setattr(self, key,self.scryfall_dict[key])
+            except:
+                setattr(self, key, None)
+                print(f'there was an Error while setting {key} for {self.name}')
+
+        # double face attributes
+        for key in face_related_attributes:
+            total = None
+            if 'card_faces' in self.scryfall_dict:
+                for index, side in enumerate(self.scryfall_dict["card_faces"]):
+                    setattr(self, f'side_{index+1}', self.scryfall_dict['card_faces'][index][key])
+                    total = total +
+
+
+        if not self.cm_price:
+            self.cm_price = None
+        if self.layout in unusable_layouts:
+            print(f'{self.name} has a unusable Layout')
+            return False
+        if 'card_sides' in self.scryfall_dict:
+            print('multiple_sides')
 
     def set_scryfall_att(self):
         search_params = {'fuzzy':self.name}
@@ -83,6 +126,8 @@ class Card():
         except:
             print(f'{self.name} not found')
             return False
+
+
         # if not exactly the same
         if self.scryfall_data.name().lower() != self.name.lower():
             # print(f'{self.name} was not found. Instead proceeded with: {self.scryfall_data.name()}')
