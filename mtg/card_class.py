@@ -1,4 +1,4 @@
-from xml.sax.saxutils import escape
+from logging.config import valid_ident
 
 import scrython
 import json
@@ -7,55 +7,58 @@ import requests
 # what if wrong set/name code
 # setattr make sure all attributes are named the same wether loaded or not
 # make other lists than main first man
-
-'''
-- memory load wthout set code
-- foil
-'''
+#[[scryfall_dict_path],side_related, save_to_memory, save_to_collection, save_to_version]
+# redo price finding with version
+scryfall_attribute_dict = {
+    'name': [['name'], False, True, False,False],
+    'layout': [['layout'], False, True, False, False],
+    'image_uris': [['image_uris'], True, True, False, True],
+    'mana_cost': [['mana_cost'], True, True, False, False],
+    'cmc': [['cmc'], False, True, False, False],
+    'typeline': [['type_line'], True, True, False, False],
+    'power': [['power'], True, True, False, False],
+    'toughness': [['toughness'], True, True, False, False],
+    'color_identity': [['color_identity'], False, True, False, False],
+    'keywords': [['keywords'], False, True, False, False],
+    'ruling': [['oracle_text'], True, True, False, False],
+    'legality': [['legalities'], False, True, False, False],
+    'game_changer': [['game_changer'], False, True, False, False],
+    'set_code': [['set'], False, True, True, True],
+    'rarity': [['rarity'], False, True, True, True],
+    'edhrec_rank': [['edhrec_rank'], False, True, False, False],
+    'cm_price': [['prices', 'eur'], False, True, True, True],
+                  }
+local_dict = {
+    'language': [False, True, True, False],
+    'finish': [False, True, True, True],
+    'number': [False, True, True, True],
+}
 
 class Card():
     def __init__(self, name, number=1, set_code=None, finish='nonfoil', language='eng', just_use_cheapest=False):
         self.name = name
-        self.language = language
         self.set_code = set_code
-        self.number = number
-        self.finish = finish
-
-        # make key
-        self.key = self.key.lower().replace(' ', '_')
-
         # search memory
-        data = get_data()
+        self.key = str(name).lower().replace(' ', '_')
+        bulkdata = get_data()
+        if set_code and self.key in bulkdata['memory']:
+            # make version key
+            self.version_key = f'{set_code}_{finish[0]}'
 
-        if self.key in data['memory']:
-            if not self.set_code:
-                self.set_code = next(iter(data['memory'][self.key]['versions']))
-                self.version_key = '_' + self.finish[0]
-            self.load_g('memory')
-            return True
-        elif  self.set_card_from_scryfall():
-            return True
-
+            for attribute in bulkdata['memory'][self.key]:
+                if attribute != 'versions':
+                    setattr(self, attribute, bulkdata['memory'][self.key][attribute])
+            # version related attributes
+            for attribute in bulkdata['memory'][self.key]:
+                setattr(self, attribute, bulkdata['memory'][self.key][attribute])
+            self.is_valid = True
+        elif not self.set_card_from_scryfall(): # load card from
+            print(f'{self.name} could not be initiated')
+            self.is_valid = False
         else:
-            print('failed initiating', self.name)
-            return False
-            del self
-
-        if not found:
-            if not self.set_scryfall_att():
-                print(f"Failed to initialize Card: {self.name}")
-                del self  # Break local reference in the constructor
-                return False
-            try:
-                self.set_salt_score()
-            except:
-                print(f'There was an Error while retrieving the Salt score with {self.name}')
-                self.salt = None
-            self.save_to('memory')
-        self.key = str(self.name)
-        self.key = self.key.lower().replace(' ', '_')
-        self.number = number
-        self.foil = foil
+            self.is_valid = True
+    def _is_valid(self):
+        return self.is_valid
 
     def set_card_from_scryfall(self):
         search_params = {'fuzzy': self.name}
@@ -65,55 +68,34 @@ class Card():
         try:
             scryfall_data = scrython.cards.Named(**search_params)
             # print('made request')
-            # print(self.key)
         except:
             print(f'{self.name} not found')
             return False
+
         # if not exactly the same
-        self.name = scryfall_data.name
-
-        self.scryfall_dict = scryfall_data.__dict__
-        self.cm_price = self.scryfall_data.prices('eur')
-
-
-        # general attributes
-        general_attributes = {
-    "layout": "layout",
-    "set_code": "set_code",
-    "legality": "legalities",
-    "color_identity": "color_identity",
-    "cmc": "cmc",
-    "image_uris": "image_uris",
-    "edhrec_rank":"edhrec_rank",
-}       face_related_attributes = {
-            "typeline": "type_line",
-            "mana_cost": "mana_cost",
-        }
-        unusable_layouts = ['planar', 'token', 'emblem', 'double_faced_token']
-        for key in general_attributes:
-            try:
-                setattr(self, key,self.scryfall_dict[key])
-            except:
-                setattr(self, key, None)
-                print(f'there was an Error while setting {key} for {self.name}')
-
-        # double face attributes
-        for key in face_related_attributes:
-            total = None
-            if 'card_faces' in self.scryfall_dict:
-                for index, side in enumerate(self.scryfall_dict["card_faces"]):
-                    setattr(self, f'side_{index+1}', self.scryfall_dict['card_faces'][index][key])
-                    total = total +
-
-
-        if not self.cm_price:
-            self.cm_price = None
-        if self.layout in unusable_layouts:
-            print(f'{self.name} has a unusable Layout')
-            return False
-        if 'card_sides' in self.scryfall_dict:
-            print('multiple_sides')
-
+        self.scryfall_dict = scryfall_data.__dict__['scryfallJson']
+        self.two_sided = 'card_faces' in self.scryfall_dict
+        # set attributes
+        for attribute in scryfall_attribute_dict:
+            attribute_list = scryfall_attribute_dict[attribute]
+            if not self.two_sided or not attribute_list[1]: # if general attribute or no double side
+                value = self.scryfall_dict
+                for path_step in attribute_list[0]:
+                    if path_step in value:
+                        value = value[path_step]
+                    else:
+                        value = None
+                setattr(self, attribute, value)
+            else: # if it is side dependant and there are 2 sides
+                for side_index, side_dict in enumerate(self.scryfall_dict['card_faces']):
+                    value = side_dict
+                    for path_step in attribute_list[0]:
+                        if path_step in value:
+                            value = value[path_step]
+                        else:
+                            value = None
+                    setattr(self, f'{attribute}_side_{side_index+1}', None)
+        return True
     def set_scryfall_att(self):
         search_params = {'fuzzy':self.name}
         if self.set_code:

@@ -4,7 +4,8 @@ from mtg.deck_class import Deck
 from mtg.card_class import Card
 import mtg.data_management
 import scrython
-
+import logging
+logger = logging.getLogger('ftpuploader')
 
 
 
@@ -13,19 +14,22 @@ import scrython
 
 # python C:\Users\maxce\PycharmProjects\mtg_test\main.py
 if __name__ == '__main__':
-    #card_night = Card('daybreak ranger')
-    #card_double = Card('jin-gitaxias, the great synthesis')
-    #card_adventure = Card('Cruel Somnophage // Can\'t Wake Up')
-    #tutor = Card('diabolic intent')
-    # print(card_adventure.salt, card_adventure.typeline)
-    search_params = {'fuzzy': 'Cruel Somnophage'}
+    cards = ['fdjaklfjdkalöfjkdslöa', 'Cruel Somnophage // Can"t Wake Up', 'Treasure Token', 'Jin-Gitaxias // The great Synthesis', 'alive // Well', 'budoka gardener // dokai weaver of life', 'aberrant researcher // perfected-form', 'argoth sanctum of nature', 'Beastbreaker of Bala Ged', 'Alchemist\'s Talent', 'Auspicious Starrix', 'Arcane Proxy', 'invasion of Ikoria', 'Agyrem', 'A Display of My Dark Power', 'Akroma, Angel of Wrath Avatar', 'Angel - Angel', 'Ajani, Adversary of Tyrants Emblem', 'bat-', 'adorable kitten', 'Abhorrent Oculus']
+    cards_with_version = [['anointed-procession-anointed-procession', 'sld']]
+    for card in cards:
+        try:
+            card_object = Card('Angel - Angel')
+            if not card_object._is_valid():
+                del card_object
+            else:
+                card_object.print()
+        except Exception as e:
+            logger.error('Failed to upload to ftp: '+ str(e) + card)
 
-    scryfall_data = scrython.cards.Named(**search_params)
-    print(getattr(scryfall_data, 'name'))
-    print(scryfall_data.__getattribute__('name'))
-    dicti = str(scryfall_data.__dict__).replace('\'', '"').replace('{', '{').replace('}', '}').replace(',',',\n')
-    print(type(dicti) is dict, type(type(dict)))
-    print(dicti)
+
+
+
+
 
 
 
