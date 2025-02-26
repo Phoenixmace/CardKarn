@@ -10,8 +10,13 @@ logger = logging.getLogger('ftpuploader')
 
 
 
-
-
+dicdij1 = {
+    'hello':'hello'
+}
+dict3 = {
+    'hello':'hello'
+}
+print(type(dict3) == dict)
 # python C:\Users\maxce\PycharmProjects\mtg_test\main.py
 if __name__ == '__main__':
     cards = ['fdjaklfjdkalöfjkdslöa', 'Cruel Somnophage // Can"t Wake Up', 'Treasure Token', 'Jin-Gitaxias // The great Synthesis', 'alive // Well', 'budoka gardener // dokai weaver of life', 'aberrant researcher // perfected-form', 'argoth sanctum of nature', 'Beastbreaker of Bala Ged', 'Alchemist\'s Talent', 'Auspicious Starrix', 'Arcane Proxy', 'invasion of Ikoria', 'Agyrem', 'A Display of My Dark Power', 'Akroma, Angel of Wrath Avatar', 'Angel - Angel', 'Ajani, Adversary of Tyrants Emblem', 'bat-', 'adorable kitten', 'Abhorrent Oculus']

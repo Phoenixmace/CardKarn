@@ -7,20 +7,20 @@ import requests
 # what if wrong set/name code
 # setattr make sure all attributes are named the same wether loaded or not
 # make other lists than main first man
-#[[scryfall_dict_path],side_related, save_to_memory, save_to_collection, save_to_version]
+#[[scryfall_dict_path],side_related, save_to_memory, save_to_collection, save_to_version, only_frontside matters(if siderelated)]
 # redo price finding with version
 scryfall_attribute_dict = {
     'name': [['name'], False, True, False,False],
     'layout': [['layout'], False, True, False, False],
-    'image_uris': [['image_uris'], True, True, False, True],
-    'mana_cost': [['mana_cost'], True, True, False, False],
+    'image_uris': [['image_uris'], True, True, False, True, False], # false bc is dict
+    'mana_cost': [['mana_cost'], True, True, False, False, True],
     'cmc': [['cmc'], False, True, False, False],
-    'typeline': [['type_line'], True, True, False, False],
-    'power': [['power'], True, True, False, False],
-    'toughness': [['toughness'], True, True, False, False],
+    'typeline': [['type_line'], True, True, False, False, False],
+    'power': [['power'], True, True, False, False, True], # check if creature and maybe both sides if backside is creature
+    'toughness': [['toughness'], True, True, False, True],
     'color_identity': [['color_identity'], False, True, False, False],
     'keywords': [['keywords'], False, True, False, False],
-    'ruling': [['oracle_text'], True, True, False, False],
+    'ruling': [['oracle_text'], True, True, False, False, False],
     'legality': [['legalities'], False, True, False, False],
     'game_changer': [['game_changer'], False, True, False, False],
     'set_code': [['set'], False, True, True, True],
@@ -32,16 +32,22 @@ local_dict = {
     'language': [False, True, True, False],
     'finish': [False, True, True, True],
     'number': [False, True, True, True],
+    'card_types': [False, True, False, False],
+    'subtypes': [False, True, False, False],
+    'supertypes': [False, True, False, False],
+}
+other_dict = {
+    'salt': [False, True, False, False],
 }
 
 class Card():
-    def __init__(self, name, number=1, set_code=None, finish='nonfoil', language='eng', just_use_cheapest=False):
+    def __init__(self, name, number=1, set_code=None, finish='nonfoil', language='eng', just_use_cheapest=False, update_card=False):
         self.name = name
         self.set_code = set_code
         # search memory
         self.key = str(name).lower().replace(' ', '_')
         bulkdata = get_data()
-        if set_code and self.key in bulkdata['memory']:
+        if set_code and self.key in bulkdata['memory'] and not update_card:
             # make version key
             self.version_key = f'{set_code}_{finish[0]}'
 
@@ -57,6 +63,8 @@ class Card():
             self.is_valid = False
         else:
             self.is_valid = True
+            # save memory
+
     def _is_valid(self):
         return self.is_valid
 
@@ -95,138 +103,57 @@ class Card():
                         else:
                             value = None
                     setattr(self, f'{attribute}_side_{side_index+1}', None)
+        # set salt score
+        self.set_salt_score()
+
+        # combine sides and list card types
+        if self.two_sided:
+            self.combine_sides()
+        self.set_types()
         return True
-    def set_scryfall_att(self):
-        search_params = {'fuzzy':self.name}
-        if self.set_code:
-            search_params['set'] = self.set_code
-        # searches based on given params
-        try:
-            self.scryfall_data = scrython.cards.Named(**search_params)
-            # print('made request')
-            # print(self.key)
-        except:
-            print(f'{self.name} not found')
-            return False
+    def combine_sides(self):
+        for attribute in scryfall_attribute_dict:
+            if scryfall_attribute_dict[attribute][1]:
+                if scryfall_attribute_dict[attribute][5]:
+                    value = getattr(self, f'{attribute}_side_1')
+                    setattr(self, attribute, value)
+                else:
+                    value_front = getattr(self, f'{attribute}_side_1')
+                    value_back = getattr(self, f'{attribute}_side_2')
+                    setattr(self, attribute, value_front+'//'+value_back)
+
+    def set_types(self):
+        typeline_list = self.typeline.split('//')
+        self.card_types = []
+        self.subtypes = []
+        self.supertypes = []
+        list_of_mtg_supertypes = ["Basic", "Legendary", "Ongoing", "Snow", "World", "Tribal"]
+
+        for typeline in typeline_list:
+            split_typeline = typeline.split('-')
+            # set subtypes
+            if '-' in typeline and 'Creature' in typeline:
+                subtype_list = split_typeline[1].split(' ')
+                for subtype in subtype_list:
+                    if subtype not in self.subtypes:
+                        self.subtypes.append(subtype)
+
+            # set subtypes and supertypes
+            for type in split_typeline[0].split(' '):
+                if type in list_of_mtg_supertypes:
+                    self.supertypes.append(type)
+                else:
+                    self.card_types.append(type)
 
 
-        # if not exactly the same
-        if self.scryfall_data.name().lower() != self.name.lower():
-            # print(f'{self.name} was not found. Instead proceeded with: {self.scryfall_data.name()}')
-            pass
-        self.name = self.scryfall_data.name()
-        # Two faced
-        self.layout = self.scryfall_data.layout()
-        self.cm_price = self.scryfall_data.prices('eur')
-        if not self.cm_price:
-            self.cm_price = None
-        self.set_code = self.scryfall_data.set_code()
-        self.typeline = self.scryfall_data.type_line()
-        self.legality = self.scryfall_data.legalities()
-        self.color_identity = self.scryfall_data.color_identity()
-        self.cmc = self.scryfall_data.cmc()
-        self.image_uris = self.scryfall_data.image_uris()
-        # print(self.image_uris)
-        try:
-            self.edhrec_rank = self.scryfall_data.edhrec_rank()
-        except:
-            self.edhrec_rank = None
-        unusable_layouts = ['planar', 'token', 'emblem', 'double_faced_token']
-        print(hasattr(self.scryfall_data, 'card_faces'))
-        print(type(self.scryfall_data))
-        if self.layout in unusable_layouts:
-            print(f'{self.name} skipped because of unusable layout')
-            return False
-        elif hasattr(self.scryfall_data, 'card_faces') and len(self.scryfall_data.card_faces())>1:
-            self.side_1 = {}
-            self.side_2 = {}
-            self.supertypes = self.get_supertypes(self.typeline)
-            self.subtypes = self.get_subtypes(self.typeline)
-            self.main_types = self.get_maintypes(self.typeline)
-            self.set_remaining_attributes(1)
-            self.set_remaining_attributes(2)
 
-        else: # normal
-            self.set_remaining_attributes()
-        return True
 
-    def set_remaining_attributes(self, side=None):
-        data_to_fetch = {
-            'name':'name',
-            'ruling':'oracle_text',
-            'mana_cost':'mana_cost',
-            'typeline':'type_line'
-        }
-
-        if side:
-            try:
-                data = self.scryfall_data.card_faces()[side-1]
-            except:
-                print(self.name, self.layout, 'layout error')
-                pass
-            side_dict = {}
-        else:
-            data = self.scryfall_data.__dict__['scryfallJson']
-        # what was layout get
-        for i in data_to_fetch:
-            attribute_value = data[data_to_fetch[i]]
-            if side:
-
-                side_dict[i] = attribute_value
-            else:
-                setattr(self, i, attribute_value)
-        typeline = data['type_line']
-        subtypes = self.get_subtypes(typeline)
-        supertypes = self.get_supertypes(typeline)
-        maintypes = self.get_maintypes(typeline)
-        if side:
-            side_dict['subtypes'] = subtypes
-        else:
-            setattr(self, 'subtypes', subtypes)
-        # Supertypes
-        if side:
-            side_dict['supertypes'] = supertypes
-        else:
-            setattr(self, 'supertypes', supertypes)
-
-        # Main types
-        if side:
-            side_dict['maintypes'] = maintypes
-        else:
-            setattr(self, 'main_types', maintypes)
-
-        if 'Creature' in maintypes:
-            power = data['power']
-            toughness = data['toughness']
-            if side:
-                side_dict['power'] = power
-                side_dict['toughness'] = toughness
-            else:
-                setattr(self, 'power', power)
-                setattr(self, 'toughness', toughness)
-        if 'Planeswalker' in maintypes:
-            loyalty = data['loyalty']
-            if side:
-                side_dict['loyalty'] = loyalty
-            else:
-                setattr(self, 'loyalty', loyalty)
-        if side:
-            self.__setattr__(f'side_{side}', side_dict)
     def set_salt_score(self):
-        if self.layout == 'transform':
-            index = 0
-            name = ''
-            while self.name[index] != '/':
-                name = name + self.name[index]
-                index += 1
-            name = name[:-1]
-        elif self.layout == 'split':
-            name = self.name
-            name = name.replace(' // ', '-')
-        elif self.layout == 'modal_dfc':
-            name = self.side_1['name']
+        if self.two_sided:
+            url_end = self.name_side_1 #idea for var name Luc
         else:
-            name = self.name
+            url_end = self.name
+
 
         cleaned_name = name.lower()
         replace_char_dict = {
