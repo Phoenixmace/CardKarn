@@ -16,8 +16,8 @@ def create_data_strucure():
         if data:
             pass
         else:
-            data['bulk'] =dict()
-            data['bulk']['main'] =dict()
+            data['collection'] =dict()
+            data['collection']['main'] =dict()
             data['decks'] = dict()
             data['memory'] = dict()
             with open(get_card_data_path(), 'w') as f:

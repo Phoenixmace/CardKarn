@@ -2,6 +2,9 @@ from logging.config import valid_ident
 
 import scrython
 import json
+
+from attr import attributes
+
 from mtg.data_management import get_data, dump_data
 import requests
 # what if wrong set/name code
@@ -10,9 +13,9 @@ import requests
 #[[scryfall_dict_path],side_related, save_to_memory, save_to_collection, save_to_version, only_frontside matters(if siderelated)]
 # redo price finding with version
 scryfall_attribute_dict = {
-    'name': [['name'], False, True, False,False],
+    'name': [['name'], True, True, False,False, False],
     'layout': [['layout'], False, True, False, False],
-    'image_uris': [['image_uris'], True, True, False, True, False], # false bc is dict
+    'image_uris': [['image_uris'], False, True, False, True, False], # false bc is dict
     'mana_cost': [['mana_cost'], True, True, False, False, True],
     'cmc': [['cmc'], False, True, False, False],
     'typeline': [['type_line'], True, True, False, False, False],
@@ -27,30 +30,40 @@ scryfall_attribute_dict = {
     'rarity': [['rarity'], False, True, True, True],
     'edhrec_rank': [['edhrec_rank'], False, True, False, False],
     'cm_price': [['prices', 'eur'], False, True, True, True],
+    'game_changer': [['game_changer'], False, True, False, False],
                   }
 local_dict = {
-    'language': [False, True, True, False],
+    'language': [False, True, True, True],
     'finish': [False, True, True, True],
     'number': [False, True, True, True],
     'card_types': [False, True, False, False],
     'subtypes': [False, True, False, False],
     'supertypes': [False, True, False, False],
+    'version_key': [False, True, True, True],
+'salt': [False, True, False, False],
 }
-other_dict = {
-    'salt': [False, True, False, False],
-}
+
 
 class Card():
-    def __init__(self, name, number=1, set_code=None, finish='nonfoil', language='eng', just_use_cheapest=False, update_card=False):
+    def __init__(self, name, number=1, set_code=None, finish='nonfoil', language='eng', just_use_cheapest=False, update_card=False, no_setcode_required=True):
         self.name = name
         self.set_code = set_code
+        self.finish = finish
+        self.language = language
+        self.number = number
+
         # search memory
         self.key = str(name).lower().replace(' ', '_')
-        bulkdata = get_data()
-        if set_code and self.key in bulkdata['memory'] and not update_card:
-            # make version key
+        # make version key
+        if set_code:
             self.version_key = f'{set_code}_{finish[0]}'
 
+        bulkdata = get_data()
+
+        if set_code and self.key in bulkdata['memory'] and not update_card and (self.version_key in bulkdata['memory'][self.key]['versions'] or no_setcode_required):
+            # make version key
+            if not self.set_code:
+                self.set_code = next(iter(bulkdata['memory'][self.key]['versions']))[0:-2]
             for attribute in bulkdata['memory'][self.key]:
                 if attribute != 'versions':
                     setattr(self, attribute, bulkdata['memory'][self.key][attribute])
@@ -63,7 +76,8 @@ class Card():
             self.is_valid = False
         else:
             self.is_valid = True
-            # save memory
+        if self.is_valid:
+            self.save_to_memory()
 
     def _is_valid(self):
         return self.is_valid
@@ -84,6 +98,7 @@ class Card():
         self.scryfall_dict = scryfall_data.__dict__['scryfallJson']
         self.two_sided = 'card_faces' in self.scryfall_dict
         # set attributes
+
         for attribute in scryfall_attribute_dict:
             attribute_list = scryfall_attribute_dict[attribute]
             if not self.two_sided or not attribute_list[1]: # if general attribute or no double side
@@ -102,7 +117,12 @@ class Card():
                             value = value[path_step]
                         else:
                             value = None
-                    setattr(self, f'{attribute}_side_{side_index+1}', None)
+                    setattr(self, f'{attribute}_side_{side_index+1}', value)
+        # set version key
+        if not self.set_code:
+            self.set_code = scryfall_data['set_code']
+        self.version_key = f'{self.set_code}_{self.finish[0]}'
+
         # set salt score
         self.set_salt_score()
 
@@ -111,16 +131,17 @@ class Card():
             self.combine_sides()
         self.set_types()
         return True
+
     def combine_sides(self):
         for attribute in scryfall_attribute_dict:
             if scryfall_attribute_dict[attribute][1]:
-                if scryfall_attribute_dict[attribute][5]:
+                if len(scryfall_attribute_dict[attribute]) == 6 and scryfall_attribute_dict[attribute][5]:
                     value = getattr(self, f'{attribute}_side_1')
                     setattr(self, attribute, value)
                 else:
                     value_front = getattr(self, f'{attribute}_side_1')
                     value_back = getattr(self, f'{attribute}_side_2')
-                    setattr(self, attribute, value_front+'//'+value_back)
+                    setattr(self, attribute, str(value_front)+'//'+str(value_back))
 
     def set_types(self):
         typeline_list = self.typeline.split('//')
@@ -145,17 +166,13 @@ class Card():
                 else:
                     self.card_types.append(type)
 
-
-
-
     def set_salt_score(self):
+
+        # clean name for edhrec url
         if self.two_sided:
-            url_end = self.name_side_1 #idea for var name Luc
+            url_end = self.name_side_1.lower() #idea for var name Luc
         else:
-            url_end = self.name
-
-
-        cleaned_name = name.lower()
+            url_end = self.name.lower()
         replace_char_dict = {
             'ó':'o',
             ' ':'-',
@@ -164,136 +181,161 @@ class Card():
             '\'':'',
         }
         for char in replace_char_dict:
-            cleaned_name = cleaned_name.replace(char, replace_char_dict[char])
-        cleaned_name = cleaned_name.replace(' ', '-')
-        cleaned_name = cleaned_name.replace('ó', 'o')
-        url = f'https://json.edhrec.com/pages/cards/{cleaned_name}.json'
+            url_end = url_end.replace(char, replace_char_dict[char])
+
+        url = f'https://json.edhrec.com/pages/cards/{url_end}.json'
         print(url)
         try:
             edhrec_data = requests.get(url).json()
+            if 'redirect' in edhrec_data and len(edhrec_data) < 3:
+                url = f'https://json.edhrec.com/pages{edhrec_data['redirect']}.json'
+                edhrec_data = requests.get(url).json()
         except:
             print('Error getting Data', self.name)
-            return
-        salt = edhrec_data['container']['json_dict']['card']['salt']
+            salt = 0
+        try:
+            salt = edhrec_data['container']['json_dict']['card']['salt']
+        except:
+            print('no salt score found for ', self.name)
+            salt = 0
         print(salt)
         self.salt = salt
         print(self.salt)
-        if not self.cm_price:
-            self.cm_price = edhrec_data['container']['json_dict']['card']['prices']['cardmarket']['price']
 
-    def get_subtypes(self, typeline):
-        subtypes = []
-        if '—' in typeline:
-            substr = typeline[typeline.index('—')+2:].split(' ')
-            for creature_type in substr:
-                subtypes.append(creature_type)
-            return subtypes
+    def save_to_memory(self, del_after=False): # are side related stuff impemeted
+        card_dict = self.to_dict()
+        memory_data = get_data()
+
+        if self.key in memory_data['memory']:
+            # add attributes from scryfall
+            for attribute in scryfall_attribute_dict:
+                attribute_list = scryfall_attribute_dict[attribute]
+                if attribute_list[2] and (not attribute_list[4]):
+                    memory_data['memory'][self.key][attribute] = card_dict[attribute]
+                elif attribute_list[4]:
+                    memory_data['memory'][self.key]['versions'][self.version_key][attribute] = card_dict['versions'][self.version_key][attribute]
+
+            # add others
+            for attribute in local_dict:
+                attribute_list = local_dict[attribute]
+                if (attribute_list[1] or attribute_list[2]) and (not attribute_list[3]):
+                    # version dependant
+                    if attribute_list[0]:
+                        memory_data['memory'][self.key][f'{attribute}_side_1'] = card_dict[f'{attribute}_side_1']
+                        memory_data['memory'][self.key][f'{attribute}_side_2'] = card_dict[f'{attribute}_side_2']
+
+                    memory_data['memory'][self.key][attribute] = card_dict[attribute]
+                elif attribute_list[3]:
+                    # version dependant
+                    if attribute_list[0]:
+                        memory_data['memory'][self.key]['versions'][self.version_key][f'{attribute}_side_1'] = card_dict['versions'][self.version_key][f'{attribute}_side_1']
+                        memory_data['memory'][self.key]['versions'][self.version_key][f'{attribute}_side_2'] = card_dict['versions'][self.version_key][f'{attribute}_side_2']
+                    memory_data['memory'][self.key]['versions'][self.version_key][attribute] = card_dict['versions'][self.version_key][attribute]
+
+
         else:
-            return subtypes
-    def get_supertypes(self, typeline):
-        supertypes = []
-        possible_supertypes = ['Legendary', 'Tribal', 'Basic', 'Snow']
-        for supertype in possible_supertypes:
-            if supertype in typeline:
-                supertypes.append(supertype)
-        return supertypes
-    def get_maintypes(self, typeline):
-        main_types = []
-        possible_main_types = ['Creature', 'Planeswalker', 'Battle', 'Land', 'Artifact', 'Instant', 'Sorcery', 'Enchantment']
-        for main_type in possible_main_types:
-            if main_type in typeline:
-                main_types.append(main_type)
-        return main_types
-
-    def save_to(self, main_folder='bulk', subfolder='main', del_after_save=False):
-        # Read the existing data from the JSON file
-        data = get_data() # get data
-        # set setkey
-        if self.foil:
-            version_key = self.set_code + '_f'
-            version_key = (version_key.lower()).replace(' ', '_')
-        elif self.set_code:
-            version_key = self.set_code + '_n'
-            version_key = (version_key.lower()).replace(' ', '_')
-        else:
-            print(f'cannot save {self.name}')
-
-
-        # create necessairy paths
-        if main_folder not in data:
-            data[main_folder] = dict()
-        if subfolder not in data[main_folder] and subfolder:
-            data[main_folder][subfolder] = dict()
-
-        # if subfolder provided
-        if subfolder:
-            # case card not yet added
-            if self.key not in data[main_folder][subfolder]:
-                data[main_folder][subfolder][self.key] = self.to_dict()
-            #in case of the same set code add number of card
-            elif version_key in data[main_folder][subfolder][self.key]['versions']:
-                data[main_folder][subfolder][self.key]['versions'][version_key]['number'] += self.number
-            # card saved but not the version
-            else:
-                data[main_folder][subfolder][self.key]['versions'][version_key] = self.to_dict()['versions'][version_key]
-            dump_data(data)
-
-        else: #no subfolder
-            # case card not yet added
-            if self.key not in data[main_folder]:
-                data[main_folder][self.key] = self.to_dict()
-            # in case of the same set code add number of card
-            elif version_key in data[main_folder][self.key]['versions']:
-                data[main_folder][self.key]['versions'][version_key]['number'] += self.number
-            # card saved but not the version
-            else:
-                data[main_folder][self.key]['versions'][version_key] = self.to_dict()['versions'][version_key]
-            dump_data(data)
-        if del_after_save:
+            memory_data['memory'][self.key] = card_dict
+        dump_data(memory_data)
+        if del_after:
             del self
 
     def to_dict(self):
+        card_dict = {'versions':{self.version_key:{}}}
+
+        # combine all attributes
+        attribute_dict = {}
+        for attribute in scryfall_attribute_dict:
+            attribute_dict[attribute] = scryfall_attribute_dict[attribute]
+        for attribute in local_dict:
+            attribute_dict[attribute] = [[]]
+            for item in local_dict[attribute]:
+                attribute_dict[attribute].append(item)
+
+
+
         # version specific attributes key->versions-> setcode_f/n
-        save_to_versions = ['set_code', 'foil', 'number', 'cm_price', 'image_uris']
-        if self.foil:
-            version_key = self.set_code + '_f'
-            version_key = (version_key.lower()).replace(' ', '_')
-        else:
-            version_key = self.set_code + '_n'
-            version_key = (version_key.lower()).replace(' ', '_')
-        dict_ = {}
-        dict_['versions'] = {}
-        dict_['versions'][version_key] = {}
-        for attr in dir(self):
-            # Get the attribute value
-            value = getattr(self, attr)
-            # Check if the attribute value is an instance of str and not a method or built-in attribute
-            if (isinstance(value, str) or isinstance(value, float) or isinstance(value, int) or isinstance(value, list) or isinstance(value, dict)) and not callable(value) and not attr.startswith('__'):
-                if attr in save_to_versions:
-                    dict_['versions'][version_key][attr] = value
+        for attribute in attribute_dict:
+            attribute_list = attribute_dict[attribute]
+            if attribute_list[2] or attribute_list[3]:
+
+                # get values
+                value = getattr(self, attribute)
+                card_dict[attribute] = value
+                # sides
+                if self.two_sided and attribute_list[1]:
+                    value_1 = getattr(self, f'{attribute}_side_1')
+                    value_2 = getattr(self, f'{attribute}_side_2')
+
+                # insert values
+                if not attribute_list[4]:
+                    card_dict[attribute] = value
+                    if self.two_sided:
+                        card_dict[f'{attribute}_side_2'] = value_1
+                        card_dict[f'{attribute}_side_1'] = value_2
                 else:
-                    dict_[attr] = value
-        return dict_
+                    card_dict['versions'][self.version_key][attribute] = value
+                    if self.two_sided:
+                        card_dict['versions'][self.version_key][f'{attribute}_side_2'] = value_1
+                        card_dict['versions'][self.version_key][f'{attribute}_side_1'] = value_2
 
-    def load_g(self, folder, subfolder=None):
-        data = get_data()
-        # get versionkey
-        version_key = self.version_key
+        return card_dict
 
-        # in case subfolder is given
-        if subfolder:
-            if version_key in data[folder][subfolder][self.key]['versions']:
-                for attr in data[folder][subfolder][self.key]:
-                    setattr(self, attr, data[folder][subfolder][self.key][attr])
-                for attr in data[folder][subfolder][self.key]['versions'][version_key]:
-                    setattr(self, attr, data[folder][subfolder][self.key]['versions'][version_key][attr])
+    def save_to_collection(self, subfolder='main', delete_after=False):
+
+        data = get_data() # get data
+        card_dict = self.to_dict()
+
+        # combine all attributes
+        attribute_dict = {}
+        for attribute in scryfall_attribute_dict:
+            attribute_dict[attribute] = scryfall_attribute_dict[attribute]
+        for attribute in local_dict:
+            attribute_dict[attribute] = [[]]
+            for item in local_dict[attribute]:
+                attribute_dict[attribute].append(item)
+
+        # check if relevant data was provided
+        for attribute in attribute_dict:
+            if attribute_dict[attribute][3] and not hasattr(self, attribute):
+                print(f'{attribute} is missing to successfully save {self.name}')
+                return False
+
+        # create subfolder
+        if subfolder not in data['collection']:
+            data['collection'][subfolder] = {}
+
+        if self.key in data['collection'][subfolder]:
+            # already exists
+            if self.version_key in data['collection'][subfolder][self.key]['versions']:
+                data['collection'][subfolder][self.key]['versions'][self.version_key]['number'] += self.number
+            else:
+                # create version dict
+                data['collection'][subfolder][self.key]['versions'][self.version_key] = {}
+                for key in card_dict['versions'][self.version_key]:
+                    if attribute_dict[key][3]:
+                        data['collection'][subfolder][self.key]['versions'][self.version_key][key] = card_dict['versions'][self.version_key][key]
+
+        # if not already saved
         else:
-            if version_key in data[folder][self.key]['versions']:
-                for attr in data[folder][self.key]:
-                    setattr(self, attr, data[folder][self.key][attr])
-                for attr in data[folder][self.key]['versions'][version_key]:
-                    setattr(self, attr, data[folder][self.key]['versions'][version_key][attr])
-        del data
+            # create card dict
+            data['collection'][subfolder][self.key] = {}
+            data['collection'][subfolder][self.key]['versions'] = {}
+            data['collection'][subfolder][self.key]['versions'][self.version_key] = {}
+
+            for key in attribute_dict:
+                # not version related
+                if not attribute_dict[key][4] and attribute_dict[key][3]:
+                    data['collection'][subfolder][self.key][key] = card_dict[key]
+                # version related
+                elif attribute_dict[key][4]:
+                    data['collection'][subfolder][self.key]['versions'][self.version_key][key] = card_dict['versions'][self.version_key][key]
+        dump_data(data)
+        if delete_after:
+            del self
+
+
+
+
     def print(self):
         print('Name: ', self.name)
         if self.mana_cost:
