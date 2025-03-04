@@ -19,9 +19,8 @@ if __name__ == '__main__':
         if not card_object._is_valid():
             del card_object
         else:
-            card_object.save_to_collection()
-            card_object.save_to_memory()
-            print(card_object.to_dict())
+            card_object.save_to()
+            card_object.save_to(save_to_memory=False)
 
 
 
