@@ -7,21 +7,10 @@ import scrython
 import logging
 logger = logging.getLogger('ftpuploader')
 
-listd =[1, 3]
-listd[0] = 2
-print(listd)
+
 # python C:\Users\maxce\PycharmProjects\mtg_test\main.py
 if __name__ == '__main__':
-    cards = ['Demonic Tutor','fdjaklfjdkalöfjkdslöa', 'Cruel Somnophage // Can"t Wake Up', 'Treasure Token', 'Jin-Gitaxias // The great Synthesis', 'alive // Well', 'budoka gardener // dokai weaver of life', 'aberrant researcher // perfected-form', 'argoth sanctum of nature', 'Beastbreaker of Bala Ged', 'Alchemist\'s Talent', 'Auspicious Starrix', 'Arcane Proxy', 'invasion of Ikoria', 'Agyrem', 'A Display of My Dark Power', 'Akroma, Angel of Wrath Avatar', 'Angel - Angel', 'Ajani, Adversary of Tyrants Emblem', 'bat-', 'adorable kitten', 'Abhorrent Oculus']
-    cards_with_version = [['anointed-procession-anointed-procession', 'sld']]
-    for card in cards:
-        card_object = Card(card)
-        if not card_object._is_valid():
-            del card_object
-        else:
-            card_object.save_to()
-            card_object.save_to(save_to_memory=False)
-
+    import_collection_from_manabox(file_path=r"C:\Users\maxce\Downloads\ManaBox_Collection_für_ma.csv", add_lists=True, all_main=True)
 
 
 

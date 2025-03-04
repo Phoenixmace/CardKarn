@@ -19,15 +19,15 @@ def import_collection_from_manabox(file_path, add_lists=False, all_main=False):
                     target = 'main'
                 else:
                     target = row[0]
-                if row[6] != 'normal':
-                    foil = True
+                if row[6] == 'normal':
+                    finish = 'nonfoil'
                 else:
-                    foil = False
-                try:
-                    card = Card(name=row[2], number=row[8], set_code=row[3], foil=foil, language=row[15])
-                    card.save_to('bulk', subfolder=target, del_after_save=True)
+                    finish = row[6]
+                card = Card(name=row[2], number=row[8], set_code=row[3], finish=finish, language=row[15], no_setcode_required=False)
+                if card.is_valid:
+                    card.save_to(False, subfolder=target, del_after=True)
                     print(f'{round(count / max_imports * 100, 1)}%')
-                except:
+                else:
                     print(row[2], 'could not be loaded')
                 sleep(0.05)
                 count += 1

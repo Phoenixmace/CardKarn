@@ -14,7 +14,7 @@ import requests
 attribute_dict = {
     'name': ['scryfall', ['name'], True, True, False, False, False, 'str'],
     'layout': ['scryfall', ['layout'], False, True, False, False, None, 'str'],
-    'image_uris': ['scryfall', ['image_uris'], False, True, False, True, False, 'dict'],
+    'image_uris': ['scryfall', ['image_uris'], False, True, False, False, False, 'dict'],
     'mana_cost': ['scryfall', ['mana_cost'], True, True, False, False, True, 'str'],
     'cmc': ['scryfall', ['cmc'], False, True, False, False, None, 'int'],
     'typeline': ['scryfall', ['type_line'], True, True, False, False, False, 'str'],
@@ -61,13 +61,13 @@ class Card():
         if set_code and self.key in bulkdata['memory'] and not update_card and (self.version_key in bulkdata['memory'][self.key]['versions'] or no_setcode_required):
             # make version key
             if not self.set_code:
-                self.set_code = next(iter(bulkdata['memory'][self.key]['versions']))[0:-2]
+                self.version_key = next(iter(bulkdata['memory'][self.key]['versions']))
             for attribute in bulkdata['memory'][self.key]:
                 if attribute != 'versions':
                     setattr(self, attribute, bulkdata['memory'][self.key][attribute])
             # version related attributes
-            for attribute in bulkdata['memory'][self.key]:
-                setattr(self, attribute, bulkdata['memory'][self.key][attribute])
+            for attribute in bulkdata['memory'][self.key]['versions'][self.version_key]:
+                setattr(self, attribute, bulkdata['memory'][self.key]['versions'][self.version_key][attribute])
             self.is_valid = True
         elif not self.set_card_from_scryfall(): # load card from
             print(f'{self.name} could not be initiated')
@@ -128,6 +128,10 @@ class Card():
         if self.two_sided:
             self.combine_sides()
         self.set_types()
+
+        # set cm_price
+        if not hasattr(self, 'cm_price'):
+            self.cm_price = None
         return True
 
     def combine_sides(self):
@@ -182,23 +186,21 @@ class Card():
             url_end = url_end.replace(char, replace_char_dict[char])
 
         url = f'https://json.edhrec.com/pages/cards/{url_end}.json'
-        print(url)
         try:
             edhrec_data = requests.get(url).json()
             if 'redirect' in edhrec_data and len(edhrec_data) < 3:
                 url = f'https://json.edhrec.com/pages{edhrec_data['redirect']}.json'
                 edhrec_data = requests.get(url).json()
         except:
-            print('Error getting Data', self.name)
+            #print('Error getting Data', self.name)
             salt = 0
         try:
             salt = edhrec_data['container']['json_dict']['card']['salt']
         except:
-            print('no salt score found for ', self.name)
+            #print('no salt score found for ', self.name)
             salt = 0
-        print(salt)
+
         self.salt = salt
-        print(self.salt)
 
     def save_to(self, save_to_memory=True, del_after=False, update_values=False, subfolder='main'): # are side related stuff impemeted
         all_data = get_data()
