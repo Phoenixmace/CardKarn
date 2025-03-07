@@ -14,22 +14,25 @@ def click_button(buttons, name):
             button.click()
             return
 
-
+# return [commander name, name list, bracket]
 def get_moxfield_decklist(driver, link):
     driver.get(link)
 
+    time.sleep(0.5)
     buttons = driver.find_elements(By.TAG_NAME, "button")
     click_button(buttons, 'Accept')
-
+    time.sleep(0.25)
     buttons = driver.find_elements(By.TAG_NAME, "button")
     click_button(buttons, 'Accept All')
 
     # Locate the element with the id "commander-bracket-3"
     text = driver.page_source
-    bracklist = text.split('commander-bracket-')
-    print(bracklist[1][0])
+    try:
+        bracklist = int(text.split('commander-bracket-')[1][0])
+    except:
+        bracklist = 2
 
-    input()
+
     more_button = driver.find_element(By.ID, "subheader-more")
 
     # Optionally, scroll into view before clicking (if necessary)
@@ -50,7 +53,7 @@ def get_moxfield_decklist(driver, link):
         text = link.text
         if len(text) > 1 and '(' not in text:
             name_list.append(text)
-    return name_list[1:]
+    return  [name_list[0], name_list[1:], bracklist]
 
 driver = webdriver.Chrome()
 
