@@ -1,3 +1,5 @@
+import time
+
 import requests
 import os
 import json
@@ -114,7 +116,15 @@ def gather_data():
 
     for index, url_hash in enumerate(data['deck_stats']):
         print(f'Importing all hashes: {round((index / len(data['deck_stats'])*100), 2)}%')
-        deck_data = get_decklist(url_hash)
+        recieved_data = False
+        while not recieved_data:
+            try:
+                time.sleep(0.5)
+                deck_data = get_decklist(url_hash)
+                recieved_data = True
+            except:
+                pass
+
         if len(deck_data) < 1:
             data['deck_stats'][url_hash] = deck_data
         check_if_process_should_end(data)
