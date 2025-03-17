@@ -1,8 +1,11 @@
 import time
 import itertools
+from operator import index
+
 import requests
 import os
 import json
+from random import shuffle
 
 def get_all_commanders():
     # get data from all pages
@@ -57,26 +60,42 @@ def get_decklist(deck_hash):
     return_dict = {}
     if response.status_code == 200:
         deck_data = response.json()
+        price = deck_data['price']
+
+        if price < 100:
+            price = 1
+        elif price < 250:
+            price = 2
+        elif price < 1000:
+            price = 3
+        else:
+            price = 4
+        if deck_data['cedh']:
+            cedh = 1
+        else:
+            cedh = 0
+        detail_list = [cedh, price, deck_data['theme']]
+
+        deck_detail_names = ['tags', 'edhrec_tags', 'tribe']
+        for detail_name in deck_detail_names:
+            if deck_data[detail_name]:
+                print(deck_data[detail_name])
+                for detail in list(deck_data[detail_name]):
+                    if detail and detail != None:
+                        detail_list.append(detail.lower())
+
         return_dict = {
+            'deck_details' :detail_list,
             'decklist': deck_data['cards'],
             'cedh': deck_data['cedh'],
-            'commander': deck_data['commanders'][0],
-            'second_commander': deck_data['commanders'][1],
+            'commanders': deck_data['commanders'],
             'tags': deck_data['tags'],
             'edhrec_tags': deck_data['edhrec_tags'],
             'theme': deck_data['theme'],
             'price': deck_data['price'],
             'salt': deck_data['salt'],
             'tribe': deck_data['tribe'],
-            'type_distribution': {
-                'enchantment':deck_data['enchantment'],
-                'instant':deck_data['instant'],
-                'land':deck_data['land'],
-                'planeswalker':deck_data['planeswalker'],
-                'sorcery':deck_data['sorcery'],
-                'creature':deck_data['creature'],
-                'artifact':deck_data['artifact'],
-            },
+
         }
     return return_dict
 def load_training_data():
@@ -101,37 +120,68 @@ def gather_data():
     if not 'added_commander_decklists' in data:
         data['added_commander_decklists'] = data['commander_list']
 
-    if not 'deck_stats' in data:
-        data['deck_stats'] = {}
+
+    if not 'list_of_decks' in data:
+        data['list_of_decks'] = []
+    if not 'card_data' in data:
+        data['card_data'] = {}
+    if not 'commander_data' in data:
+        data['commander_data'] = {}
 
     # add_all_decklists
     while len(data['added_commander_decklists']) > 0:
         print(f'Importing all hashes: {round(100-len(data['added_commander_decklists']) / len(data['commander_list'])*100, 2)}%')
         url_hashes = get_all_decks(data['added_commander_decklists'][0])
         for url_hash in url_hashes:
-            if url_hash not in data['deck_stats']:
-                data['deck_stats'][url_hash] = {}
+            if url_hash not in data['list_of_decks']:
+                data['list_of_decks'].append(url_hash)
         data['added_commander_decklists'] = data['added_commander_decklists'][1:]
         check_if_process_should_end(data)
 
     # add decks
     if 'current_deck_index' not in data:
         data['current_deck_index'] = 0
-    for index, (url_hash, value) in itertools.islice(enumerate(data['deck_stats'].items()), data['current_deck_index'], None):
-        if len(value) < 1:
-            print(f'Importing all hashes: {round((index / len(data['deck_stats'])*100), 2)}%')
-            recieved_data = False
-            while not recieved_data:
-                try:
-                    time.sleep(0.5)
-                    deck_data = get_decklist(url_hash)
-                    recieved_data = True
-                except:
-                    pass
+        data['list_of_decks'] = shuffle(data['list_of_decks'])
+    deck_index = data['current_deck_index']
+    while deck_index+1 < len(data['list_of_decks']):
+        print(f'Importing all hashes: {round((deck_index / len(data['list_of_decks']) * 100), 2)}%')
+        recieved_data = False
+        while not recieved_data:
+            try:
+                time.sleep(0.5)
+                deck_data = get_decklist(url_hash)
+                recieved_data = True
+            except:
+                pass
 
-            if 'cards' in deck_data and len(deck_data['cards']) > 50:
-                data['deck_stats'][url_hash] = deck_data
-            check_if_process_should_end(data, current_index=index)
+        for card in deck_data['decklist']:
+            # add to commander stats
+            if card not in data['card_data']:
+                data['card_data'][card] = {
+                    'cards':{}}
+            # add to commander
+            for commander in deck_data['commanders']:
+                if commander:
+                    if commander not in data['commander_data']:
+                        data['commander_data'][commander] = {}
+
+                    if card not in data['commander_data'][commander]:
+                        data['commander_data'][commander][card] = {'total':0}
+                    data['commander_data'][commander][card]['total'] +=1
+
+                    for detail in deck_data['deck_details']:
+                        if detail not in data['commander_data'][commander]:
+                            data['commander_data'][commander][detail] = 0
+                        data['commander_data'][commander][detail] += 1
+
+                        if detail not in data['commander_data'][commander][card]:
+                            data['commander_data'][commander][card][detail] = 0
+                        data['commander_data'][commander][card][detail] +=1
+
+
+
+
+
     print('all finished')
 
 def check_if_process_should_end(data, current_index = None):
