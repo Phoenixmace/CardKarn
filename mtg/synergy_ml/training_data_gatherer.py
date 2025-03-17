@@ -1,9 +1,8 @@
 import time
-
+import itertools
 import requests
 import os
 import json
-import scrython
 
 def get_all_commanders():
     # get data from all pages
@@ -60,9 +59,11 @@ def get_decklist(deck_hash):
         deck_data = response.json()
         return_dict = {
             'decklist': deck_data['cards'],
+            'cedh': deck_data['cedh'],
             'commander': deck_data['commanders'][0],
             'second_commander': deck_data['commanders'][1],
             'tags': deck_data['tags'],
+            'edhrec_tags': deck_data['edhrec_tags'],
             'theme': deck_data['theme'],
             'price': deck_data['price'],
             'salt': deck_data['salt'],
@@ -104,7 +105,6 @@ def gather_data():
         data['deck_stats'] = {}
 
     # add_all_decklists
-    top_commanders = data['added_commander_decklists']
     while len(data['added_commander_decklists']) > 0:
         print(f'Importing all hashes: {round(100-len(data['added_commander_decklists']) / len(data['commander_list'])*100, 2)}%')
         url_hashes = get_all_decks(data['added_commander_decklists'][0])
@@ -114,25 +114,31 @@ def gather_data():
         data['added_commander_decklists'] = data['added_commander_decklists'][1:]
         check_if_process_should_end(data)
 
-    for index, url_hash in enumerate(data['deck_stats']):
-        print(f'Importing all hashes: {round((index / len(data['deck_stats'])*100), 2)}%')
-        recieved_data = False
-        while not recieved_data:
-            try:
-                time.sleep(0.5)
-                deck_data = get_decklist(url_hash)
-                recieved_data = True
-            except:
-                pass
+    # add decks
+    if 'current_deck_index' not in data:
+        data['current_deck_index'] = 0
+    for index, (url_hash, value) in itertools.islice(enumerate(data['deck_stats'].items()), data['current_deck_index'], None):
+        if len(value) < 1:
+            print(f'Importing all hashes: {round((index / len(data['deck_stats'])*100), 2)}%')
+            recieved_data = False
+            while not recieved_data:
+                try:
+                    time.sleep(0.5)
+                    deck_data = get_decklist(url_hash)
+                    recieved_data = True
+                except:
+                    pass
 
-        if len(deck_data) < 1:
-            data['deck_stats'][url_hash] = deck_data
-        check_if_process_should_end(data)
+            if 'cards' in deck_data and len(deck_data['cards']) > 50:
+                data['deck_stats'][url_hash] = deck_data
+            check_if_process_should_end(data, current_index=index)
     print('all finished')
 
-def check_if_process_should_end(data):
+def check_if_process_should_end(data, current_index = None):
     if os.path.exists("stop.txt"):
         print("Loop interrupted by file trigger.")
+        if current_index:
+            data['current_deck_index'] = current_index
         dump_training_data(data)
         quit()
 gather_data()
