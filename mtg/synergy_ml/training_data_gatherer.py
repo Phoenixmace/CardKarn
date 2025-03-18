@@ -83,6 +83,11 @@ def get_decklist(deck_hash):
                 for detail in list(deck_data[detail_name]):
                     if detail and detail != None:
                         detail_list.append(detail.lower())
+        # edit decklist
+        decklist = []
+        basics = ["Mountain", "Island", "Wastes", "Forest", "Island"]
+        for card in deck_data['cards']:
+            if "Snow-Covered" not in card and card not in basics:
 
         return_dict = {
             'deck_details' :detail_list,
@@ -157,18 +162,18 @@ def gather_data():
         for card in deck_data['decklist']:
             # add to commander stats
             if card not in data['card_data']:
-                data['card_data'][card] = {
-                    'cards':{}}
+                data['card_data'][card] = {}
             # add to commander
             for commander in deck_data['commanders']:
                 if commander:
+                    # create commander
                     if commander not in data['commander_data']:
                         data['commander_data'][commander] = {}
-
+                    #create and save card total
                     if card not in data['commander_data'][commander]:
                         data['commander_data'][commander][card] = {'total':0}
                     data['commander_data'][commander][card]['total'] +=1
-
+                    # save card details
                     for detail in deck_data['deck_details']:
                         if detail not in data['commander_data'][commander]:
                             data['commander_data'][commander][detail] = 0
@@ -177,6 +182,14 @@ def gather_data():
                         if detail not in data['commander_data'][commander][card]:
                             data['commander_data'][commander][card][detail] = 0
                         data['commander_data'][commander][card][detail] +=1
+
+            # add to card
+            for intercard in deck_data['decklist']:
+                if intercard not in data['card_data'][card]:
+                    data['card_data'][card][intercard] = 0
+                data['card_data'][card][intercard] += 1
+
+
 
 
 
@@ -191,4 +204,5 @@ def check_if_process_should_end(data, current_index = None):
             data['current_deck_index'] = current_index
         dump_training_data(data)
         quit()
-gather_data()
+#gather_data()
+get_decklist("JI1BQbAq9DB_1f8TlaPDLg")
