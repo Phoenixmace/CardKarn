@@ -7,6 +7,22 @@ import os
 import json
 from random import shuffle
 
+def clean_name(name):
+    if '//' in name:
+        url_end = name.split('//')[0]  # idea for var name Luc
+    else:
+        url_end = name
+    replace_char_dict = {
+        'ó': 'o',
+        ' ': '-',
+        '!': '',
+        ',': '',
+        '\'': '',
+    }
+    for char in replace_char_dict:
+        url_end = url_end.replace(char, replace_char_dict[char])
+    return url_end
+
 def get_all_commanders():
     # get data from all pages
     page = 1
@@ -31,29 +47,30 @@ def get_all_commanders():
             continute = False
     json_data['commander_list'] = commanders
     return commanders
-def get_all_decks(commander_name):
+
+def get_commander_stats(commander_name):
     return_dict = {}
-    if '//' in commander_name:
-        url_end = commander_name.split('//')[0]  # idea for var name Luc
-    else:
-        url_end = commander_name
-    replace_char_dict = {
-        'ó': 'o',
-        ' ': '-',
-        '!': '',
-        ',': '',
-        '\'': '',
-    }
-    for char in replace_char_dict:
-        url_end = url_end.replace(char, replace_char_dict[char])
+    url_end = clean_name(commander_name)
+    url = f'https://json.edhrec.com/pages/commanders/{url_end}.json'.lower()
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        if 'panels' in data and  'combocounts' in data['panels']:
+            for combo in data['panels']['combocounts']:
+                for combo_piece
+        print(data)
+    return return_dict
+def get_all_decks(commander_name):
+    deckhashes_return_dict = {}
+    url_end = clean_name(commander_name)
 
     url = f'https://json.edhrec.com/pages/decks/{url_end}.json'.lower()
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
         for index, key in enumerate(data['table']):
-            return_dict[data['table'][index]['urlhash']] = {'price': data['table'][index]['price'], 'tags':data['table'][index]['tags'], 'salt': data['table'][index]['salt']}
-    return return_dict
+            deckhashes_return_dict[data['table'][index]['urlhash']] = {'price': data['table'][index]['price'], 'tags':data['table'][index]['tags'], 'salt': data['table'][index]['salt']}
+    return deckhashes_return_dict
 def get_decklist(deck_hash):
     url = f'https://edhrec.com/api/deckpreview/{deck_hash}'
     response = requests.get(url)
@@ -88,10 +105,11 @@ def get_decklist(deck_hash):
         basics = ["Mountain", "Island", "Wastes", "Forest", "Island"]
         for card in deck_data['cards']:
             if "Snow-Covered" not in card and card not in basics:
+                decklist.append(card)
 
         return_dict = {
             'deck_details' :detail_list,
-            'decklist': deck_data['cards'],
+            'decklist': decklist,
             'cedh': deck_data['cedh'],
             'commanders': deck_data['commanders'],
             'tags': deck_data['tags'],
@@ -144,28 +162,35 @@ def gather_data():
         check_if_process_should_end(data)
 
     # add decks
+    # create index
     if 'current_deck_index' not in data:
-        data['current_deck_index'] = 0
+        data['current_deck_index'] = -1
         data['list_of_decks'] = shuffle(data['list_of_decks'])
     deck_index = data['current_deck_index']
+
+    # iterating over list
     while deck_index+1 < len(data['list_of_decks']):
+        deck_index += 1
         print(f'Importing all hashes: {round((deck_index / len(data['list_of_decks']) * 100), 2)}%')
+
+        # get the decklist
         recieved_data = False
         while not recieved_data:
             try:
                 time.sleep(0.5)
-                deck_data = get_decklist(url_hash)
+                deck_data = get_decklist(data['list_of_decks'][deck_index])
                 recieved_data = True
             except:
                 pass
 
         for card in deck_data['decklist']:
-            # add to commander stats
             if card not in data['card_data']:
                 data['card_data'][card] = {}
+
             # add to commander
             for commander in deck_data['commanders']:
                 if commander:
+
                     # create commander
                     if commander not in data['commander_data']:
                         data['commander_data'][commander] = {}
@@ -206,3 +231,4 @@ def check_if_process_should_end(data, current_index = None):
         quit()
 #gather_data()
 get_decklist("JI1BQbAq9DB_1f8TlaPDLg")
+get_commander_stats('Niv-Mizzet, Parun')
