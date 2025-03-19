@@ -49,15 +49,16 @@ def get_all_commanders():
     return commanders
 
 def get_commander_stats(commander_name):
-    return_dict = {}
+    return_dict = {'combos':[]}
     url_end = clean_name(commander_name)
     url = f'https://json.edhrec.com/pages/commanders/{url_end}.json'.lower()
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
-        if 'panels' in data and  'combocounts' in data['panels']:
+        if 'panels' in data and  'combocounts' in data['panels'] :
             for combo in data['panels']['combocounts']:
-                for combo_piece
+                if 'value' in combo:
+                    return_dict['combos'].append(combo['value'].split(' + '))
         print(data)
     return return_dict
 def get_all_decks(commander_name):
@@ -65,11 +66,14 @@ def get_all_decks(commander_name):
     url_end = clean_name(commander_name)
 
     url = f'https://json.edhrec.com/pages/decks/{url_end}.json'.lower()
+    start = time.time()
     response = requests.get(url)
+    call_time = [time.time() - start, time.time()]
     if response.status_code == 200:
         data = response.json()
         for index, key in enumerate(data['table']):
             deckhashes_return_dict[data['table'][index]['urlhash']] = {'price': data['table'][index]['price'], 'tags':data['table'][index]['tags'], 'salt': data['table'][index]['salt']}
+    processing_time = [time.time() - start -call_time[0], time.time()]
     return deckhashes_return_dict
 def get_decklist(deck_hash):
     url = f'https://edhrec.com/api/deckpreview/{deck_hash}'
@@ -171,18 +175,35 @@ def gather_data():
     # iterating over list
     while deck_index+1 < len(data['list_of_decks']):
         deck_index += 1
-        print(f'Importing all hashes: {round((deck_index / len(data['list_of_decks']) * 100), 2)}%')
+        print(f'Importing all decks: {round((deck_index / len(data['list_of_decks']) * 100), 2)}%')
 
         # get the decklist
         recieved_data = False
         while not recieved_data:
             try:
-                time.sleep(0.5)
                 deck_data = get_decklist(data['list_of_decks'][deck_index])
                 recieved_data = True
             except:
+                time.sleep(0.5)
                 pass
 
+        # add combos
+        for combo in get_commander_stats(data['list_of_decks'][deck_index])['combos']:
+            for piece in combo:
+                if piece not in data['cards']:
+                    data['card_data'][piece] = {}
+                if 'combos' not in data['card_data'][piece]:
+                    data['card_data'][piece]['combos'] = []
+                other_pieces = []
+                for other_piece in combo:
+                    if other_pieces != piece:
+                        other_pieces.append(other_piece)
+                other_pieces = other_pieces.sort()
+                if other_pieces not in data['card_data'][piece]['combos']:
+                    data['card_data'][piece]['combos'].append(other_pieces)
+
+        # add cards
+        added_general_commander_detail = False
         for card in deck_data['decklist']:
             if card not in data['card_data']:
                 data['card_data'][card] = {}
@@ -200,9 +221,12 @@ def gather_data():
                     data['commander_data'][commander][card]['total'] +=1
                     # save card details
                     for detail in deck_data['deck_details']:
-                        if detail not in data['commander_data'][commander]:
-                            data['commander_data'][commander][detail] = 0
-                        data['commander_data'][commander][detail] += 1
+
+                        if not added_general_commander_detail:
+                            if detail not in data['commander_data'][commander]:
+                                data['commander_data'][commander][detail] = 0
+                            data['commander_data'][commander][detail] += 1
+                            added_general_commander_detail = True
 
                         if detail not in data['commander_data'][commander][card]:
                             data['commander_data'][commander][card][detail] = 0
@@ -210,9 +234,10 @@ def gather_data():
 
             # add to card
             for intercard in deck_data['decklist']:
-                if intercard not in data['card_data'][card]:
-                    data['card_data'][card][intercard] = 0
-                data['card_data'][card][intercard] += 1
+                if intercard != card:
+                    if intercard not in data['card_data'][card]:
+                        data['card_data'][card]['matched_cards'][intercard] = 0
+                    data['card_data'][card]['matched_cards'][intercard] += 1
 
 
 
@@ -229,6 +254,6 @@ def check_if_process_should_end(data, current_index = None):
             data['current_deck_index'] = current_index
         dump_training_data(data)
         quit()
-#gather_data()
+gather_data()
 get_decklist("JI1BQbAq9DB_1f8TlaPDLg")
 get_commander_stats('Niv-Mizzet, Parun')
