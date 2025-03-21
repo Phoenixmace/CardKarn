@@ -66,14 +66,11 @@ def get_all_decks(commander_name):
     url_end = clean_name(commander_name)
 
     url = f'https://json.edhrec.com/pages/decks/{url_end}.json'.lower()
-    start = time.time()
     response = requests.get(url)
-    call_time = [time.time() - start, time.time()]
     if response.status_code == 200:
         data = response.json()
         for index, key in enumerate(data['table']):
             deckhashes_return_dict[data['table'][index]['urlhash']] = {'price': data['table'][index]['price'], 'tags':data['table'][index]['tags'], 'salt': data['table'][index]['salt']}
-    processing_time = [time.time() - start -call_time[0], time.time()]
     return deckhashes_return_dict
 def get_decklist(deck_hash):
     url = f'https://edhrec.com/api/deckpreview/{deck_hash}'
@@ -158,10 +155,17 @@ def gather_data():
     # add_all_decklists
     while len(data['added_commander_decklists']) > 0:
         print(f'Importing all hashes: {round(100-len(data['added_commander_decklists']) / len(data['commander_list'])*100, 2)}%')
+        start = time.time()
         url_hashes = get_all_decks(data['added_commander_decklists'][0])
+
+        request_time = time.time() -start
+        iteration_start = time.time()
         for url_hash in url_hashes:
+            start_e = time.time()
             if url_hash not in data['list_of_decks']:
                 data['list_of_decks'].append(url_hash)
+            check_and_append_time = time.time() -start_e
+        whole_iteration_time = time.time() - iteration_start
         data['added_commander_decklists'] = data['added_commander_decklists'][1:]
         check_if_process_should_end(data)
 
