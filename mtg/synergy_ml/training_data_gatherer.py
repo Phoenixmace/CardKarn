@@ -157,15 +157,9 @@ def gather_data():
         print(f'Importing all hashes: {round(100-len(data['added_commander_decklists']) / len(data['commander_list'])*100, 2)}%')
         start = time.time()
         url_hashes = get_all_decks(data['added_commander_decklists'][0])
+        data['list_of_decks'] = list(set(url_hashes) | set(data['list_of_decks']))
+        adding_time = time.time() - start
 
-        request_time = time.time() -start
-        iteration_start = time.time()
-        for url_hash in url_hashes:
-            start_e = time.time()
-            if url_hash not in data['list_of_decks']:
-                data['list_of_decks'].append(url_hash)
-            check_and_append_time = time.time() -start_e
-        whole_iteration_time = time.time() - iteration_start
         data['added_commander_decklists'] = data['added_commander_decklists'][1:]
         check_if_process_should_end(data)
 
