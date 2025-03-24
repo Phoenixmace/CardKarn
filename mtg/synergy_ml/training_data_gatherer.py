@@ -60,7 +60,6 @@ def get_commander_stats(commander_name):
             for combo in data['panels']['combocounts']:
                 if 'value' in combo:
                     return_dict['combos'].append(combo['value'].split(' + '))
-        print(data)
     return return_dict
 def get_all_decks(commander_name):
     deckhashes_return_dict = {}
@@ -93,34 +92,27 @@ def get_decklist(deck_hash):
             cedh = 1
         else:
             cedh = 0
-        detail_list = [cedh, price, deck_data['theme']]
-
-        deck_detail_names = ['tags', 'edhrec_tags', 'tribe']
-        for detail_name in deck_detail_names:
-            if deck_data[detail_name]:
-                print(deck_data[detail_name])
-                for detail in list(deck_data[detail_name]):
-                    if detail and detail != None:
-                        detail_list.append(detail.lower())
+        detail_list = [f'is_cedh_{cedh}',f'price_class_{price}']
+        detail_list.extend(deck_data['edhrec_tags'])
+        if deck_data['tribe']:
+            detail_list.append(deck_data['tribe'])
+        if deck_data['tags']:
+            detail_list.extend(deck_data['tags'])
+        detail_list = set(detail_list)
+        detail_list = list(detail_list)
         # edit decklist
         decklist = []
         basics = ["Mountain", "Island", "Wastes", "Forest", "Island"]
         for card in deck_data['cards']:
             if "Snow-Covered" not in card and card not in basics:
-                set(decklist).append(card)
-        decklist = list(decklist)
+                decklist.append(card)
 
         return_dict = {
             'deck_details' :detail_list,
             'decklist': decklist,
-            'cedh': deck_data['cedh'],
             'commanders': deck_data['commanders'],
-            'tags': deck_data['tags'],
             'edhrec_tags': deck_data['edhrec_tags'],
-            'theme': deck_data['theme'],
-            'price': deck_data['price'],
             'salt': deck_data['salt'],
-            'tribe': deck_data['tribe'],
 
         }
     return return_dict
@@ -179,32 +171,40 @@ def gather_data():
         start = time.time()
         # save all few iterations
         if deck_index%100 == 0:
-            dump_training_data(data)
+            check_if_process_should_end(data, current_index=deck_index, just_fucking_dump_it=True)
+        check_if_process_should_end(data, current_index=deck_index)
 
         # get the decklist
-        recieved_data = False
         request_start = time.time()
-        while not recieved_data:
+        deck_data = None
+        counter = 0
+        while not deck_data and counter < 5:
             try:
                 deck_data = get_decklist(data['list_of_decks'][deck_index])
-                recieved_data = True
             except:
                 time.sleep(0.5)
+                counter += 1
                 pass
+        request_time = time.time()- request_start
         # add combos
-        for combo in get_commander_stats(data['list_of_decks'][deck_index])['combos']:
-            for piece in combo:
-                if piece not in data['cards']:
-                    data['card_data'][piece] = {}
-                if 'combos' not in data['card_data'][piece]:
-                    data['card_data'][piece]['combos'] = []
-                other_pieces = []
-                for other_piece in combo:
-                    if other_pieces != piece:
-                        other_pieces.append(other_piece)
-                other_pieces = other_pieces.sort()
-                if other_pieces not in data['card_data'][piece]['combos']:
-                    data['card_data'][piece]['combos'].append(other_pieces)
+        for commander in deck_data['commanders']:
+            if commander not in data['commander_data'] and commander:
+                commander_data = get_commander_stats(commander)
+                if 'combo' in commander_data:
+                    combos = commander_data['combos']
+                    for combo in combos:
+                        for piece in combo:
+                            if piece not in data['cards']:
+                                data['card_data'][piece] = {}
+                            if 'combos' not in data['card_data'][piece]:
+                                data['card_data'][piece]['combos'] = []
+                            other_pieces = []
+                            for other_piece in combo:
+                                if other_pieces != piece:
+                                    other_pieces.append(other_piece)
+                            other_pieces = other_pieces.sort()
+                            if other_pieces not in data['card_data'][piece]['combos']:
+                                data['card_data'][piece]['combos'].append(other_pieces)
 
         # add deck details to commander
         for detail in deck_data['deck_details']:
@@ -233,6 +233,7 @@ def gather_data():
                     data['card_data'][card]['matched_cards'][intercard] += 1
 
         one_iteration = time.time() - start
+        print(end='')
 
 
 
@@ -240,13 +241,14 @@ def gather_data():
 
     print('all finished')
 
-def check_if_process_should_end(data, current_index = None):
-    if os.path.exists("stop.txt"):
+def check_if_process_should_end(data, current_index = None, just_fucking_dump_it = False):
+    if os.path.exists("stop.txt") or just_fucking_dump_it:
         print("Loop interrupted by file trigger.")
         if current_index:
             data['current_deck_index'] = current_index
         dump_training_data(data)
-        quit()
+        if not just_fucking_dump_it:
+            quit()
 gather_data()
-get_decklist("JI1BQbAq9DB_1f8TlaPDLg")
-get_commander_stats('Niv-Mizzet, Parun')
+#get_decklist("JI1BQbAq9DB_1f8TlaPDLg")
+#get_commander_stats('Niv-Mizzet, Parun')
