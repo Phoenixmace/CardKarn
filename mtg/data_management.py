@@ -10,7 +10,7 @@ def dump_data(data, file_path = 'data'):
         json.dump(data, f, indent=4)
 
 def get_card_data_path(file_name):
-    file_path = os.getcwd()+'\\mtg\\' + file_name +'.json'
+    file_path = os.getcwd()+'\\' + file_name +'.json'
     file_path = file_path.replace('\\','/')
     return file_path
 

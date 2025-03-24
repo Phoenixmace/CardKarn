@@ -43,7 +43,7 @@ attribute_dict = {
 
 
 class Card():
-    def __init__(self, name, number=1, set_code=None, finish='nonfoil', language='eng', just_use_cheapest=False, update_card=False, no_setcode_required=True):
+    def __init__(self, name, number=1, set_code=None, finish='nonfoil', language='eng', just_use_cheapest=False, update_card=False, no_setcode_required=True, with_existing_scryfall=None):
         self.name = name
         self.set_code = set_code
         self.finish = finish
@@ -57,8 +57,9 @@ class Card():
             self.version_key = f'{set_code}_{finish[0]}'
 
         bulkdata = get_data()
-
-        if set_code and self.key in bulkdata['memory'] and not update_card and (self.version_key in bulkdata['memory'][self.key]['versions'] or no_setcode_required):
+        if with_existing_scryfall and self.set_card_from_scryfall(existing_data=with_existing_scryfall):
+            self.is_valid = True
+        elif set_code and self.key in bulkdata['memory'] and not update_card and (self.version_key in bulkdata['memory'][self.key]['versions'] or no_setcode_required):
             # make version key
             if not self.set_code:
                 self.version_key = next(iter(bulkdata['memory'][self.key]['versions']))
@@ -80,20 +81,23 @@ class Card():
     def _is_valid(self):
         return self.is_valid
 
-    def set_card_from_scryfall(self):
-        search_params = {'fuzzy': self.name}
-        if self.set_code:
-            search_params['set'] = self.set_code
-        # searches based on given params
-        try:
-            scryfall_data = scrython.cards.Named(**search_params)
-            # print('made request')
-        except:
-            print(f'{self.name} not found')
-            return False
+    def set_card_from_scryfall(self, existing_data=None):
+        if not existing_data:
+            search_params = {'fuzzy': self.name}
+            if self.set_code:
+                search_params['set'] = self.set_code
+            # searches based on given params
+            try:
+                scryfall_data = scrython.cards.Named(**search_params)
+                # print('made request')
+            except:
+                print(f'{self.name} not found')
+                return False
 
-        # if not exactly the same
-        self.scryfall_dict = scryfall_data.__dict__['scryfallJson']
+            # if not exactly the same
+            self.scryfall_dict = scryfall_data.__dict__['scryfallJson']
+        else:
+            self.scryfall_dict = existing_data
         self.two_sided = 'card_faces' in self.scryfall_dict
         # set attributes
 
