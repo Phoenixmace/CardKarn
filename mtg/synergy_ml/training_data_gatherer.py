@@ -61,6 +61,7 @@ def get_commander_stats(commander_name):
                 if 'value' in combo:
                     return_dict['combos'].append(combo['value'].split(' + '))
     return return_dict
+
 def get_all_decks(commander_name):
     deckhashes_return_dict = {}
     url_end = clean_name(commander_name)
@@ -72,50 +73,80 @@ def get_all_decks(commander_name):
         for index, key in enumerate(data['table']):
             deckhashes_return_dict[data['table'][index]['urlhash']] = {'price': data['table'][index]['price'], 'tags':data['table'][index]['tags'], 'salt': data['table'][index]['salt']}
     return deckhashes_return_dict
-def get_decklist(deck_hash):
+
+def get_decklist_dict(deck_hash):
     url = f'https://edhrec.com/api/deckpreview/{deck_hash}'
-    response = requests.get(url)
+
+    response_status = 5
+    while response_status != 200 and response_status !=0:
+        if 5 == response_status:
+            time.sleep(0.1)
+        response = requests.get(url)
+        if response.status_code == 200:
+            response_status = response.status_code
+            deck_data = response.json()
+        else:
+            response_status -=1
+    # return for not found page
+    if response_status == 0:
+        return False
+
+    # make return_dict
     return_dict = {}
-    if response.status_code == 200:
-        deck_data = response.json()
-        price = deck_data['price']
 
-        if price < 100:
-            price = 1
-        elif price < 250:
-            price = 2
-        elif price < 1000:
-            price = 3
-        else:
-            price = 4
-        if deck_data['cedh']:
-            cedh = 1
-        else:
-            cedh = 0
-        detail_list = [f'is_cedh_{cedh}',f'price_class_{price}']
-        detail_list.extend(deck_data['edhrec_tags'])
-        if deck_data['tribe']:
-            detail_list.append(deck_data['tribe'])
-        if deck_data['tags']:
-            detail_list.extend(deck_data['tags'])
-        detail_list = set(detail_list)
-        detail_list = list(detail_list)
-        # edit decklist
-        decklist = []
-        basics = ["Mountain", "Island", "Wastes", "Forest", "Island"]
-        for card in deck_data['cards']:
-            if "Snow-Covered" not in card and card not in basics:
-                decklist.append(card)
 
-        return_dict = {
-            'deck_details' :detail_list,
-            'decklist': decklist,
-            'commanders': deck_data['commanders'],
-            'edhrec_tags': deck_data['edhrec_tags'],
-            'salt': deck_data['salt'],
+    price = deck_data['price']
+    price_categories = {
+        price < 1000: 3,
+        price < 250: 2,
+        price < 100: 1,
 
-        }
+    } #price
+    price_category = price_categories.get(True, 4)
+    del price
+
+    # cedh factor
+    cedh = int(bool(deck_data['cedh'])) + 1
+
+    # deck_details
+    detail_list = ['total', f'price_class_{price_category}']
+    detail_list.extend(deck_data['edhrec_tags'])
+    if deck_data['tribe']:
+        detail_list.append(deck_data['tribe'])
+    if deck_data['tags']:
+        detail_list.extend(deck_data['tags'])
+    detail_list = list(set(detail_list))
+
+    # Decklist
+    basics = ["Mountain", "Island", "Wastes", "Forest", "Island"]
+    decklist = [x for x in deck_data['cards'] if (x not in basics and 'Snow-Covered' not in x and x not in deck_data['commanders'])]
+
+    # commanders
+    commanders = deck_data['commanders']
+
+    # return dict
+    return_dict = {
+        'commander_data':
+            {commander:
+                 {card:
+                      {attribute:
+                           cedh
+                       for attribute in detail_list}
+                  for card in decklist}
+             for commander in commanders if commander},
+        'card_data':
+            {primary_card:
+                 {'pairing':
+                      {secondary_card:
+                           {attribute:
+                                cedh
+                            for attribute in detail_list}
+                       for secondary_card in decklist + commanders if secondary_card and (secondary_card != primary_card)}}
+             for primary_card in decklist + (commanders) if primary_card}
+    }
     return return_dict
+
+
 def load_training_data():
     file_path = os.getcwd() + '/deck_training_data' + '.json'
     file_path = file_path.replace('\\', '/')
@@ -165,74 +196,24 @@ def gather_data():
     deck_index = data['current_deck_index']
 
     # iterating over list
+    iteration_time_list = []
     while deck_index+1 < len(data['list_of_decks']):
         deck_index += 1
-        print(f'Importing all decks: {round((deck_index / len(data['list_of_decks']) * 100), 2)}%')
         start = time.time()
+
         # save all few iterations
         if deck_index%100 == 0:
             check_if_process_should_end(data, current_index=deck_index, just_fucking_dump_it=True)
         check_if_process_should_end(data, current_index=deck_index)
 
-        # get the decklist
-        request_start = time.time()
-        deck_data = None
-        counter = 0
-        while not deck_data and counter < 5:
-            try:
-                deck_data = get_decklist(data['list_of_decks'][deck_index])
-            except:
-                time.sleep(0.5)
-                counter += 1
-                pass
-        request_time = time.time()- request_start
-        # add combos
-        for commander in deck_data['commanders']:
-            if commander not in data['commander_data'] and commander:
-                commander_data = get_commander_stats(commander)
-                if 'combo' in commander_data:
-                    combos = commander_data['combos']
-                    for combo in combos:
-                        for piece in combo:
-                            if piece not in data['cards']:
-                                data['card_data'][piece] = {}
-                            if 'combos' not in data['card_data'][piece]:
-                                data['card_data'][piece]['combos'] = []
-                            other_pieces = []
-                            for other_piece in combo:
-                                if other_pieces != piece:
-                                    other_pieces.append(other_piece)
-                            other_pieces = other_pieces.sort()
-                            if other_pieces not in data['card_data'][piece]['combos']:
-                                data['card_data'][piece]['combos'].append(other_pieces)
+        deck_dict = get_decklist_dict(data['list_of_decks'][deck_index])
+        increment_dict_by_1(data, deck_dict)
+        del deck_dict
 
-        # add deck details to commander
-        for detail in deck_data['deck_details']:
-            for commander in deck_data['commanders']:
-                if commander:
-                    data.setdefault('commander_data', {}).setdefault(commander, {}).setdefault(detail, 0)
-                    data['commander_data'][commander][detail] += 1
-        # add cards
-        for card in deck_data['decklist']:
-            for commander in deck_data['commanders']:
-                if commander:
-                    data.setdefault('commander_data', {}).setdefault(commander, {}).setdefault(card, {}).setdefault('total', 0)
-                    data['commander_data'][commander][card]['total'] += 1
-                    for attribute in deck_data['deck_details']:
-                        data.setdefault('commander_data', {}).setdefault(commander, {}).setdefault(card, {}).setdefault(
-                            attribute, 0)
-                        data['commander_data'][commander][card][attribute] += 1
-
-
-
-            # add to card
-            for intercard in deck_data['decklist']:
-                if intercard != card and intercard not in deck_data['commanders']:
-                    data.setdefault('card_data', {}).setdefault(card, {}).setdefault('matched_cards', {}).setdefault(
-                        intercard, 0)
-                    data['card_data'][card]['matched_cards'][intercard] += 1
-
-        one_iteration = time.time() - start
+        iteration_time = time.time() -start
+        iteration_time_list.append(iteration_time)
+        iteration_time_list = iteration_time_list[:9]
+        print(f'Importing all decks: {round((deck_index / len(data['list_of_decks']) * 100), 2)}% (estimated time: {round((sum(iteration_time_list)/len(iteration_time_list))*(len(data['list_of_decks']) - deck_index)/3600, 2)}h)')
         print(end='')
 
 
@@ -243,12 +224,30 @@ def gather_data():
 
 def check_if_process_should_end(data, current_index = None, just_fucking_dump_it = False):
     if os.path.exists("stop.txt") or just_fucking_dump_it:
-        print("Loop interrupted by file trigger.")
         if current_index:
             data['current_deck_index'] = current_index
         dump_training_data(data)
         if not just_fucking_dump_it:
+            print("Loop interrupted by file trigger.")
             quit()
+
+def increment_dict_by_1(data, add_dict): # code from AI but understood and too lazy to copy
+    stack = [(data, add_dict)]
+
+    while stack:
+        current_data, current_add = stack.pop()
+
+        for key, value in current_add.items():
+            if isinstance(value, dict):
+                current_data[key] = current_data.get(key, {})
+                stack.append((current_data[key], value))
+            elif isinstance(value, int):
+                current_data[key] = current_data.get(key, 0) + value
+            elif isinstance(value, list):
+                current_data.setdefault(key, [])
+                if value not in current_data[key]:  # Avoid linear search if possible
+                    current_data[key].append(value)
+
 gather_data()
 #get_decklist("JI1BQbAq9DB_1f8TlaPDLg")
 #get_commander_stats('Niv-Mizzet, Parun')
