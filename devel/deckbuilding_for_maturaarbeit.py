@@ -1,4 +1,4 @@
-from mtg.deck_class import Deck
+from models.Deck import Deck
 
 decks_to_build = { #commander:budget
     'Arabella, Abandoned Doll': 0,

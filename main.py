@@ -1,9 +1,4 @@
-from mtg.data_management import get_data
-from mtg.imports import import_collection_from_manabox
-from mtg.deck_class import Deck
-from mtg.card_class import Card
-import mtg.data_management
-import scrython
+from util.collection_import import import_collection_from_manabox
 import logging
 logger = logging.getLogger('ftpuploader')
 

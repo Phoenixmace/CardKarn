@@ -1,7 +1,7 @@
 from time import sleep
 import requests
 import csv
-from mtg.card_class import Card
+from models.Card import Card
 
 def import_an_array_of_cards(cards):#[**kwargs must have name, ] only name set_code, finish language
     search_query = 'https://api.scryfall.com/cards/search?q='

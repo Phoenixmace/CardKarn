@@ -1,6 +1,8 @@
-data.json
-images/
-.idea
-deckbuilding_data.json
-
+data/collection.json
+data/images/
+.idea/
+data/deckbuilding.json
+.venv/
+devel/
+data/training_data/
 

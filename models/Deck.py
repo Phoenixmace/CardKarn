@@ -1,5 +1,5 @@
-from mtg.card_class import Card
-from mtg.data_management import get_data, dump_data
+from models.Card import Card
+from util.json_util import get_data, dump_data
 import requests
 import math
 '''
@@ -16,7 +16,7 @@ class Deck():
     def __init__(self, deck_name, format='commander', decklist=None, commander = None):
         if decklist is None:
             decklist = []
-        data = get_data()
+        data = get_data('collection.json')
         self.name_list = []
         if deck_name in data['decks']:
             # print('deck loaded')
@@ -37,9 +37,9 @@ class Deck():
                 self.commander_name = self.commander.name
         del data
     def save(self):
-        data = get_data()
+        data = get_data('collection.json')
         data['decks'][self.name] = self.to_dict()
-        dump_data(data)
+        dump_data(data=data, filename='collection.json')
         del data
 
     def to_dict(self):
@@ -221,14 +221,14 @@ class Deck():
 
     def delete(self):
         if  input('Do you really want to delete this deck? y/n').lower() == 'y':
-            data = get_data()
+            data = get_data('collection.json')
             del data['decks'][self.name]
-            dump_data(data)
+            dump_data(data=data, filename='collection.json')
             del data
 
     def check_owned(self): #does not take other verions in considaration
         cards_missing=[] #[name, amount missing]
-        data = get_data()
+        data = get_data('collection.json')
         for card in self.decklist:
             found = False
             #check bulk
@@ -560,7 +560,7 @@ class Deck():
 
         # if no owned (later Threading
         if len(owned) < 1:
-            bulkdata = get_data()['bulk']
+            bulkdata = get_data('collection.json')['bulk']
             unusable_list  = ['token', 'emblem', 'planar', 'double_faced_token']
             commander_colors = self.commander.color_identity
             n_bulkcards = 0
@@ -605,7 +605,7 @@ class Deck():
                                     owned[card][attribute] =value
                                 except:
                                     owned[card][attribute] = None
-                                    print(f'Error while retrieving {attribute} of {card_dict['name']}')
+                                    print(f'Error while retrieving {attribute} of {card_dict["name"]}')
                             if ('subtypes' in card_dict and 'Eldrazi' in card_dict['subtypes']) or  ('mana_cost' in card_dict and  'C' in card_dict['mana_cost']): # Eldrazi penalty
                                 try:
                                     owned[card]['edhrec_rank'] = owned[card]['edhrec_rank']*2
@@ -635,7 +635,7 @@ class Deck():
         data[self.commander.key] = {}
         data[self.commander.key]['owned'] = owned
         data[self.commander.key]['to_buy'] = to_buy
-        dump_data(data, file_path='deckbuilding_data')
+        dump_data(data=data, filename='deckbuilding.json')
         del data
 
         # return

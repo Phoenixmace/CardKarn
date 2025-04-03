@@ -1,11 +1,6 @@
-from logging.config import valid_ident
-
 import scrython
-import json
 
-from attr import attributes
-
-from mtg.data_management import get_data, dump_data
+from util.json_util import get_data, dump_data
 import requests
 # what if wrong set/name code
 # make other lists than main first man
@@ -56,7 +51,7 @@ class Card():
         if set_code:
             self.version_key = f'{set_code}_{finish[0]}'
 
-        bulkdata = get_data()
+        bulkdata = get_data('collection.json')
         if with_existing_scryfall and self.set_card_from_scryfall(existing_data=with_existing_scryfall):
             self.is_valid = True
         elif set_code and self.key in bulkdata['memory'] and not update_card and (self.version_key in bulkdata['memory'][self.key]['versions'] or no_setcode_required):
@@ -193,7 +188,7 @@ class Card():
         try:
             edhrec_data = requests.get(url).json()
             if 'redirect' in edhrec_data and len(edhrec_data) < 3:
-                url = f'https://json.edhrec.com/pages{edhrec_data['redirect']}.json'
+                url = f'https://json.edhrec.com/pages{edhrec_data["redirect"]}.json'
                 edhrec_data = requests.get(url).json()
         except:
             #print('Error getting Data', self.name)
@@ -207,7 +202,7 @@ class Card():
         self.salt = salt
 
     def save_to(self, save_to_memory=True, del_after=False, update_values=False, subfolder='main'): # are side related stuff impemeted
-        all_data = get_data()
+        all_data = get_data('collection.json')
         if save_to_memory:
             save_folder = all_data['memory']
         else:
@@ -255,7 +250,7 @@ class Card():
             all_data['memory'] = save_folder
         else:
             all_data['collection'][subfolder] = save_folder
-        dump_data(all_data)
+        dump_data(all_data, 'collection.json')
         del all_data
 
         if del_after:
@@ -263,7 +258,7 @@ class Card():
 
     def print(self):
         print('Name: ', self.name)
-        if self.mana_cost:
+        if hasattr(self, 'mana_cost'):
             print('Cost: ', self.mana_cost)
         print('Typeline: ', self.typeline)
         print('Ruling:', self.ruling)
