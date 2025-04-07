@@ -1,9 +1,10 @@
 import scrython
 
-from util.json_util import get_data, dump_data
+from util.json_util import get_data, dump_data, set_value, increment_value_by
 import requests
 # what if wrong set/name code
 # make other lists than main first man
+# card faces to class
 
 # [Source, Path, Side-related, Save to memory, Save to collection, Version-dependent, Only frontside matters, Data type]
 attribute_dict = {
@@ -30,7 +31,7 @@ attribute_dict = {
     'card_types': ['local', None, False, True, False, False, None, 'list'],
     'subtypes': ['local', None, False, True, False, False, None, 'list'],
     'supertypes': ['local', None, False, True, False, False, None, 'list'],
-    'version_key': ['local', None, False, True, True, True, None, 'str'],
+    'version_key': ['local', None, False, False, False, True, None, 'str'],
     'salt': ['edhrec', None, False, True, False, False, None, 'str']
 }
 
@@ -44,26 +45,25 @@ class Card():
         self.finish = finish
         self.language = language
         self.number = number
-
-        # search memory
+        # make keys
         self.key = str(name).lower().replace(' ', '_')
-        # make version key
         if set_code:
             self.version_key = f'{set_code}_{finish[0]}'
 
-        bulkdata = get_data('collection.json')
+        memory = get_data('memory.json')
+        # if scryfall_data is provided
         if with_existing_scryfall and self.set_card_from_scryfall(existing_data=with_existing_scryfall):
             self.is_valid = True
-        elif set_code and self.key in bulkdata['memory'] and not update_card and (self.version_key in bulkdata['memory'][self.key]['versions'] or no_setcode_required):
-            # make version key
-            if not self.set_code:
-                self.version_key = next(iter(bulkdata['memory'][self.key]['versions']))
-            for attribute in bulkdata['memory'][self.key]:
+
+        elif self.key in memory['cards'] and not update_card and (no_setcode_required or (hasattr(self, 'version_key') and self.version_key in memory['cards'][self.key]['versions'])):
+            if not (hasattr(self, 'version_key') and self.version_key in memory['cards'][self.key]['versions']) and no_setcode_required:
+                self.version_key = next(iter(memory['cards'][self.key]['versions']))
+            for attribute in memory['cards'][self.key]:
                 if attribute != 'versions':
-                    setattr(self, attribute, bulkdata['memory'][self.key][attribute])
+                    setattr(self, attribute, memory['cards'][self.key][attribute])
             # version related attributes
-            for attribute in bulkdata['memory'][self.key]['versions'][self.version_key]:
-                setattr(self, attribute, bulkdata['memory'][self.key]['versions'][self.version_key][attribute])
+            for attribute in memory['cards'][self.key]['versions'][self.version_key]:
+                setattr(self, attribute, memory['cards'][self.key]['versions'][self.version_key][attribute])
             self.is_valid = True
         elif not self.set_card_from_scryfall(): # load card from
             print(f'{self.name} could not be initiated')
@@ -71,10 +71,8 @@ class Card():
         else:
             self.is_valid = True
         if self.is_valid:
-            self.save_to()
+            self.save_to_memory()
 
-    def _is_valid(self):
-        return self.is_valid
 
     def set_card_from_scryfall(self, existing_data=None):
         if not existing_data:
@@ -84,17 +82,20 @@ class Card():
             # searches based on given params
             try:
                 scryfall_data = scrython.cards.Named(**search_params)
-                # print('made request')
             except:
                 print(f'{self.name} not found')
                 return False
 
-            # if not exactly the same
             self.scryfall_dict = scryfall_data.__dict__['scryfallJson']
         else:
             self.scryfall_dict = existing_data
         self.two_sided = 'card_faces' in self.scryfall_dict
         # set attributes
+        # redefine potentially false stuff
+        self.name = self.scryfall_dict['name']
+        self.key = str(self.name).lower().replace(' ', '_')
+        self.set_code = self.scryfall_dict['set']
+        self.version_key = f'{self.set_code}_{self.finish[0]}'
 
         for attribute in attribute_dict:
             attribute_list = attribute_dict[attribute]
@@ -116,9 +117,7 @@ class Card():
                             value = None
                     setattr(self, f'{attribute}_side_{side_index+1}', value)
         # set version key
-        if not self.set_code:
-            self.set_code = scryfall_data['set_code']
-        self.version_key = f'{self.set_code}_{self.finish[0]}'
+
 
         # set salt score
         self.set_salt_score()
@@ -201,61 +200,6 @@ class Card():
 
         self.salt = salt
 
-    def save_to(self, save_to_memory=True, del_after=False, update_values=False, subfolder='main'): # are side related stuff impemeted
-        all_data = get_data('collection.json')
-        if save_to_memory:
-            save_folder = all_data['memory']
-        else:
-            if subfolder not in all_data['collection']:
-                all_data['collection'][subfolder] = {}
-            save_folder = all_data['collection'][subfolder]
-
-        if self.key not in save_folder or (update_values and not save_to_memory): # if not already saved and only for memory
-            save_folder[self.key] = {'versions' :{self.version_key:{}}}
-            for attribute in attribute_dict:
-                attribute_list = attribute_dict[attribute]
-                if (save_to_memory and attribute_list[3]) or (not save_to_memory and attribute_list[4]): # if should be saved
-
-                    # get all values
-                    values_list = []
-                    values_list.append(getattr(self, attribute))
-                    if attribute_list[2] and self.two_sided and save_to_memory: # set twosided stuff
-                        values_list.append(getattr(self, f'{attribute}_side_{1}'))
-                        values_list.append(getattr(self, f'{attribute}_side_{2}'))
-
-                    # save all values
-                    for index, value in enumerate(values_list):
-                        # set keys
-                        if index == 0:
-                            key = attribute
-                        else:
-                            key = f'{attribute}_side_{index}'
-                        if attribute_list[5]: # side related
-                            save_folder[self.key]['versions'][self.version_key][key] = value
-                        else:
-                            save_folder[self.key][key] = value
-        elif self.key in save_folder and not save_to_memory: # adjust values if card already present
-            if self.version_key in save_folder[self.key]['versions']:
-                save_folder[self.key]['versions'][self.version_key]['number'] += self.number
-            else: # create version subdict
-                save_folder[self.key]['versions'][self.version_key] = {}
-                for attribute in attribute_dict:
-                    attribute_list = attribute_dict[attribute]
-                    if attribute_list[4] and attribute_list[5]: #if version and saved
-                        value = getattr(self, attribute)
-                        save_folder[self.key]['versions'][self.version_key][attribute]= value
-
-                        # save them
-        if save_to_memory:
-            all_data['memory'] = save_folder
-        else:
-            all_data['collection'][subfolder] = save_folder
-        dump_data(all_data, 'collection.json')
-        del all_data
-
-        if del_after:
-            del self
-
     def print(self):
         print('Name: ', self.name)
         if hasattr(self, 'mana_cost'):
@@ -271,4 +215,42 @@ class Card():
             print('Price: No price found')
         print('-'*100)
 
+    def to_dict(self, save_to_memory_attributes, save_to_collection_attributes):
+        return_dict = {}
+        version_dict = {}
 
+        for attribute in self.__dict__:
+            attribute_name = attribute.split('_side_')[0]
+            if attribute_name in attribute_dict and ((save_to_memory_attributes and attribute_dict[attribute_name][3]) or (save_to_collection_attributes and attribute_dict[attribute_name][4])):
+                if attribute_dict[attribute_name][5]:
+                    version_dict[attribute] = getattr(self, attribute)
+                else:
+                    return_dict[attribute] = getattr(self, attribute)
+
+
+        return return_dict, version_dict
+
+    def save_to_memory(self):
+        dicts = self.to_dict(True, False)
+        version = dicts[1]
+        card = dicts[0]
+        if self.key in get_data(filename='memory.json')['cards']:
+            set_value(filename='memory.json', dict_path=['cards', self.key, 'versions', self.version_key], value=version)
+        else:
+            card['versions'] = {}
+            card['versions'][self.version_key] = version
+            set_value(filename='memory.json', dict_path=['cards', self.key], value=card)
+    def add_to_collection(self, subfolder = 'main'):
+        dicts = self.to_dict(False, True)
+        version = dicts[1]
+        card = dicts[0]
+        data = get_data(filename='collection.json')[subfolder]
+        if subfolder not in data or self.key not in data[subfolder]:
+            card['versions'] = {}
+            card['versions'][self.version_key] = version
+            set_value(filename='collection.json', dict_path=[subfolder, self.key],
+                      value=card)
+        elif self.version_key not in data[subfolder][self.key]['versions']:
+            set_value(filename='collection.json', dict_path=[self.key, 'versions', self.version_key], value=version)
+        else:
+            increment_value_by(filename='collection.json', dict_path=[self.key, 'versions', self.version_key, 'number'], increment_value=version['number'])

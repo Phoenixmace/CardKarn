@@ -3,7 +3,7 @@ from models.Deck import Deck
 import util
 
 # cards
-test_cards = ['Treasure_token', "Demonic Tutr", 'elspeth', 'fjdklaöfjkö']
+test_cards = ['Treasure_token', "Demonic Tutr", 'elspeth', 'fjdklaöfjkö', 'Beyeen Veil // Beyeen Coast']
 set_cards = [['Demonic Tutor', 'cmm'], ['Demonic Tutor', 'jfkdlöa']]
 
 cards = []
@@ -15,4 +15,5 @@ for card in set_cards:
     cards.append(testcard)
 
 for card in cards:
-    print(card.__dict__)
+    if card.is_valid:
+        card.add_to_collection()

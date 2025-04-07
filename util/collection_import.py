@@ -59,7 +59,7 @@ def import_collection_from_manabox(file_path, add_lists=False, all_main=False):
                     finish = row[6]
                 card = Card(name=row[2], number=row[8], set_code=row[3], finish=finish, language=row[15], no_setcode_required=False)
                 if card.is_valid:
-                    card.save_to(False, subfolder=target, del_after=True)
+                    card.save_old(False, subfolder=target, del_after=True)
                     print(f'{round(count / max_imports * 100, 1)}%')
                 else:
                     print(row[2], 'could not be loaded')
