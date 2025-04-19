@@ -16,12 +16,12 @@ class Deck():
     def __init__(self, deck_name, format='commander', decklist=None, commander = None):
         if decklist is None:
             decklist = []
-        data = get_data('collection.json')
+        data = get_data('decks.json')
         self.name_list = []
-        if deck_name in data['decks']:
+        if deck_name in data:
             # print('deck loaded')
-            for arg in data['decks'][deck_name]:
-                setattr(self, arg, data['decks'][deck_name][arg])
+            for arg in data[deck_name]:
+                setattr(self, arg, data[deck_name][arg])
             self.decklist = []
             for card in self.name_list:
                 self.import_name(card[0], card[1], card[2], card[3])
@@ -37,9 +37,9 @@ class Deck():
                 self.commander_name = self.commander.name
         del data
     def save(self):
-        data = get_data('collection.json')
-        data['decks'][self.name] = self.to_dict()
-        dump_data(data=data, filename='collection.json')
+        data = get_data('decks.json')
+        data[self.name] = self.to_dict()
+        dump_data(data=data, filename='decks.json')
         del data
 
     def to_dict(self):
@@ -51,11 +51,11 @@ class Deck():
             'commander_name': self.commander_name
         }
 
-    def add_card(self, card_name, set_code=None, quantity=1, foil=False):
+    def add_card(self, card_name, set_code=None, quantity=1, finish='nonfoil'):
         starting_decklist_length = self.get_stats()['total_cards']
         if self.format == 'commander' and card_name == self.commander_name:
             return
-        card = Card(card_name, set_code=set_code, number=quantity, foil=foil)
+        card = Card(card_name, set_code=set_code, number=quantity, finish=finish)
         in_list = False
         if 1==1:
             for card_in_list in self.name_list:
@@ -70,7 +70,7 @@ class Deck():
 
             if in_list == False:
                 self.decklist.append(card)
-                self.name_list.append([card.name, card.set_code, card.number, card.foil])
+                self.name_list.append([card.name, card.set_code, card.number, card.finish])
 
         if starting_decklist_length == self.get_stats()['total_cards']:
             print(f'Error while adding {card_name} to deck')
@@ -121,14 +121,14 @@ class Deck():
             cmc_total += card.number*card.cmc
 
             # Mana Curve
-            if 'Land' not in card.main_types:
+            if 'Land' not in card.card_types:
                 if str(int(card.cmc)) not in stats['mana_curve']:
                     stats['mana_curve'][str(int(card.cmc))] = int(card.cmc*card.number)
                 else:
                     stats['mana_curve'][str(int(card.cmc))] += int(card.cmc * card.number)
 
             # card types
-            for type in card.main_types:
+            for type in card.card_types:
                 if type in stats['card_types']:
                     stats['card_types'][type] += card.number
                 else:
@@ -137,7 +137,7 @@ class Deck():
 
             # price
             if 'Basic' not in card.supertypes:
-                if hasattr(card, 'cm_price'):
+                if hasattr(card, 'cm_price') and isinstance(card.cm_price, (int, float)):
                     stats['price'] += float(card.cm_price)*card.number
                 else:
                     pass
@@ -160,7 +160,7 @@ class Deck():
                         stats['pips']['generic'] += int(generic)*card.number
             # Producer
             # creature types
-            if 'Creature' in card.main_types:
+            if 'Creature' in card.card_types:
                 for subtype in card.subtypes:
                     if subtype not in stats['creature_types']:
                         stats['creature_types'][subtype] = card.number
@@ -221,9 +221,9 @@ class Deck():
 
     def delete(self):
         if  input('Do you really want to delete this deck? y/n').lower() == 'y':
-            data = get_data('collection.json')
-            del data['decks'][self.name]
-            dump_data(data=data, filename='collection.json')
+            data = get_data('decks.json')
+            del data[self.name]
+            dump_data(data=data, filename='decks.json')
             del data
 
     def check_owned(self): #does not take other verions in considaration
@@ -232,12 +232,12 @@ class Deck():
         for card in self.decklist:
             found = False
             #check bulk
-            for sub in data['bulk']:
-                if card.key in data['bulk'][sub]:
+            for sub in data:
+                if card.key in data[sub]:
                     # get sum of all cards
                     sum = 0
-                    for version in data['bulk'][sub][card.key]['versions']:
-                        sum += data['bulk'][sub][card.key]['versions'][version]['number']
+                    for version in data[sub][card.key]['versions']:
+                        sum += data[sub][card.key]['versions'][version]['number']
             if sum < card.number:
                 found = True
                 cards_missing.append([card.name, card.number- sum])
@@ -438,12 +438,12 @@ class Deck():
                 card_dict['cm_price'] = False
 
 
-            if card not in self.generated_decklist and (card_dict['cm_price'] or card_is_owned) and (card_is_owned or card_dict['cm_price']+ 1.7 +budget_used < budget) and (current_distribution[card_dict['main_types'][0]] < type_distribution[card_dict['main_types'][0]]) and ((current_mana_distribution[str(int(card_dict['cmc']))]-3< mana_curve[str(int(card_dict['cmc']))]) or 'Land' in card_dict['main_types'])  and (len(self.generated_decklist)< 99-edhrec_data['basics']) and (card_dict['name'].lower() not in basic_lands):
+            if card not in self.generated_decklist and (card_dict['cm_price'] or card_is_owned) and (card_is_owned or card_dict['cm_price']+ 1.7 +budget_used < budget) and (current_distribution[card_dict['card_types'][0]] < type_distribution[card_dict['card_types'][0]]) and ((current_mana_distribution[str(int(card_dict['cmc']))]-3< mana_curve[str(int(card_dict['cmc']))]) or 'Land' in card_dict['card_types'])  and (len(self.generated_decklist)< 99-edhrec_data['basics']) and (card_dict['name'].lower() not in basic_lands):
                 if not card_is_owned:
                     budget_used += card_dict['cm_price'] +1.7
                     temp_buylist.append(card_dict['name'])
 
-                current_distribution[card_dict['main_types'][0]] += 1
+                current_distribution[card_dict['card_types'][0]] += 1
                 current_mana_distribution[str(int(card_dict['cmc']))] += 1
                 self.generated_decklist[card] = card_dict
                 self.generated_decklist[card]['number'] = 1
@@ -518,7 +518,7 @@ class Deck():
         edhrec_data = self._get_edhrec_data_(price_class=price_class)
         # if load is enabled
         if load:
-            deckfile_data = get_data('deckbuilding_data')
+            deckfile_data = get_data('deckbuilding.json')
             if self.commander.key in deckfile_data:
 
                 # check if to buy is there
@@ -528,7 +528,7 @@ class Deck():
                 if 'owned' in deckfile_data[self.commander.key] and len(deckfile_data[self.commander.key]['owned']) > 5:
                     owned = deckfile_data[self.commander.key]['owned']
 
-        attributes_to_add = ['salt', 'cmc', 'cm_price', 'main_types', 'edhrec_rank', 'name']
+        attributes_to_add = ['salt', 'cmc', 'cm_price', 'card_types', 'edhrec_rank', 'name']
 
         # if no buy
         if len(to_buy) < 1 and budget > 2:
@@ -560,7 +560,7 @@ class Deck():
 
         # if no owned (later Threading
         if len(owned) < 1:
-            bulkdata = get_data('collection.json')['bulk']
+            bulkdata = get_data('collection.json')
             unusable_list  = ['token', 'emblem', 'planar', 'double_faced_token']
             commander_colors = self.commander.color_identity
             n_bulkcards = 0
@@ -631,7 +631,7 @@ class Deck():
             owned[card]['absolute'] = scores[0]
 
         # save
-        data = get_data('deckbuilding_data')
+        data = get_data('deckbuilding.json')
         data[self.commander.key] = {}
         data[self.commander.key]['owned'] = owned
         data[self.commander.key]['to_buy'] = to_buy
