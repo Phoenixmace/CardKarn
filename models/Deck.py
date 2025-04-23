@@ -1,4 +1,3 @@
-from models.Card import Card
 from util.json_util import get_data, dump_data
 import requests
 import math
