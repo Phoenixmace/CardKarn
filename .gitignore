@@ -5,4 +5,5 @@ data/deckbuilding.json
 .venv/
 devel/
 data/training_data/
+data/
 
