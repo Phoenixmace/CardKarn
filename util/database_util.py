@@ -2,6 +2,8 @@ from util import data_util
 from util import json_util
 from collections import defaultdict
 import ijson
+import json
+import simplejson
 # basics
 def default_dict_tree():
     return defaultdict(default_dict_tree)
@@ -10,7 +12,6 @@ def default_dict_tree():
 
 def update_index_map():
     index_map = default_dict_tree()
-
 
     with open(data_util.get_data_path("card_database.json"), "r+", encoding="utf-8") as f:
         # first line
@@ -21,11 +22,13 @@ def update_index_map():
             # add line to formatted database
             object["index"] = index
             formatted_file = open(data_util.get_data_path("formatted_card_database.json"), "a", encoding="utf-8")
-            formatted_file.write(f"{str(object)},\n".replace("\'", "\""))
+            object_string = simplejson.dumps(object, use_decimal=True)
+            formatted_file.write(f"{object_string},\n")
             # get card variables
             price = object["prices"]["eur"]
             name_key = object["name"].lower()
             set_key = object["set"].lower()
+            id = object['id']
             if isinstance(price, str):
                 price = float(price)
             collector_number = object["collector_number"].lower()
@@ -33,6 +36,7 @@ def update_index_map():
 
             # write in index map
             index_map[name_key][set_key][collector_number] = index_dict
+            index_map[id] = index_dict
             # set cheapest
             current_dict = index_map
             steps = [name_key, set_key]
@@ -46,4 +50,4 @@ def update_index_map():
         print("remove comma")
 
     json_util.dump_data("database_index_map.json", index_map)
-update_index_map()
+#update_index_map()

@@ -10,11 +10,11 @@ additional_attributes = ['number', 'set', 'language', 'finish']
 class BaseCard():
     def __init__(self, index=None,search_params=None):
         if not index and search_params:
-            index = card_util.get_card_index([search_params])[0]
+            index = card_util.get_card_index(search_params)
         elif not not index:
             print('invalid card initiation')
             del self
-        self.__dict__ = card_util.get
+        recieved_dict = card_util.get_card_dict(index)
 class Card(BaseCard):
     def __init__(self, args):
         for attribute in args:
