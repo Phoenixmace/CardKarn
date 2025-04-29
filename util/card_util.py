@@ -55,7 +55,9 @@ def get_dict_object_from_database(file, offset):
     dict = json.loads(line)
     return dict
 
-def get_card_dict(index, file=None, min=None, max=None, obj_length=None):
+# either next target or av ob len
+
+def get_card_dict(index, file=None, min=None, max=None, target=None):
     if not file:
         # define variables
         file_path = data_util.get_data_path('formatted_card_database.json')
@@ -63,5 +65,21 @@ def get_card_dict(index, file=None, min=None, max=None, obj_length=None):
         file_length = os.path.getsize(file_path)
         min = 0
         max = file_length
-        # get number of objects
-        dict = get_dict_object_from_database(file, 20)
+        target = (min+max)/2
+    # get dict
+    dict = get_dict_object_from_database(file, target)
+    dict_index = dict['index']
+
+    # determine obj length
+    if not average_obj_length:
+        average_obj_length = file_length/(2*dict_index)
+    # return or call
+    if dict_index == index:
+        return dict
+    elif dict_index > index:
+        average_object_length = (target-min)/
+        next_target = 0
+        return get_card_dict(index, file=file, min=min, max=target, target=)
+
+
+
