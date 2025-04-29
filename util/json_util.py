@@ -15,7 +15,7 @@ def dump_data(filename, data, subfolder=False):
     filepath = data_util.get_data_path(filename, subfolder)
     if filepath:
         with open(filepath, 'w') as f:
-            json.dump(obj=data, fp=f, indent=4)
+            json.dump(obj=dict(data), fp=f, indent=4)
             return True
     return filepath
 
