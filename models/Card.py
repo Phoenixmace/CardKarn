@@ -15,6 +15,7 @@ class BaseCard():
             print('invalid card initiation')
             del self
         recieved_dict = card_util.get_card_dict(index)
+        self.__dict__ = recieved_dict
 class Card(BaseCard):
     def __init__(self, args):
         for attribute in args:
