@@ -1,7 +1,8 @@
 import json
+import os
 
 import util.data_util as data_util
-
+additional_attributes = ['salt', ]
 def get_data(filename, subfolder=False):
     filepath = data_util.get_data_path(filename, subfolder)
     if filepath:
@@ -11,12 +12,16 @@ def get_data(filename, subfolder=False):
     else:
         return False
 
+
 def dump_data(filename, data, subfolder=False):
     filepath = data_util.get_data_path(filename, subfolder)
     if filepath:
         with open(filepath, 'w') as f:
-            json.dump(obj=dict(data), fp=f, indent=4)
-            return True
+            if isinstance(data,(list, dict)):
+                json.dump(obj=data, fp=f, indent=4)
+                return True
+            else:
+                return False
     return filepath
 
 def set_value(filename, dict_path: list, value, subfolder=None, create_path = True):

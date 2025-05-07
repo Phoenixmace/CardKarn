@@ -7,7 +7,7 @@ import os
 
 
 def get_card_index(search_dict, get_cheapest=True):
-    index_map = json_util.get_data('database_index_map.json')
+    index_map = json_util.get_data('database_index_map.json', subfolder='database')
     if 'name' not in search_dict and 'id' not in search_dict:
         print('invalid query')
         return False
@@ -59,7 +59,7 @@ def get_dict_object_from_database(file, offset):
 def get_card_dict(index, file=None, min_offset=None, max_offset=None, min_index=None, max_index=None, average_dict_length=None, check_from_min=True):
     # define variables
     if not file:
-        file_path = data_util.get_data_path('formatted_card_database.json')
+        file_path = data_util.get_data_path('formatted_card_database.json', subfolder='database')
         file = open(file_path, 'r', encoding='utf-8')
         file_length = os.path.getsize(file_path)
         min_offset = 4
