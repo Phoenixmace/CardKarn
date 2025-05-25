@@ -1,18 +1,17 @@
-from http.client import responses
-
 import requests
-import util
+from util import card_array
 from util import card_util
 from util.json_util import get_data, dump_data
 
 # [Source, Path, Side-related, Save to memory, Save to collection, Version-dependent, Only frontside matters, Data type]
-additional_attributes = ['number', 'set', 'language', 'finish']
+non_scryfall_attributes = ['salt']
+additional_attributes = ['number', 'language', 'finish']
 
 
 
 
 class BaseCard():
-    def __init__(self, index=None,search_params=None):
+    def __init__(self, index=None,search_params=None, update=True):
         if not index and search_params:
             index = card_util.get_card_index(search_params)
         elif not not index:
@@ -22,7 +21,11 @@ class BaseCard():
         self.__dict__ = recieved_dict
 
         # set new data
-        self.set_salt()
+        for i in [i for i in non_scryfall_attributes if (not hasattr(self, i) or update)]:
+            function_name = f'set_{i}'
+            method = getattr(self, function_name, None)
+            if callable(method):
+                method()
         self.store_base_card_dict()
 
     def set_salt(self):
@@ -41,14 +44,19 @@ class BaseCard():
                 if isinstance(self.salt, str):
                     self.salt = float(self.salt)
 
-        print()
-
-
     def store_base_card_dict(self):
         data = get_data('card_values_to_update.json', subfolder='database')
         if str(self.index) not in data['cards']:
             data['cards'][str(self.index)] = self.__dict__
             dump_data('card_values_to_update.json', data=data,subfolder='database')
+    def set_array(self, type='simple'):
+        if not hasattr(self, 'np_arrays'):
+            self.np_arrays = {'simple':[],'binary':[]}# key model type: array, (edited) weights
+        array_data = card_array.get_array(self, type=type)
+        self.np_arrays[type].append(array_data)
+
+
+
 
 
 class Card(BaseCard):
