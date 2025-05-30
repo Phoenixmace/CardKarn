@@ -1,7 +1,6 @@
 import requests
 from util.machine_learning import card_array
-from util import card_util
-from util.json_util import get_data, dump_data
+from util.database import sql_card_operations
 
 # [Source, Path, Side-related, Save to memory, Save to collection, Version-dependent, Only frontside matters, Data type]
 non_scryfall_attributes = ['salt']
@@ -11,13 +10,13 @@ additional_attributes = ['number', 'language', 'finish']
 
 
 class BaseCard():
-    def __init__(self, index=None,search_params=None, update=True):
-        if not index and search_params:
-            index = card_util.get_card_index(search_params)
-        elif not not index:
-            print('invalid card initiation')
+    def __init__(self,search_params=None, update=False, save_changes=True):
+
+        recieved_dict = sql_card_operations.get_card_dict(search_params)
+        if not recieved_dict:
+            print('failed to initiate card', search_params)
             del self
-        recieved_dict = card_util.get_card_dict(index)
+            return
         self.__dict__ = recieved_dict
 
         # set new data
@@ -26,8 +25,8 @@ class BaseCard():
             method = getattr(self, function_name, None)
             if callable(method):
                 method()
-        self.store_base_card_dict()
-        self.quick_store()
+        if save_changes:
+            self.store_base_card_dict()
 
     def set_salt(self):
         edhrec_url = self.related_uris['edhrec']
@@ -46,39 +45,9 @@ class BaseCard():
                     self.salt = float(self.salt)
 
     def store_base_card_dict(self):
-        data = get_data('card_values_to_update.json', subfolder='database')
-        if str(self.index) not in data['cards']:
-            data['cards'][str(self.index)] = self.__dict__
-            dump_data('card_values_to_update.json', data=data,subfolder='database')
-
-    def quick_store(self, update=False):
-        short_card_data = get_data('short_cards.json', subfolder='database')
-        relevant_keys = ['game_changer','mana_cost','oracle_id', 'cmc', 'color_identity', 'edhrec_rank', 'legalities', 'name', 'power', 'toughness', 'keywords', 'layout', 'prices', 'salt', 'type_line', 'oracle_text', 'rarity']
-        short_dict = {key: self.__dict__[key] for key in relevant_keys if hasattr(self, key)}
-        if  self.oracle_id not in short_card_data or update:
-            short_card_data[self.oracle_id] = short_dict
-            dump_data('short_cards.json', data=short_card_data,subfolder='database')
-        return short_dict
+        sql_card_operations.update_card(self.__dict__)
 
 
-class ShortCard():
-    def __init__(self, oracle_id=None, index=None, search_params=None, update=False):
-        data = get_data('short_cards.json', subfolder='database')
-
-        if oracle_id and oracle_id in data and not update:
-            self.__dict__ = data[oracle_id]
-        elif index or search_params:
-            self.__dict__ = BaseCard(index=index, search_params=search_params).quick_store(update=update)
-        else:
-            print('invalid card initiation')
-            del self
-    def save(self):
-        dump_data('short_cards.json', data=self.__dict__,subfolder='database')
-
-    def get_array(self, type='1'):
-        # key model type: array, (edited) weights
-        array_data = card_array.get_array(self, type=type)
-        return array_data
 
 class Card(BaseCard):
     def __init__(self, args):

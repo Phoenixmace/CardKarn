@@ -1,5 +1,5 @@
 from util.json_util import dump_data, get_data
-
+from random import randint
 
 def data_preparation_1():
     data = get_data('full_import.json', ['machine_learning', 'training_data'])
@@ -23,6 +23,9 @@ def data_preparation_1():
         if item%1000==0:
             print('dumping')
             dump_data('training_card_synergies_1.json', card_synergies, ['machine_learning', 'synergy_id_list'])
+    # no synergy card adding
+
+
 
 
 
