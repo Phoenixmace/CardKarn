@@ -57,7 +57,8 @@ def init_db(filename='cards.db'):
         white_in_color_identity BOOLEAN,
         black_in_color_identity BOOLEAN,
         layout TEXT,
-        double_faced_card BOOLEAN
+        double_faced_card BOOLEAN,
+        set TEXT
         
     )''')
 

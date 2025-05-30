@@ -5,10 +5,32 @@ def get_card_dict(search_params:dict):
     cursor = sql_util.get_cursor()
     connector = cursor[0]
     cursor = cursor[1]
-    exact_matches = ['scryfall_id', 'oracle_id']
-    search_query = [f"{key.upper()} LIKE '%{value}%'" if key not in exact_matches else f"{key.upper()}=\'{value}\'" for key, value in search_params.items()  ]
-    search_query = " AND ".join(search_query)
-    cursor.execute(f"SELECT json FROM cards WHERE {search_query}")
+
+
+    # Build FTS5 search query from parameters (phrase search)
+    search_conditions = []
+    for key, value in search_params.items():
+        # Escape quotes in value for FTS5 syntax
+        if isinstance(value, bool):
+            search_conditions.append(f'{key}')
+        else:
+            escaped_value = value.replace('"', '""')
+            search_conditions.append(f'{key}:"{escaped_value}"')
+
+    search_query = " AND ".join(search_conditions) if search_conditions else ""
+
+    if not search_query:
+        connector.close()
+        return False
+    query = ("\n"
+             "                   SELECT cards.json\n"
+             "                   FROM cards\n"
+             "                            JOIN cards_fts ON cards.rowid = cards_fts.rowid\n"
+             "                   WHERE cards_fts MATCH ? LIMIT 1\n"
+             "                   ")
+    cursor.execute(query, (search_query,))
+
+
     card_dict_string = cursor.fetchone()
     if not card_dict_string:
         return False
