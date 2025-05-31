@@ -6,8 +6,22 @@ def get_card_dict(search_params:dict):
     connector = cursor[0]
     cursor = cursor[1]
 
+    # direct search
+    query = 'SELECT json FROM cards WHERE ' + ' AND '.join([f'{key}=?' for key in search_params])
+    params = tuple(search_params.values())
+    # double sided cards
+    if 'name' in search_params:
+        query = query + f' OR (name Like ? and name LIKE \'%//%\') '
+        params = params + ("%"+search_params["name"]+"%",)
 
-    # Build FTS5 search query from parameters (phrase search)
+    print(query, params)
+    cursor.execute(query, params)
+    card_dict_string = cursor.fetchone()
+    if card_dict_string:
+        connector.close()
+        card_dict = json.loads(card_dict_string[0])
+        return card_dict
+    # FTS search
     search_conditions = []
     for key, value in search_params.items():
         # Escape quotes in value for FTS5 syntax
@@ -33,6 +47,7 @@ def get_card_dict(search_params:dict):
 
     card_dict_string = cursor.fetchone()
     if not card_dict_string:
+        connector.close()
         return False
     card_dict = json.loads(card_dict_string[0])
     connector.close()
@@ -98,3 +113,13 @@ def update_card(card_dict:dict):
     cursor.execute(sql, vals)
     connector.commit()
     connector.close()
+
+def get_all_cards_by_query(query:str, params=None, table='cards.db'):
+    cursor = sql_util.get_cursor(filename=table)
+    connector = cursor[0]
+    cursor = cursor[1]
+
+    cursor.execute(query,params)
+    card_dict_string = cursor.fetchall()
+    return card_dict_string
+
