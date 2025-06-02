@@ -2,4 +2,5 @@
 .venv/
 devel/
 data/
+config.py
 
