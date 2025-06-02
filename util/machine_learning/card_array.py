@@ -1,8 +1,8 @@
 import util.json_util as json_util
 
 def get_array(card_item, type, **weights):
-    if type == '1':
-        array = simple_array(card_item)
+    if type == 1:
+        array = np_array_1(card_item)
     else:
         array = None
         print('type not supported')
@@ -13,7 +13,7 @@ def get_array(card_item, type, **weights):
 
 
 def categorise(string, category, ask_for_categorys = False):
-    categorising_data = json_util.get_data('model_1.json', ['machine_learning','categorising_data'])
+    categorising_data = json_util.get_data('categories_1.json', ['machine_learning','categorising_data'])
     if category not in categorising_data:
         categorising_data[category] = {}
 
@@ -29,37 +29,20 @@ def categorise(string, category, ask_for_categorys = False):
             categorising_data[category][string] = int(input_category)
         else:
             categorising_data[category][string] = len(categorising_data[category]) +1
-        json_util.dump_data('model_1.json',categorising_data, ['machine_learning','categorising_data'])
+        json_util.dump_data('categories_1.json',categorising_data, ['machine_learning','categorising_data'])
     return categorising_data[category][string]
 
-def simple_oracle_text(string, ask_word_input = True):
-    # get deletion_words
-    categorising_data = json_util.get_data('model_1.json', ['machine_learning','categorising_data'])
-    if 'oracle_words' not in categorising_data:
-        categorising_data['oracle_words'] = {}
-
-    # label words
-
-    string = string.lower()
-    string = string.replace('this creature', 'card_name')
-    word_list = string.split(' ')
-    word_array = []
-    for word in word_list:
-        if word not in categorising_data['oracle_words']:
-            if ask_word_input:
-                input_word = input(f'is "{word}" a word to delete? (enter to keep): ')
-                if len(input_word) > 0:
-                    categorising_data['oracle_words'][word] = False
-                else:
-                    categorising_data['oracle_words'][word] = len(categorising_data['oracle_words']) +1
-        if categorising_data['oracle_words'][word]:
-            word_array.append(word)
-    json_util.dump_data('model_1.json', categorising_data, ['machine_learning','categorising_data'])
-
-    return word_array
+def get_combined_attribute(card_item, attribute):
+    if hasattr(card_item, attribute):
+        return getattr(card_item, attribute)
+    elif hasattr(card_item, 'card_faces'):
+        values = []
+        for i in card_item.card_faces:
+            if attribute in card_item.card_faces[i]:
+                attribute_1_value =
 
 
-def simple_array(card_item,**weights):
+def np_array_1(card_item, **weights):
         array = []
 
         # cmc
@@ -83,6 +66,7 @@ def simple_array(card_item,**weights):
         typeline = card_item.type_line
 
         # supertypes
+
         array.append(int('Legendary' in typeline))
 
         # card_types
@@ -101,6 +85,7 @@ def simple_array(card_item,**weights):
                 array.append(-1)
 
         # subtypes
+
         if len(split_typeline) < 1:
             subtypes = split_typeline[1].split(' ')
         else:
@@ -109,7 +94,7 @@ def simple_array(card_item,**weights):
             if i < len(subtypes):
                 subtype = subtypes[i]
                 subtype = categorise(subtypes, 'subtypes')
-                array.append(subtypes)
+                array.append(subtype)
             else:
                 array.append(-1)
 
@@ -123,10 +108,13 @@ def simple_array(card_item,**weights):
             array.append(card_item.toughness)
         else:
             array.append(-1)
-
         # edhrec_rank
 
-        array.append(card_item.edhrec_rank)
+
+        if hasattr(card_item, 'edhrec_rank'):
+            array.append(card_item.edhrec_rank)
+        else:
+            array.append(36000)
 
         # keywords
 
@@ -134,7 +122,7 @@ def simple_array(card_item,**weights):
         for i in range(3):
             if i < len(card_keywords):
                 card_keyword = card_keywords[i]
-                card_keyword = categorise(card_keyword, 'keywords', True)
+                card_keyword = categorise(card_keyword, 'keywords', False)
                 array.append(card_keyword)
             else:
                 array.append(-1)
@@ -158,19 +146,19 @@ def simple_array(card_item,**weights):
 
         # gamechanger
 
-        if card_item.game_changer:
+        if hasattr(card_item, 'game_changer') and card_item.game_changer:
             array.append(1)
         else:
             array.append(0)
 
         # oracle text
 
-        oracle_text_list = simple_oracle_text(card_item.oracle_text)
-        for i in range(100):
+        oracle_text_list = card_item.oracle_text.split(' ')
+        for i in range(60):
             if i < len(oracle_text_list):
                 oracle_text = oracle_text_list[i]
-                oracle_text = categorise(oracle_text, 'oracle_text', False)
-                array.append(oracle_text)
+                oracle_text_int = categorise(oracle_text, 'oracle_text', False)
+                array.append(oracle_text_int)
             else:
                 array.append(-1)
         return array

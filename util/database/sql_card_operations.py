@@ -14,7 +14,6 @@ def get_card_dict(search_params:dict):
         query = query + f' OR (name Like ? and name LIKE \'%//%\') '
         params = params + ("%"+search_params["name"]+"%",)
 
-    print(query, params)
     cursor.execute(query, params)
     card_dict_string = cursor.fetchone()
     if card_dict_string:

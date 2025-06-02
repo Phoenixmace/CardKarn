@@ -10,7 +10,7 @@ additional_attributes = ['number', 'language', 'finish']
 
 
 class BaseCard():
-    def __init__(self,search_params=None, update=False, card_json=None):
+    def __init__(self,search_params=None, update=False, card_json=None, wait_for_salt_score=False):
         if card_json:
             self.__dict__ = card_json
         else:
@@ -22,14 +22,11 @@ class BaseCard():
             self.__dict__ = recieved_dict
 
         # set new data
-        for i in [i for i in non_scryfall_attributes if (not hasattr(self, i) or update)]:
-            function_name = f'set_{i}'
-            method = getattr(self, function_name, None)
-            if callable(method):
-                method()
+        if not hasattr(self, 'salt'):
+            self.set_salt(wait_for_salt_score)
 
 
-    def set_salt(self):
+    def set_salt(self, wait_for_salt_score):
         def fetch_salt():
             edhrec_url = self.related_uris['edhrec']
             response = requests.get(edhrec_url, timeout=3)
@@ -48,14 +45,11 @@ class BaseCard():
                     self.store_base_card_dict()
         thread = threading.Thread(target=fetch_salt)
         thread.start()
+        if wait_for_salt_score:
+            thread.join()
 
     def store_base_card_dict(self):
         sql_card_operations.update_card(self.__dict__)
 
-
-
-class Card(BaseCard):
-    def __init__(self, args):
-        for attribute in args:
-            if attribute in additional_attributes:
-                setattr(self, attribute, args[attribute])
+    def get_np_array(self, method=1, weights={}):
+        card_array.get_array(self, method, **weights)
