@@ -1,5 +1,4 @@
 import sqlite3
-
 from util import data_util
 
 
