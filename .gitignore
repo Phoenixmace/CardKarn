@@ -3,4 +3,6 @@
 devel/
 data/
 config.py
+config.template.py
+
 
