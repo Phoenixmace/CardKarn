@@ -52,4 +52,8 @@ class BaseCard():
         sql_card_operations.update_card(self.__dict__)
 
     def get_np_array(self, method=1, weights={}):
-        card_array.get_array(self, method, **weights)
+        array_data = card_array.get_array(self, method, **weights)
+        array = array_data['array']
+        weights = weights
+        method = method
+        return array
