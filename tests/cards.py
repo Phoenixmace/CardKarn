@@ -1,6 +1,5 @@
 from util.database import sql_card_operations
-from models.Card import BaseCard
-card = BaseCard({'name': 'Etali, Primal Conqueror // Etali, Primal Sickness'}, wait_for_salt_score=True)
-print(card.get_np_array())
+from util.machine_learning import create_training_arrays
+create_training_arrays.create_training_arrays('small_training_data_1.json')
 
 
