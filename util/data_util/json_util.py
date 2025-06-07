@@ -66,15 +66,17 @@ def increment_value_by(filename, dict_path:list, increment_value=1, default_valu
 
 def get_shared_data(filename, subfolder=False):
     global shared_json_data
-    if filename in shared_json_data:
-        return shared_json_data[filename]
-    else:
-        data = get_data(filename=filename, subfolder=subfolder)
-        if data != False:
-            shared_json_data[filename] = data
-            return data
+    from util.treading_util import json_lock
+    with json_lock:
+        if filename in shared_json_data:
+            return shared_json_data[filename]
         else:
-            return False
+            data = get_data(filename=filename, subfolder=subfolder)
+            if data != False:
+                shared_json_data[filename] = data
+                return data
+            else:
+                return False
 def update_shared_data(filename, data, subfolder=False):
     global shared_json_data
     from util.treading_util import json_lock

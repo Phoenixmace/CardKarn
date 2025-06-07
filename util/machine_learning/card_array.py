@@ -1,8 +1,10 @@
 import util.data_util.json_util as json_util
 
-def get_array(card_item, type, **weights):
-    if type == 1:
-        array = np_array_1(card_item,**weights)
+def get_array(card_item, method,name=None, **weights):
+    if not name:
+        name = method
+    if method == 1:
+        array = np_array_1(card_item, name, **weights)
     else:
         array = None
         print('type not supported')
@@ -79,8 +81,8 @@ def get_combined_attribute(card_item, attribute):
     else:
         return None
 
-def np_array_1(card_item,**weights):
-    categorising_data = json_util.get_shared_data('categories_1.json', ['machine_learning', 'categorising_data'])
+def np_array_1(card_item,name,**weights):
+    categorising_data = json_util.get_shared_data(f'categories_{name}.json', ['machine_learning', f'model_{name}'])
     array = []
     # cmc
 
@@ -121,7 +123,7 @@ def np_array_1(card_item,**weights):
             card_type = categorise(card_type, 'card_types',categorising_data)
             array.append(card_type)
         else:
-            array.append(-1)
+            array.append(0)
 
     # subtypes
 
@@ -135,19 +137,19 @@ def np_array_1(card_item,**weights):
             subtype = categorise(subtypes, 'subtypes',categorising_data)
             array.append(subtype)
         else:
-            array.append(-1)
+            array.append(0)
 
     # power/toughness
     power = get_combined_attribute(card_item, 'power')
     if isinstance(power, int):
         array.append(power)
     else:
-        array.append(-1)
+        array.append(0)
     toughness = get_combined_attribute(card_item, 'toughness')
     if isinstance(toughness, int):
         array.append(toughness)
     else:
-        array.append(-1)
+        array.append(0)
     # edhrec_rank
 
 
@@ -165,14 +167,14 @@ def np_array_1(card_item,**weights):
             card_keyword = categorise(card_keyword, 'keywords', categorising_data,False)
             array.append(card_keyword)
         else:
-            array.append(-1)
+            array.append(0)
 
     # salt score
 
-    if hasattr(card_item, 'salt'):
+    if hasattr(card_item, 'salt') and card_item.salt!=None:
         array.append(card_item.salt)
     else:
-        array.append(-1)
+        array.append(0)
 
     # layout
 
@@ -200,14 +202,14 @@ def np_array_1(card_item,**weights):
         for substring in string.split('\n'):
             cleaned_oracle_text_list.append(substring)
 
-    for i in range(60):
+    for i in range(20):
         if i < len(cleaned_oracle_text_list):
             oracle_text = cleaned_oracle_text_list[i]
             oracle_text_int = categorise(oracle_text, 'oracle_text',categorising_data, False)
             array.append(oracle_text_int)
         else:
-            array.append(-1)
-    json_util.update_shared_data('categories_1.json', categorising_data, ['machine_learning', 'categorising_data'])
+            array.append(0)
+    json_util.update_shared_data(f'categories_{name}.json', categorising_data,['machine_learning', f'model_{name}'])
     return array
 
 

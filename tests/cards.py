@@ -1,5 +1,5 @@
 from util.machine_learning.data_preparation_1 import create_training_arrays
+from util.machine_learning import create_new_model
 
-create_training_arrays.create_training_arrays('small_training_data_1.json', filename_to_save='dataset_1.json')
 
-
+create_new_model.create_new_card_model(1, 'full_import.json', threads=250, max_training_data_entries=250, name='testing_model')

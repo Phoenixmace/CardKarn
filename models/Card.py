@@ -61,18 +61,19 @@ class BaseCard():
     def store_base_card_dict(self):
         sql_card_operations.update_card(self.__dict__)
 
-    def get_np_array(self, method=1, weights={}):
+    def get_np_array(self, method=1, weights={}, load_existing=False, name=None):
         if not hasattr(self, 'arrays'):
             self.arrays = {}
-
-        if str(method) in self.arrays and len(weights)==0:
-            return self.arrays[str(method)][0]
+        if not name:
+            name = method
+        if str(name) in self.arrays and len(weights)==0 and load_existing:
+            return self.arrays[str(name)][0]
         else:
-            array_data = card_array.get_array(self, method, **weights)
+            array_data = card_array.get_array(self, method,name, **weights)
             array = array_data['array']
             weights = weights
             method = method
 
-            self.arrays[str(method)] = [array, weights]
+            self.arrays[str(name)] = [array, weights, method]
             sql_card_operations.update_card(self.__dict__)
             return array
