@@ -1,8 +1,8 @@
 import util.data_util.json_util as json_util
 
-def get_array(card_item, type, categories=None, **weights):
+def get_array(card_item, type, **weights):
     if type == 1:
-        array = np_array_1(card_item, categories,**weights)
+        array = np_array_1(card_item,**weights)
     else:
         array = None
         print('type not supported')
@@ -79,13 +79,8 @@ def get_combined_attribute(card_item, attribute):
     else:
         return None
 
-
-
-def np_array_1(card_item, categories,**weights):
-    if not categories:
-        categorising_data = json_util.get_data('categories_1.json', ['machine_learning', 'categorising_data'], file_lock=True)
-    else:
-        categorising_data = categories
+def np_array_1(card_item,**weights):
+    categorising_data = json_util.get_shared_data('categories_1.json', ['machine_learning', 'categorising_data'])
     array = []
     # cmc
 
@@ -212,7 +207,7 @@ def np_array_1(card_item, categories,**weights):
             array.append(oracle_text_int)
         else:
             array.append(-1)
-    json_util.dump_data('categories_1.json', categorising_data, ['machine_learning', 'categorising_data'], file_lock=True)
+    json_util.update_shared_data('categories_1.json', categorising_data, ['machine_learning', 'categorising_data'])
     return array
 
 

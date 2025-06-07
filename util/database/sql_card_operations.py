@@ -111,9 +111,10 @@ def update_card(card_dict:dict):
 
     cursor.execute(sql, vals)
     connector.commit()
+    cursor.close()
     connector.close()
-
-db_lock = threading.Lock()
+from util.treading_util import db_lock as lock
+db_lock = lock
 def get_all_cards_by_query(query:str, params=None, table='cards.db'):
     with db_lock:
         cursor = sql_util.get_cursor(filename=table)
@@ -121,5 +122,7 @@ def get_all_cards_by_query(query:str, params=None, table='cards.db'):
         cursor = cursor[1]
         cursor.execute(query,params)
         card_dict_string = cursor.fetchall()
+        cursor.close()
+        connector.close()
     return card_dict_string
 

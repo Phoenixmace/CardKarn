@@ -3,6 +3,8 @@ from models.Card import BaseCard
 import random
 from util.treading_util import ThreadingHandler
 from util.machine_learning import card_array
+from util.data_util import json_util
+
 
 def create_training_arrays(filename, method=1, filename_to_save='dataset.json'):
     data = json_util.get_data(filename_to_save, ['machine_learning', 'final_training_data'])
@@ -24,32 +26,37 @@ def create_training_arrays(filename, method=1, filename_to_save='dataset.json'):
 
 
     threading_handler = ThreadingHandler(200)
-    save_interval = 100
-    all_params = [(param, key, input, method, ((index+1)%save_interval==0, filename_to_save,data if (index+1)%save_interval==0 else None)) for index, param in enumerate(shuffled_data[absolute_index:])]
-    add_synergy(all_params[0][0], all_params[0][1], all_params[0][2], all_params[0][3], all_params[0][4])
-    threading_handler.start_process(all_params, add_synergy, process_message=f'Creating training arrays: ')
+    save_interval = 1000
+    all_params = [(param, key, input, method, ((index+1)%save_interval==0, filename_to_save,data if (index+1)%save_interval==0 else None, threading_handler)) for index, param in enumerate(shuffled_data[absolute_index:])]
+    threading_handler.start_process(all_params[:1001], add_synergy, process_message=f'Creating training arrays: ')
+
+    shared_data = json_util.shared_json_data
+    categories = shared_data['categories_1.json']
+    json_util.dump_data('categories_1.json', categories, ['machine_learning', 'categorising_data'])
     json_util.dump_data(filename_to_save, data, ['machine_learning', 'final_training_data'])
 
 def add_synergy(synergy, key, input, method, save_data):
-    try:
-        card_1 = BaseCard({'scryfall_id': synergy[0]}, wait_for_salt_score=True)
-        card_2 = BaseCard({'scryfall_id': synergy[1]}, wait_for_salt_score=True)
-        categories = json_util.get_data('categories_1.json', ['machine_learning', 'categorising_data'], file_lock=True)
-        card_array_1 = card_array.get_array(card_1, categories=categories, type=method)
-        card_array_2 = card_array.get_array(card_2, categories=categories, type=method)
-        if not card_array_1 or not card_array_2 or len(card_array_1) != len(card_array_2):
-            return
-        key.append(synergy[2])
-        arrays = sorted([card_array_1, card_array_2])
-        arrays = arrays[0] + arrays[1]
-        input.append(arrays)
-        if len(input) != len(key):
-            pass
-            print(synergy, 'why is it not the same length?')
-            quit()
-        if save_data[0]:
-            json_util.dump_data(save_data[1], save_data[2], ['machine_learning', 'final_training_data'], file_lock=True)
-    except Exception as e:
-        print(f"Error in thread: {e}")
+    card_1 = BaseCard({'scryfall_id': synergy[0]}, wait_for_salt_score=True)
+    card_2 = BaseCard({'scryfall_id': synergy[1]}, wait_for_salt_score=True)
+    card_array_1 = card_1.get_np_array(method=method)
+    card_array_2 = card_2.get_np_array(method=method)
+    if not card_array_1 or not card_array_2 or len(card_array_1) != len(card_array_2):
+        return
+
+    key.append(synergy[2])
+    arrays = sorted([card_array_1, card_array_2])
+    arrays = arrays[0] + arrays[1]
+    input.append(arrays)
+    if len(input) != len(key):
+        pass
+        print(synergy, 'why is it not the same length?')
+        quit()
+    if save_data[0]:
+        threading_handler = save_data[3]
+        print('saving data...')
+        for thread in threading_handler.threads:
+            thread.join()
+        json_util.dump_data(save_data[1], save_data[2], ['machine_learning', 'final_training_data'])
+
 
 

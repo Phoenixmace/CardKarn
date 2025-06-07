@@ -48,21 +48,31 @@ class BaseCard():
                             self.salt = float(self.salt)
                         self.store_base_card_dict()
             except requests.exceptions.RequestException as e:
-                print("Request failed:", e)
+                #print("Request failed:", e)
+                pass
             if not hasattr(self, 'salt'):
                 self.salt = None
         thread = threading.Thread(target=fetch_salt)
         thread.start()
         if wait_for_salt_score:
             thread.join()
-        print(f'Request took: {round(time.time() - start_time, 2)} seconds')
+        #print(f'Request took: {round(time.time() - start_time, 2)} seconds')
 
     def store_base_card_dict(self):
         sql_card_operations.update_card(self.__dict__)
 
     def get_np_array(self, method=1, weights={}):
-        array_data = card_array.get_array(self, method, **weights)
-        array = array_data['array']
-        weights = weights
-        method = method
-        return array
+        if not hasattr(self, 'arrays'):
+            self.arrays = {}
+
+        if str(method) in self.arrays and len(weights)==0:
+            return self.arrays[str(method)][0]
+        else:
+            array_data = card_array.get_array(self, method, **weights)
+            array = array_data['array']
+            weights = weights
+            method = method
+
+            self.arrays[str(method)] = [array, weights]
+            sql_card_operations.update_card(self.__dict__)
+            return array
