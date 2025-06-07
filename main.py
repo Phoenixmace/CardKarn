@@ -1,4 +1,4 @@
-from util.collection_import import import_collection_from_manabox
+from util.data_util.collection_import import import_collection_from_manabox
 import logging
 logger = logging.getLogger('ftpuploader')
 

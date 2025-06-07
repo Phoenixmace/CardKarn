@@ -1,6 +1,6 @@
 from util.database import sql_util
 import json
-
+import threading
 def get_card_dict(search_params:dict):
     cursor = sql_util.get_cursor()
     connector = cursor[0]
@@ -113,12 +113,13 @@ def update_card(card_dict:dict):
     connector.commit()
     connector.close()
 
+db_lock = threading.Lock()
 def get_all_cards_by_query(query:str, params=None, table='cards.db'):
-    cursor = sql_util.get_cursor(filename=table)
-    connector = cursor[0]
-    cursor = cursor[1]
-
-    cursor.execute(query,params)
-    card_dict_string = cursor.fetchall()
+    with db_lock:
+        cursor = sql_util.get_cursor(filename=table)
+        connector = cursor[0]
+        cursor = cursor[1]
+        cursor.execute(query,params)
+        card_dict_string = cursor.fetchall()
     return card_dict_string
 

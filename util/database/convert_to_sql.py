@@ -1,5 +1,4 @@
-import sqlite3
-from util import data_util, json_util
+from util import data_util
 import json
 
 from util.database.sql_util import get_cursor

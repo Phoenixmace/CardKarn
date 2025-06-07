@@ -1,5 +1,4 @@
-from util.json_util import dump_data, get_data
-from random import randint
+from util.data_util.json_util import dump_data, get_data
 import time
 from util.database.sql_card_operations import get_all_cards_by_query
 from models.Card import BaseCard

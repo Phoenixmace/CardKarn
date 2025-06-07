@@ -1,4 +1,4 @@
-from util.json_util import get_data, dump_data
+from util.data_util.json_util import get_data, dump_data
 import requests
 import math
 '''

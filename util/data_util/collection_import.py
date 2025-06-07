@@ -1,7 +1,7 @@
-from time import sleep
-import requests
 import csv
-from util import json_util
+from util.data_util import json_util
+
+
 def import_collection_from_manabox(file_path, add_lists=False):
     file_path = file_path.replace('\\', '/')
     # import each card

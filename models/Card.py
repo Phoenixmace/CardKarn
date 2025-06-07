@@ -1,3 +1,5 @@
+import time
+
 import requests
 from util.machine_learning import card_array
 from util.database import sql_card_operations
@@ -27,26 +29,33 @@ class BaseCard():
 
 
     def set_salt(self, wait_for_salt_score):
+        start_time = time.time()
         def fetch_salt():
             edhrec_url = self.related_uris['edhrec']
-            response = requests.get(edhrec_url, timeout=3)
-            if response.status_code == 200:
-                card_link = response.url.split('/')[-1]
-                json_url = f'https://json.edhrec.com/pages/cards/{card_link}.json'
-                json_response = requests.get(json_url)
+            try:
+                response = requests.get(edhrec_url, timeout=2)
                 if response.status_code == 200:
-                    json_response_dict = json_response.json()
-                    card_data = json_response_dict['container']['json_dict']['card']
+                    card_link = response.url.split('/')[-1]
+                    json_url = f'https://json.edhrec.com/pages/cards/{card_link}.json'
+                    json_response = requests.get(json_url, timeout=2)
+                    if response.status_code == 200:
+                        json_response_dict = json_response.json()
+                        card_data = json_response_dict['container']['json_dict']['card']
 
-                    # set attributes
-                    self.salt = card_data['salt']
-                    if isinstance(self.salt, str):
-                        self.salt = float(self.salt)
-                    self.store_base_card_dict()
+                        # set attributes
+                        self.salt = card_data['salt']
+                        if isinstance(self.salt, str):
+                            self.salt = float(self.salt)
+                        self.store_base_card_dict()
+            except requests.exceptions.RequestException as e:
+                print("Request failed:", e)
+            if not hasattr(self, 'salt'):
+                self.salt = None
         thread = threading.Thread(target=fetch_salt)
         thread.start()
         if wait_for_salt_score:
             thread.join()
+        print(f'Request took: {round(time.time() - start_time, 2)} seconds')
 
     def store_base_card_dict(self):
         sql_card_operations.update_card(self.__dict__)

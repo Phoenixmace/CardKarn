@@ -1,6 +1,6 @@
 import sqlite3
 
-from util import data_util
+from util.data_util import data_util
 
 
 
