@@ -21,3 +21,22 @@ def login():
     except Exception as e:
         return make_response(jsonify({'message': 'error loging in', 'error': str(e)}), 500)
 
+@app.route('/api/register', methods=['POST'])
+def register():
+    try:
+        data = request.get_json()
+        username = data['name']
+        mail = data['email']
+        password = str(data['password'])
+        connector, cursor  = get_cursor(filename='users.db')
+        cursor.execute('SELECT password FROM users WHERE name = ?', (username,))
+
+        if len(cursor.fetchall()) > 0:
+            return make_response(jsonify({'message': 'user already exists'}), 409)
+        else:
+            cursor.execute('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', (username, mail, password))
+            connector.commit()
+            connector.close()
+            return make_response(jsonify({'message': 'registration successful'}), 201)
+    except Exception as e:
+        return make_response(jsonify({'message': 'error registering', 'error': str(e)}), 500)
