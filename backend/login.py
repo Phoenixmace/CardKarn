@@ -1,6 +1,8 @@
 from backend.app import app
 from flask import Flask, request, jsonify, make_response
 from util.database.sql_util import get_cursor
+from flask import render_template
+
 
 @app.route('/api/register', methods=['POST'])
 def login():

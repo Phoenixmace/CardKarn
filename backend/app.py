@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS  
 from os import environ
 
-app = Flask(__name__, template_folder='')
+app = Flask(__name__, template_folder=r"C:\Users\maxce\PycharmProjects\CardKarn\backend\templates")
 CORS(app)  # Enable CORS for all routes
 
 # Use SQLite for development
@@ -34,7 +34,7 @@ def get_app():
 # index
 @app.route('/')
 def index():
-    return render_template('')
+    return render_template('UserAuthentication.html')
 @app.route('/test', methods=['GET'])
 def test():
   return jsonify({'message': 'The server is running'})
