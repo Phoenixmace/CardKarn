@@ -1,0 +1,353 @@
+* { 
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #000;
+    color: #fff;
+}
+
+.main {
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(to top, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.3) 50%),
+                url("../images/fantasy-7454751_1280.jpg") center/cover no-repeat;
+    display: flex;
+    flex-direction: column;
+    padding-top: 50px;
+}
+
+.navbar {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.icon .logo {
+    color: #09e275;
+    font-size: 35px;
+    font-weight: bold;
+    margin: 0;
+    padding: 5px 0;
+    line-height: 1;
+}
+
+.menu {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.menu ul {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.menu ul li a {
+    text-decoration: none;
+    color: #ffffff;
+    font-weight: bold;
+    transition: 0.3s ease-in-out;
+}
+
+.menu ul li a:hover {
+    color: #03ff18;
+}
+
+.Srch {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 25px;
+    padding: 2px;
+    box-shadow: 0 0 8px rgba(0, 255, 106, 0.3);
+    transition: box-shadow 0.3s ease;
+}
+
+.Srch:hover {
+    box-shadow: 0 0 12px rgba(0, 255, 106, 0.6);
+}
+
+.Srch input[type="search"] {
+    width: 180px;
+    height: 35px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    padding: 0 15px;
+    font-size: 14px;
+    border-radius: 25px 0 0 25px;
+    font-weight: bold;
+    outline: none;
+}
+
+.Srch .btn {
+    height: 35px;
+    background: #09e275;
+    border: none;
+    color: #000;
+    font-size: 14px;
+    padding: 0 15px;
+    border-radius: 0 25px 25px 0;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s ease;
+}
+
+.Srch .btn:hover {
+    background: #07c264;
+}
+
+.content {
+    margin-top: 80px;
+    padding-left: 80px;
+    max-width: 600px;
+}
+
+.content h1 {
+    font-family: 'Times New Roman', serif;
+    font-size: 50px;
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.content h1 span {
+    color: #fff;
+}
+
+.par {
+    font-size: 18px;
+    line-height: 28px;
+    letter-spacing: 1px;
+}
+
+.menu ul li a {
+    transition: color 0.4s ease-in-out, transform 0.3s ease;
+}
+
+.menu ul li a:hover {
+    color: #03ff18;
+    transform: scale(1.1);
+}
+
+.Srch .btn {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.Srch .btn:hover {
+    background-color: #07c264;
+    box-shadow: 0 0 8px #07c264;
+}
+
+.Srch input[type="search"] {
+    transition: box-shadow 0.3s ease;
+}
+
+.Srch input[type="search"]:focus {
+    box-shadow: 0 0 8px #09e275;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.icon .logo {
+    animation: pulse 3s infinite;
+}
+
+.menu ul {
+    opacity: 0;
+    animation: fadeIn 1.2s forwards;
+    animation-delay: 0.5s;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.icon .logo,
+.content .par {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeSlideUp 1.2s ease-out forwards;
+}
+
+.icon .logo {
+    animation-delay: 0.3s;
+}
+
+.content .par {
+    animation-delay: 0.6s;
+}
+
+@keyframes fadeSlideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.icon .logo,
+.content h1,
+.content .par {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeSlideUp 1.2s ease-out forwards;
+}
+
+.icon .logo {
+    animation-delay: 0.3s;
+}
+
+.content h1 {
+    animation-delay: 0.5s;
+}
+
+.content .par {
+    animation-delay: 0.7s;
+}
+
+@keyframes fadeSlideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.auth-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    color: #09e275;
+    font-size: 24px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.auth-btn:hover {
+    color: #03ff18;
+}
+
+.auth-popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.auth-popup.hidden {
+    display: none;
+}
+
+.auth-popup-content {
+    background: #121212;
+    padding: 20px 30px;
+    border-radius: 10px;
+    width: 320px;
+    color: white;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    color: #888;
+    font-size: 24px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+    color: white;
+}
+
+.auth-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.auth-tabs .tab {
+    background: transparent;
+    border: none;
+    color: #888;
+    font-size: 16px;
+    margin: 0 10px;
+    cursor: pointer;
+    padding-bottom: 5px;
+    transition: color 0.3s ease, border-bottom 0.3s ease;
+    border-bottom: 2px solid transparent;
+}
+
+.auth-tabs .tab.active {
+    color: #09e275;
+    border-bottom: 2px solid #09e275;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 25px;
+    color: white;
+    font-weight: bold;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+    border-color: #09e275;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 10px;
+    background: #09e275;
+    border: none;
+    border-radius: 25px;
+    font-weight: bold;
+    color: black;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #07c264;
+}
+
+.hidden {
+    display: none;
+}
+
+
