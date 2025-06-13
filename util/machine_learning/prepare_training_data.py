@@ -1,7 +1,7 @@
 from util.data_util.json_util import get_data, dump_data, get_shared_data, update_shared_data
 from tqdm import tqdm
 from models.Card import BaseCard
-from util.treading_util import ThreadingHandler
+from util.threading_util import ThreadingHandler
 from random import shuffle
 def prepare_card_pairs(method, data_file_name='', weights={}, threads=200, name=None, data_length=None):
     if not name:

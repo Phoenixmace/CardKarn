@@ -113,7 +113,7 @@ def update_card(card_dict:dict):
     connector.commit()
     cursor.close()
     connector.close()
-from util.treading_util import db_lock as lock
+from util.threading_util import db_lock as lock
 db_lock = lock
 def get_all_cards_by_query(query:str, params=None, table='cards.db'):
     with db_lock:

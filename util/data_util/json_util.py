@@ -66,7 +66,7 @@ def increment_value_by(filename, dict_path:list, increment_value=1, default_valu
 
 def get_shared_data(filename, subfolder=False):
     global shared_json_data
-    from util.treading_util import json_lock
+    from util.threading_util import json_lock
     with json_lock:
         if filename in shared_json_data:
             return shared_json_data[filename]
@@ -79,6 +79,25 @@ def get_shared_data(filename, subfolder=False):
                 return False
 def update_shared_data(filename, data, subfolder=False):
     global shared_json_data
-    from util.treading_util import json_lock
+    from util.threading_util import json_lock
     with json_lock:
         shared_json_data[filename] = data
+def edit_value(file_name_or_dict, dict_path:list, value, subfolder=None, function='add', default_value=0):
+    if isinstance(file_name_or_dict, str):
+        data = get_data(filename=file_name_or_dict, subfolder=subfolder)
+    else:
+        data = file_name_or_dict
+    curr = data
+    for step in dict_path[:-1]:
+        if step not in curr:
+            curr[step] = {}
+        curr = data[step]
+
+    if dict_path[-1] not in curr:
+        curr[dict_path[-1]] = default_value
+
+    if function == 'add':
+        curr[dict_path[-1]] += value
+    else:
+        curr[dict_path[-1]] = value
+

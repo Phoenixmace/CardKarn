@@ -1,7 +1,7 @@
 from util.data_util import json_util
 from models.Card import BaseCard
 import random
-from util.treading_util import ThreadingHandler
+from util.threading_util import ThreadingHandler
 from util.machine_learning import card_array
 from util.data_util import json_util
 import time

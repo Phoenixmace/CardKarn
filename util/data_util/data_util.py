@@ -8,7 +8,7 @@ def get_source_folder_path():
     file_path = os.getcwd()
     folder_path = file_path[:file_path.index(source_folder_name)+len(source_folder_name)] + os.sep
     return folder_path
-def get_data_path(filename, subfolder=[], allow_not_existing=False):
+def get_data_path(filename, subfolder=[], allow_not_existing=True):
     # legacy reasons
     if isinstance(subfolder, str):
         subfolder = [subfolder]

@@ -21,11 +21,11 @@ class ThreadingHandler():
         self.threads.append(thread)
         thread.start()
 
-    def start_process(self, param_list,target_function, process_message=f'Processing: ', saving_instructions=None):# isntructions as [(filename, frequency, subfolders, json)] if not json search shared memory
+    def start_process(self, param_list,target_function, process_message=f'Processing', saving_instructions=None):# isntructions as [(filename, frequency, subfolders, json)] if not json search shared memory
         bar_format = '{desc:<5.5}{percentage:3.0f}%|{bar:100}{r_bar}'.replace('5', str(len(process_message) +20))
-        for index, param in (pbar := tqdm(iterable=enumerate(param_list), desc=process_message, ascii="-#",bar_format=bar_format, total=len(param_list))):
+        for index, param in (pbar := tqdm(iterable=enumerate(param_list), desc=process_message, ascii="-#",bar_format=bar_format, total=(len(param_list)+self.thread_count))):
             # bar display
-            pbar_description = f'{process_message} | {len(self.threads)}/{self.thread_count} | '
+            pbar_description = f'{len(self.threads)}/{self.thread_count} threads | {process_message}'
             bar_format = '{desc:<5.5}{percentage:3.0f}%|{bar:100}{r_bar}'.replace('5', str(len(pbar_description)+1))
             pbar.set_description(pbar_description)
             pbar.bar_format = bar_format
