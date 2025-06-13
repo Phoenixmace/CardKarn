@@ -120,7 +120,10 @@ def get_all_cards_by_query(query:str, params=None, table='cards.db'):
         cursor = sql_util.get_cursor(filename=table)
         connector = cursor[0]
         cursor = cursor[1]
-        cursor.execute(query,params)
+        if params:
+            cursor.execute(query,params)
+        else:
+            cursor.execute(query)
         card_dict_string = cursor.fetchall()
         cursor.close()
         connector.close()

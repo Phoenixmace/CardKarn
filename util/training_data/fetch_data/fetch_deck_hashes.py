@@ -7,7 +7,7 @@ def get_all_hashes(threads):
     commanders = get_all_commanders()
     hashes = []
     hashes_lock = threading.Lock()
-    params = [(commander, hashes, hashes_lock) for commander in commanders[:1000]]
+    params = [(commander, hashes, hashes_lock) for commander in commanders]
     handler = ThreadingHandler(threads)
     handler.start_process(params, add_all_hashes_by_commander, process_message='Fetching hashes')
     return hashes

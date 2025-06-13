@@ -1,6 +1,6 @@
-from util import data_util
+from util.data_util import data_util
 import json
-
+from tqdm import tqdm
 from util.database.sql_util import get_cursor
 
 
@@ -57,8 +57,8 @@ def init_db(filename='cards.db'):
         black_in_color_identity BOOLEAN,
         layout TEXT,
         double_faced_card BOOLEAN,
-        set TEXT
-        
+        set_code TEXT,
+        release_date TEXT        
     )''')
 
     # insert values
@@ -66,9 +66,8 @@ def init_db(filename='cards.db'):
         lines = f.readlines()
         line_number = 0
         num_lines = len(lines)
-        for line in lines:
+        for line in tqdm(lines, total=num_lines, desc='importing database'):
             line_number += 1
-            print(f"importing database: {round(100*lines.index(line)/num_lines,2)}%")
             if '{' in line:
 
                 formatted_line = line.strip()[:line.rindex('}') + 1]
@@ -116,6 +115,8 @@ def init_db(filename='cards.db'):
                     'black_in_color_identity': 'B' in card_dict.get('color_identity', []),
                     'layout': card_dict['layout'],
                     'double_faced_card': 'card_faces' in card_dict,
+                    'set_code': card_dict['set'],
+                    'release_date': card_dict['released_at']
                 }
 
                 # insert values in sql
