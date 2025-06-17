@@ -1,5 +1,6 @@
-from flask import Blueprint, request, jsonify, make_response
+from flask import Blueprint, request, jsonify, make_response, redirect, url_for
 from util.database.sql_util import get_cursor
+
 
 login_bp = Blueprint('login_bp', __name__)
 
@@ -46,7 +47,10 @@ def register():
             cursor.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', (username, mail, password))
             connector.commit()
             connector.close()
-            return make_response(jsonify({'message': 'registration successful'}), 201)
+            return jsonify({
+                'message': 'registration successful',
+                'redirect_url': url_for('profile', username=username)
+            }), 201
     except Exception as e:
         print(e)
         return make_response(jsonify({'message': 'error registering', 'error': str(e)}), 500)
