@@ -9,19 +9,20 @@ import threading
 
 def add_all_decks(threads, save_interval, fetched_data_name, number_of_decks):
     threading_handler = ThreadingHandler(threads)
-    all_hashes = json_util.get_data('decklist_hashes.json', ['training_data', 'fetched_data', fetched_data_name, 'util_data'])
-    name_to_id = json_util.get_data('name_to_id.json', ['training_data', 'fetched_data', fetched_data_name, 'util_data'])
-    synergies = json_util.get_data('synergies.json', ['training_data', 'fetched_data', fetched_data_name, 'fetched_data'])
-    total_decks = json_util.get_data('total_decks.json', ['training_data', 'fetched_data', fetched_data_name, 'fetched_data'])
-    binary_data = json_util.get_data('binary_list.json', ['training_data', 'fetched_data', fetched_data_name, 'fetched_data'])
+    all_hashes = json_util.get_data('decklist_hashes.json', ['training_data','raw_datasets','general_data'])
+    name_data = json_util.get_data('name_data.json', ['training_data','raw_datasets','general_data'])
+    synergies = json_util.get_data('synergies.json', ['training_data','raw_datasets',fetched_data_name,'fetched_data'])
+    total_decks = json_util.get_data('total_decks.json', ['training_data','raw_datasets',fetched_data_name,'fetched_data'])
+    binary_data = json_util.get_data('binary_list.json', ['training_data','raw_datasets',fetched_data_name,'fetched_data'])
+    deck_characteristics = json_util.get_data('deck_characteristics.json', ['training_data','raw_datasets','general_data'])
     lock = threading.Lock()
     if number_of_decks:
         all_hashes = all_hashes[:number_of_decks]
-    params = [(hash, name_to_id, binary_data, synergies, total_decks, lock, index%save_interval==0 and index != 0, fetched_data_name) for index, hash in enumerate(all_hashes)]
+    params = [(hash, name_data, binary_data, synergies, total_decks, lock, index%save_interval==0 and index != 0, fetched_data_name, deck_characteristics) for index, hash in enumerate(all_hashes)]
     threading_handler.start_process(params, add_deck, process_message='Gathering decks')
-    return binary_data, synergies, total_decks
+    return binary_data, synergies, total_decks, name_data, deck_characteristics
 
-def add_deck(hash, name_to_id, binary_data, synergies,total_decks, lock, save_data, dataset_name):
+def add_deck(hash, name_data, binary_data, synergies,total_decks, lock, save_data, dataset_name, deck_characteristics):
     # get deck data
     url = f'https://edhrec.com/api/deckpreview/{hash}'
     response = requests.get(url,timeout=20)
@@ -37,8 +38,11 @@ def add_deck(hash, name_to_id, binary_data, synergies,total_decks, lock, save_da
 
     # color
     color_identity = data['coloridentity']
-    color_identity.sort()
-    color_identity = ''.join(color_identity)
+    if len(color_identity) == 0:
+        color_identity = 'C'
+    else:
+        color_identity.sort()
+        color_identity = ''.join(color_identity)
 
 
     cedh = data['cedh']
@@ -68,13 +72,27 @@ def add_deck(hash, name_to_id, binary_data, synergies,total_decks, lock, save_da
         if commander:
             decklist.append(commander)
     del data
+    # add possible deck stats
+
+    categories = ["tags", "tribes"]
+    lock.acquire()
+    for category in categories:
+        if category not in deck_characteristics:
+            deck_characteristics[category] = []
+    if tribe not in deck_characteristics['tribes']:
+        deck_characteristics['tribe'].append(tribe)
+    for tag in tags:
+        if tag not in deck_characteristics['tags']:
+            deck_characteristics['tags'].append(tag)
+    lock.release()
+
 
     #convert_to_ids
-    id_decklist = [name_to_id[card] for card in decklist if card in name_to_id]
-    ids_to_get = [card for card in decklist if card not in name_to_id and ' // ' not in card]
-    double_sided_id = [card for card in decklist if card not in name_to_id and ' // ' in card]
+    id_decklist = [name_data[card] for card in decklist if card in name_data]
+    ids_to_get = [card for card in decklist if card not in name_data and ' // ' not in card]
+    double_sided_id = [card for card in decklist if card not in name_data and ' // ' in card]
     if len(ids_to_get) > 0 or len(double_sided_id) > 0:
-        new_ids = convert_names_to_ids(name_to_id, ids_to_get, double_sided_id, lock)
+        new_ids = convert_names_to_ids(name_data, ids_to_get, double_sided_id, lock)
         id_decklist += new_ids
 
     for combo in combinations(id_decklist, 2):
@@ -85,14 +103,17 @@ def add_deck(hash, name_to_id, binary_data, synergies,total_decks, lock, save_da
     if save_data:
         time_stamp = str(time.time())[:5]
         filepaths = [
-            (data_util.get_data_path(f'name_to_id_{time_stamp}.json', subfolder=['training_data', 'fetched_data', dataset_name,'util_data'], allow_not_existing=True),name_to_id),
-            (data_util.get_data_path(f'synergies_{time_stamp}.json', subfolder=['training_data', 'fetched_data', dataset_name,'fetched_data'], allow_not_existing=True),synergies),
-            (data_util.get_data_path(f'binary_{time_stamp}.json', subfolder=['training_data', 'fetched_data', dataset_name,'fetched_data'], allow_not_existing=True),binary_data),
-            (data_util.get_data_path(f'total_decks_{time_stamp}.json', subfolder=['training_data', 'fetched_data', dataset_name,'fetched_data'], allow_not_existing=True), total_decks),
+            (data_util.get_data_path(f'name_data.json', subfolder=['training_data','raw_datasets','general_data']),name_data),
+            (data_util.get_data_path(f'synergies_{time_stamp}.json', subfolder=['training_data','raw_datasets',dataset_name,'fetched_data', 'backups'], allow_not_existing=True),synergies),
+            (data_util.get_data_path(f'binary_{time_stamp}.json', subfolder=['training_data','raw_datasets',dataset_name,'fetched_data', 'backups'], allow_not_existing=True),binary_data),
+            (data_util.get_data_path(f'total_decks_{time_stamp}.json', subfolder=['training_data','raw_datasets',dataset_name,'fetched_data', 'backups'], allow_not_existing=True), total_decks),
+            (data_util.get_data_path(f'deck_characteristics.json', subfolder=['training_data','raw_datasets','general_data']), deck_characteristics),
         ]
+        lock.acquire()
         for datapath, variable in filepaths:
             json.dump(variable, open(datapath, 'w'), indent=4)
-def convert_names_to_ids(name_to_id, ids_to_get, double_sided_id, lock):
+        lock.release()
+def convert_names_to_ids(name_data, ids_to_get, double_sided_id, lock):
     double_sided_id = [f'\'%{card}%\'' for card in double_sided_id]
     # Prepare parameter placeholders
     placeholders_ids = ', '.join(['?'] * len(ids_to_get))
@@ -100,7 +121,9 @@ def convert_names_to_ids(name_to_id, ids_to_get, double_sided_id, lock):
 
     # Full query using correct SQL syntax
     query = f'''
-            SELECT oracle_id_front, name FROM cards
+            SELECT oracle_id_front, name, 
+            black_in_color_identity, blue_in_color_identity, green_in_color_identity, red_in_color_identity, white_in_color_identity
+             FROM cards
             WHERE name IN ({placeholders_ids})
                OR (name LIKE '% // %' AND name IN ({placeholders_double}))
             GROUP BY name
@@ -112,11 +135,14 @@ def convert_names_to_ids(name_to_id, ids_to_get, double_sided_id, lock):
     # Call your query
     all_cards = sql_card_operations.get_all_cards_by_query(query, params)
     lock.acquire()
-    for id, card in all_cards:
+    for id, card, B, U, G, R, W in all_cards:
         for side_name in card.split(' // '):
-            name_to_id[side_name] = id
+            name_data[side_name] = id
+        name_data[id] = (int(B), int(U), int(G), int(R), int(W))
     lock.release()
-    return [id for id, card in all_cards]
+    return_ids = [id for id, card in all_cards]
+    return_ids = tuple(return_ids)
+    return list(return_ids)
 
 def add_synergy_to_var(combo, binary_data, synergies, total_decks, lock, price_category,cedh, color_identity, tribe, tags, salt):
     all_characteristics = [tags, tribe, price_category, color_identity]
