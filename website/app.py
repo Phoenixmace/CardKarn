@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify, make_response, render_template
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS  
-from os import environ
-
+from flask_cors import CORS
+# init
 app = Flask(__name__, template_folder=r"C:\Users\maxce\PycharmProjects\CardKarn\website\templates")
+# Import and register blueprint after app is created
+from backend.login import login_bp
+app.register_blueprint(login_bp)
 CORS(app)  # Enable CORS for all routes
 
 # Use SQLite for development
@@ -12,6 +14,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+
+
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -26,10 +31,6 @@ class User(db.Model):
 with app.app_context():
     db.create_all()
 
-
-# create a test route
-def get_app():
-    return app
 
 # index
 @app.route('/')
