@@ -18,8 +18,8 @@ def get_data_path(filename, subfolder=[], allow_not_existing=True):
     else:
         data_path = get_source_folder_path() + 'data'
     for folder in subfolder:
-        data_path = data_path + os.sep + folder
-    filepath = data_path + os.sep + filename
+        data_path = os.path.join(data_path, folder)
+    filepath = os.path.join(data_path, filename)
     if os.path.exists(filepath) or allow_not_existing:
         return filepath
     else:

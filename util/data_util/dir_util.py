@@ -2,6 +2,7 @@ import os
 import json
 def create_folder_structure(root_folder, folders:dict, default_content="{}", overwrite=False):
     if not os.path.exists(root_folder):
+        print(root_folder)
         return False
     if not isinstance(folders, dict):
         return False

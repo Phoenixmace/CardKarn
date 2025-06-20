@@ -13,7 +13,7 @@ def add_all_decks(threads, save_interval, fetched_data_name, number_of_decks):
     name_data = json_util.get_data('name_data.json', ['training_data','raw_datasets','general_data'])
     synergies = json_util.get_data('synergies.json', ['training_data','raw_datasets',fetched_data_name,'fetched_data'])
     total_decks = json_util.get_data('total_decks.json', ['training_data','raw_datasets',fetched_data_name,'fetched_data'])
-    binary_data = json_util.get_data('binary_list.json', ['training_data','raw_datasets',fetched_data_name,'fetched_data'])
+    binary_data = json_util.get_data('binary_data.json', ['training_data','raw_datasets',fetched_data_name,'fetched_data'])
     deck_characteristics = json_util.get_data('deck_characteristics.json', ['training_data','raw_datasets','general_data'])
     lock = threading.Lock()
     if number_of_decks:
@@ -29,7 +29,7 @@ def add_deck(hash, name_data, binary_data, synergies,total_decks, lock, save_dat
     if response.status_code == 200:
         data = response.json()
     else:
-        print(hash)
+        #print(hash)
         return
     # parse data
 
@@ -80,7 +80,7 @@ def add_deck(hash, name_data, binary_data, synergies,total_decks, lock, save_dat
         if category not in deck_characteristics:
             deck_characteristics[category] = []
     if tribe not in deck_characteristics['tribes']:
-        deck_characteristics['tribe'].append(tribe)
+        deck_characteristics['tribes'].append(tribe)
     for tag in tags:
         if tag not in deck_characteristics['tags']:
             deck_characteristics['tags'].append(tag)
@@ -88,6 +88,8 @@ def add_deck(hash, name_data, binary_data, synergies,total_decks, lock, save_dat
 
 
     #convert_to_ids
+    basics = ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest']
+    decklist = [card for card in decklist if card not in basics and 'Snow-Covered' not in card]
     id_decklist = [name_data[card] for card in decklist if card in name_data]
     ids_to_get = [card for card in decklist if card not in name_data and ' // ' not in card]
     double_sided_id = [card for card in decklist if card not in name_data and ' // ' in card]
@@ -99,7 +101,7 @@ def add_deck(hash, name_data, binary_data, synergies,total_decks, lock, save_dat
         combo = list(combo)
         combo.sort()
         combo = tuple(combo)
-        add_synergy_to_var(combo, binary_data, synergies, total_decks, lock, price_category, cedh, color_identity, tribe, tags, salt)
+        add_synergy_to_var(combo, binary_data, synergies, total_decks, lock, price_category, cedh, color_identity, tribe, tags, salt, hash)
     if save_data:
         time_stamp = str(time.time())[:5]
         filepaths = [
@@ -138,30 +140,35 @@ def convert_names_to_ids(name_data, ids_to_get, double_sided_id, lock):
     for id, card, B, U, G, R, W in all_cards:
         for side_name in card.split(' // '):
             name_data[side_name] = id
-        name_data[id] = (int(B), int(U), int(G), int(R), int(W))
+        colors = ['B', 'U', 'G', 'R', 'W']
+        card_colors = [B, U, G, R, W]
+        name_data[id] = [colors[i] for i in range(5) if card_colors[i]]
     lock.release()
-    return_ids = [id for id, card in all_cards]
+    return_ids = [id for id, card, B, U, G, R, W in all_cards]
     return_ids = tuple(return_ids)
     return list(return_ids)
 
-def add_synergy_to_var(combo, binary_data, synergies, total_decks, lock, price_category,cedh, color_identity, tribe, tags, salt):
+def add_synergy_to_var(combo, binary_data, synergies, total_decks, lock, price_category,cedh, color_identity, tribe, tags, salt, hash):
     all_characteristics = [tags, tribe, price_category, color_identity]
     # total decks
     lock.acquire()
     for oracle_id in combo:
         if oracle_id not in total_decks:
             total_decks[oracle_id] = {}
-            if color_identity not in total_decks[oracle_id]:
-                total_decks[oracle_id][color_identity] = 0
-                total_decks[oracle_id][color_identity] += 1
+        if color_identity not in total_decks[oracle_id]:
+            total_decks[oracle_id][color_identity] = 0
+        total_decks[oracle_id][color_identity] += 1
 
-    # Binary
     key = '#'.join(combo)
+
+    # final version
+
+
     if key not in synergies:
         synergies[key] = 0
     synergies[key] += 1
 
-
+    # Binary
     input = [combo, all_characteristics]
     output = (cedh, salt)
     combo_dict = [input, output] # card
