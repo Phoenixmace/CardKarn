@@ -1,6 +1,6 @@
 from util.database import sql_util
 import json
-import threading
+from util.data_util import  data_util
 def get_card_dict(search_params:dict):
     cursor = sql_util.get_cursor()
     connector = cursor[0]
@@ -113,8 +113,14 @@ def update_card(card_dict:dict):
     connector.commit()
     cursor.close()
     connector.close()
+
+
+
+
 from util.threading_util import db_lock as lock
 db_lock = lock
+
+
 def get_all_cards_by_query(query:str, params=None, table='cards.db'):
     with db_lock:
         cursor = sql_util.get_cursor(filename=table)
@@ -128,4 +134,17 @@ def get_all_cards_by_query(query:str, params=None, table='cards.db'):
         cursor.close()
         connector.close()
     return card_dict_string
+
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, text
+engine = create_engine('sqlite:///'+data_util.get_data_path('cards.db', subfolder='sql', allow_not_existing=True), connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(bind=engine)
+def get_all_cards_by_query_threading(query:str, params=None):
+    session = SessionLocal()
+    try:
+        query = text(query)
+        result = session.execute(query, params).all()
+        return result
+    finally:
+        session.close()
 

@@ -1,5 +1,6 @@
 import time
 import json
+
 from util.data_util import json_util, data_util
 from util.threading_util import ThreadingHandler
 import requests
@@ -23,6 +24,7 @@ def add_all_decks(threads, save_interval, fetched_data_name, number_of_decks):
     return binary_data, synergies, total_decks, name_data, deck_characteristics
 
 def add_deck(hash, name_data, binary_data, synergies,total_decks, lock, save_data, dataset_name, deck_characteristics):
+    start = time.time()
     # get deck data
     url = f'https://edhrec.com/api/deckpreview/{hash}'
     response = requests.get(url,timeout=20)
@@ -32,7 +34,7 @@ def add_deck(hash, name_data, binary_data, synergies,total_decks, lock, save_dat
         #print(hash)
         return
     # parse data
-
+    request_time = time.time() - start
     # parsing data
     decklist = data['cards']
 
@@ -85,6 +87,7 @@ def add_deck(hash, name_data, binary_data, synergies,total_decks, lock, save_dat
         if tag not in deck_characteristics['tags']:
             deck_characteristics['tags'].append(tag)
     lock.release()
+    parsing = time.time() - request_time - start
 
 
     #convert_to_ids
@@ -96,7 +99,13 @@ def add_deck(hash, name_data, binary_data, synergies,total_decks, lock, save_dat
     if len(ids_to_get) > 0 or len(double_sided_id) > 0:
         new_ids = convert_names_to_ids(name_data, ids_to_get, double_sided_id, lock)
         id_decklist += new_ids
-
+    for oracle_id in id_decklist:
+        if oracle_id not in total_decks:
+            total_decks[oracle_id] = {}
+        if color_identity not in total_decks[oracle_id]:
+            total_decks[oracle_id][color_identity] = 0
+        total_decks[oracle_id][color_identity] += 1
+    id_conversion = time.time() - parsing - start
     for combo in combinations(id_decklist, 2):
         combo = list(combo)
         combo.sort()
@@ -115,34 +124,44 @@ def add_deck(hash, name_data, binary_data, synergies,total_decks, lock, save_dat
         for datapath, variable in filepaths:
             json.dump(variable, open(datapath, 'w'), indent=4)
         lock.release()
+    end = time.time() -start
+    print(f'total time: {end} | request time: {request_time} | parsing time: {parsing} | conversion time: {id_conversion}')
 def convert_names_to_ids(name_data, ids_to_get, double_sided_id, lock):
-    double_sided_id = [f'\'%{card}%\'' for card in double_sided_id]
-    # Prepare parameter placeholders
-    placeholders_ids = ', '.join(['?'] * len(ids_to_get))
-    placeholders_double = ', '.join(['?'] * len(double_sided_id))
+    double_sided_id = [f'\'%{card.replace('\'', '%')}%\'' for card in double_sided_id]
+    ids_to_get = [f"\'{id}\'" for id in ids_to_get if id not in double_sided_id if '\'' not in id]
+    for weird_name in [id for id in ids_to_get if '\'' in id]:
+        double_sided_id.append(f'\'{'%'.join(weird_name.split('\''))}\'')
+
 
     # Full query using correct SQL syntax
     query = f'''
             SELECT oracle_id_front, name, 
             black_in_color_identity, blue_in_color_identity, green_in_color_identity, red_in_color_identity, white_in_color_identity
              FROM cards
-            WHERE name IN ({placeholders_ids})
-               OR (name LIKE '% // %' AND name IN ({placeholders_double}))
+            WHERE commander_legal = 1
+               AND NOT layout = 'token'
+               AND (({f"name IN ({', '.join([id for id in ids_to_get])})" if len(ids_to_get) > 0 else "False"})
+               OR ({f"name LIKE '% // %' AND name IN ({', '.join([id for id in double_sided_id])})" if len(double_sided_id) > 0 else "False"}))
             GROUP BY name
             '''
 
-    # Combine parameters for both IN clauses
-    params = tuple(ids_to_get) + tuple(double_sided_id)
 
     # Call your query
-    all_cards = sql_card_operations.get_all_cards_by_query(query, params)
-    lock.acquire()
+    try:
+        all_cards = sql_card_operations.get_all_cards_by_query_threading(query)
+    except Exception as e:
+        print(e)
+        print(query)
+    merge_dict = {}
+
     for id, card, B, U, G, R, W in all_cards:
         for side_name in card.split(' // '):
-            name_data[side_name] = id
+            merge_dict[side_name] = id
         colors = ['B', 'U', 'G', 'R', 'W']
         card_colors = [B, U, G, R, W]
-        name_data[id] = [colors[i] for i in range(5) if card_colors[i]]
+        merge_dict[id] = [colors[i] for i in range(5) if card_colors[i]]
+    lock.acquire()
+    name_data.update(merge_dict)
     lock.release()
     return_ids = [id for id, card, B, U, G, R, W in all_cards]
     return_ids = tuple(return_ids)
@@ -152,24 +171,18 @@ def add_synergy_to_var(combo, binary_data, synergies, total_decks, lock, price_c
     all_characteristics = [tags, tribe, price_category, color_identity]
     # total decks
     lock.acquire()
-    for oracle_id in combo:
-        if oracle_id not in total_decks:
-            total_decks[oracle_id] = {}
-        if color_identity not in total_decks[oracle_id]:
-            total_decks[oracle_id][color_identity] = 0
-        total_decks[oracle_id][color_identity] += 1
+
 
     key = '#'.join(combo)
 
     # final version
-
 
     if key not in synergies:
         synergies[key] = 0
     synergies[key] += 1
 
     # Binary
-    input = [combo, all_characteristics]
+    input = [list(combo), all_characteristics]
     output = (cedh, salt)
     combo_dict = [input, output] # card
     binary_data.append(combo_dict)

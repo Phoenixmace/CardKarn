@@ -13,6 +13,9 @@ def create_raw_dataset(binary_data, raw_synergies, total_decks, save_path, dummy
     # binary
     dummy_data = int(dummy_data)
     direct_binary_data, adjusted_binary_data = get_binary_data(binary_data, raw_synergies, dummy_data, total_decks)
+    json.dump(direct_binary_data, open(os.path.join(save_path, 'final_datasets', 'binary.json'), 'w'), indent=4)
+    json.dump(adjusted_binary_data, open(os.path.join(save_path, 'final_datasets', 'adjusted_binary.json'), 'w'), indent=4)
+
 
 
 def get_synergies(synergies, total_decks, name_data):
@@ -51,11 +54,11 @@ def get_synergies(synergies, total_decks, name_data):
     return {'inputs':inputs, 'outputs':outputs}
 
 def get_synergy_score(card_1, card_2, decks_together):
+    if card_2*card_1*decks_together == 0:
+        pass
     total_decks = card_1 + card_2
     p_a = card_1 / total_decks
     p_b = card_2 / total_decks
-    if p_a*p_b == 0:
-        pass
     p_ab = decks_together / total_decks
     if p_ab == 0:
         return float('-inf')
@@ -78,17 +81,15 @@ def get_binary_data(binary_data, synergies, dummy_data, total_decks):
 
     # dummy data
     min_value = min(adjusted_outputs)
-    for i in tqdm(range(len(inputs)*dummy_data), desc='Adding dummy data'):
+    for i in tqdm(range((len(inputs)*dummy_data)),desc='Adding dummy data', total=(len(inputs)*dummy_data)):
         key = None
-        p = 0
         while key == None or (key in synergies or key.split('#')[0] == key.split('#')[1]):
-            p += 1
             random_id_1 = random.choice([key for key in total_decks.keys()])
             random_id_2 = random.choice([key for key in total_decks.keys()])
             key = [random_id_1, random_id_2]
             key.sort()
             key = '#'.join(key)
-            print(p)
+        # random color idendity
         random_color_identity = []
         for i in range(5):
             random_color_identity.append(random.choice(['B', 'U', 'G', 'R', 'W']))
@@ -97,25 +98,36 @@ def get_binary_data(binary_data, synergies, dummy_data, total_decks):
         random_color_identity.sort()
         random_color_identity = ''.join(random_color_identity)
 
+        # random tag
         random_tags = []
         for i in range(2):
             if random.randint(0, 2) == 2:
                 random_tags.append(random.choice(deck_characteristics['tags']))
-        random_tribe = None
 
+        # random tribe
+        random_tribes = []
+        for i in range(2):
+            if random.randint(0, 20) == 2:
+                random_tribes.append([random.choice(deck_characteristics['tribes'])])
+        # get price category
+        random_price = random.randint(1, 4)
+        # get deck characteristics
+        deck_characteristics = [random_tags, random_tribes, random_color_identity, random_price]
+        # score
         score_multiplier = random.choice(['0', '0', '0', '1'])
         score_multiplier += '.'
         for i in range(2):
             score_multiplier += str(random.randint(0, 9))
         score_multiplier = float(score_multiplier)
+
         score = score_multiplier * min_value
+        key = [[random_id_1, random_id_2], deck_characteristics]
 
-
-
-
-
-
-
+        # add data
+        adjusted_inputs.append(key)
+        adjusted_outputs.append(score)
+        inputs.append(key)
+        outputs.append(score)
 
     return {'inputs':inputs, 'outputs':outputs} , {'inputs':adjusted_inputs, 'outputs':adjusted_outputs}
 

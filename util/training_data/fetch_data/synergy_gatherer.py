@@ -4,7 +4,7 @@ import os
 from util.training_data.fetch_data import fetch_deck_hashes, gather_deck_data, create_raw_dataset
 import config
 
-def get_synergies(threads=200, save_interval=10000, fetched_data_name='testing', number_of_decks=None, dummy_data=3):
+def get_synergies(threads=200, save_interval=10000, fetched_data_name='testing', number_of_decks=None, dummy_data=0.3):
     # setup folders
     root_folder_path = os.path.join(config.data_folder_path,'training_data','raw_datasets')
     general_data_folder_structure =     {
