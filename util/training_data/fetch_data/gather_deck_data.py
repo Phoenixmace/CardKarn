@@ -25,7 +25,7 @@ def add_all_decks(threads, save_interval, fetched_data_name, number_of_decks):
 def add_deck(hash, name_data, binary_data, synergies,total_decks, lock, save_data, dataset_name, deck_characteristics):
     # get deck data
     url = f'https://edhrec.com/api/deckpreview/{hash}'
-    response = requests.get(url,timeout=20)
+    response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
     else:
@@ -48,8 +48,16 @@ def add_deck(hash, name_data, binary_data, synergies,total_decks, lock, save_dat
     cedh = data['cedh']
 
     # tags
-
-    tags = data['tags'] + data['edhrec_tags']
+    try:
+        tags = []
+        if data['tags']:
+            tags = tags + list(data['tags'])
+        if data['edhrec_tags']:
+            tags = tags + list(data['edhrec_tags'])
+    except:
+        print("\n"*10)
+        print(data['tags'], data['edhrec_tags'])
+        print("\n"*10)
     tribe = data['tribe']
 
     salt = data['salt']
