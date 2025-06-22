@@ -56,10 +56,11 @@ def get_synergies(synergies, total_decks, name_data):
 
 def get_synergy_score(card_1, card_2, decks_together):
     if card_2*card_1 == 0:
-        print('p_a*p_b = 0')
+        #print('p_a*p_b = 0')
         return float('0.'+ str(random.randint(4,8)))
     else:
-        print('success')
+        #print('success')
+        pass
     total_decks = card_1 + card_2
     p_a = card_1 / total_decks
     p_b = card_2 / total_decks
