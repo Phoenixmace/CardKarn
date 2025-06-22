@@ -55,11 +55,15 @@ def get_synergies(synergies, total_decks, name_data):
     return {'inputs':inputs, 'outputs':outputs}
 
 def get_synergy_score(card_1, card_2, decks_together):
+    if card_2*card_1 == 0:
+        print('p_a*p_b = 0')
+        return float('0.'+ str(random.randint(4,8)))
+    else:
+        print('success')
     total_decks = card_1 + card_2
     p_a = card_1 / total_decks
     p_b = card_2 / total_decks
-    if p_a*p_b == 0:
-        pass
+
     p_ab = decks_together / total_decks
     if p_ab == 0:
         return float('-inf')
@@ -83,9 +87,7 @@ def get_binary_data(binary_data, synergies, dummy_data, total_decks, deck_charac
     min_value = min(adjusted_outputs)
     for i in tqdm(range(int(len(inputs)*dummy_data)), desc='Adding dummy data'):
         key = None
-        p = 0
         while key == None or (key in synergies or key.split('#')[0] == key.split('#')[1]):
-            p += 1
             random_id_1 = random.choice([key for key in total_decks.keys()])
             random_id_2 = random.choice([key for key in total_decks.keys()])
             key = [random_id_1, random_id_2]

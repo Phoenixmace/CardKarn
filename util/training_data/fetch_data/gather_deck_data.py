@@ -104,6 +104,7 @@ def add_deck(hash, name_data, binary_data, synergies,total_decks, lock, save_dat
     if len(ids_to_get) > 0 or len(double_sided_id) > 0:
         new_ids = convert_names_to_ids(name_data, ids_to_get, double_sided_id, lock)
         id_decklist += new_ids
+
     # add to total decks
     for oracle_id in id_decklist:
         if oracle_id not in total_decks:
