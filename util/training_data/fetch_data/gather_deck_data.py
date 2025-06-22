@@ -96,7 +96,15 @@ def add_deck(hash, name_data, binary_data, synergies,total_decks, lock, save_dat
     if len(ids_to_get) > 0 or len(double_sided_id) > 0:
         new_ids = convert_names_to_ids(name_data, ids_to_get, double_sided_id, lock)
         id_decklist += new_ids
+    # add to total decks
+    for oracle_id in id_decklist:
+        if oracle_id not in total_decks:
+            total_decks[oracle_id] = {}
+        if color_identity not in total_decks[oracle_id]:
+            total_decks[oracle_id][color_identity] = 0
+        total_decks[oracle_id][color_identity] += 1
 
+    # parse combos
     for combo in combinations(id_decklist, 2):
         combo = list(combo)
         combo.sort()
@@ -152,12 +160,7 @@ def add_synergy_to_var(combo, binary_data, synergies, total_decks, lock, price_c
     all_characteristics = [tags, tribe, price_category, color_identity]
     # total decks
     lock.acquire()
-    for oracle_id in combo:
-        if oracle_id not in total_decks:
-            total_decks[oracle_id] = {}
-        if color_identity not in total_decks[oracle_id]:
-            total_decks[oracle_id][color_identity] = 0
-        total_decks[oracle_id][color_identity] += 1
+
 
     key = '#'.join(combo)
 

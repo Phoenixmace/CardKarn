@@ -6,13 +6,17 @@ import random
 from tqdm import tqdm
 
 
-def create_raw_dataset(binary_data, raw_synergies, total_decks, save_path, dummy_data, name_data):
+def create_raw_dataset(binary_data, raw_synergies, total_decks, save_path, dummy_data, name_data, deck_characteristics):
     synergies = get_synergies(raw_synergies, total_decks, name_data)
-    json.dump(synergies, open(os.path.join(save_path, 'final_datasets', 'synergies.json'), 'w'), indent=4)
+    direct_binary_data, adjusted_binary_data = get_binary_data(binary_data, raw_synergies, dummy_data, total_decks, deck_characteristics)
 
-    # binary
-    dummy_data = int(dummy_data)
-    direct_binary_data, adjusted_binary_data = get_binary_data(binary_data, raw_synergies, dummy_data, total_decks)
+    print('Almost Done!!!')
+    print('saving synergy data...')
+    json.dump(synergies, open(os.path.join(save_path, 'final_datasets', 'synergies.json'), 'w'), indent=4)
+    print('saving binary data...')
+    json.dump(direct_binary_data, open(os.path.join(save_path, 'final_datasets', 'binary.json'), 'w'), indent=4)
+    print('saving adjusted binary data...')
+    json.dump(adjusted_binary_data, open(os.path.join(save_path, 'final_datasets', 'adjusted_binary.json'), 'w'), indent=4)
 
 
 def get_synergies(synergies, total_decks, name_data):
@@ -60,13 +64,12 @@ def get_synergy_score(card_1, card_2, decks_together):
     if p_ab == 0:
         return float('-inf')
     return math.log2(p_ab / (p_a * p_b))
-def get_binary_data(binary_data, synergies, dummy_data, total_decks):
+def get_binary_data(binary_data, synergies, dummy_data, total_decks, deck_characteristics):
     random.shuffle(binary_data)
     inputs = []
     outputs = []
     adjusted_inputs = []
     adjusted_outputs = []
-    deck_characteristics = json_util.get_data('deck_characteristics.json', ['training_data','raw_datasets','general_data'])
 
     for combo in tqdm(binary_data, desc='Converting binary data'):
         inputs.append(combo[0])
@@ -78,7 +81,7 @@ def get_binary_data(binary_data, synergies, dummy_data, total_decks):
 
     # dummy data
     min_value = min(adjusted_outputs)
-    for i in tqdm(range(len(inputs)*dummy_data), desc='Adding dummy data'):
+    for i in tqdm(range(int(len(inputs)*dummy_data)), desc='Adding dummy data'):
         key = None
         p = 0
         while key == None or (key in synergies or key.split('#')[0] == key.split('#')[1]):
@@ -88,7 +91,7 @@ def get_binary_data(binary_data, synergies, dummy_data, total_decks):
             key = [random_id_1, random_id_2]
             key.sort()
             key = '#'.join(key)
-            print(p)
+        # random color idendity
         random_color_identity = []
         for i in range(5):
             random_color_identity.append(random.choice(['B', 'U', 'G', 'R', 'W']))
@@ -97,35 +100,45 @@ def get_binary_data(binary_data, synergies, dummy_data, total_decks):
         random_color_identity.sort()
         random_color_identity = ''.join(random_color_identity)
 
+        # random tag
         random_tags = []
         for i in range(2):
             if random.randint(0, 2) == 2:
                 random_tags.append(random.choice(deck_characteristics['tags']))
-        random_tribe = None
 
-        score_multiplier = random.choice(['0', '0', '0', '1'])
-        score_multiplier += '.'
+        # random tribe
+        random_tribes = []
         for i in range(2):
-            score_multiplier += str(random.randint(0, 9))
-        score_multiplier = float(score_multiplier)
+            if random.randint(0, 20) == 2:
+                random_tribes.append([random.choice(deck_characteristics['tribes'])])
+        # get price category
+        random_price = random.randint(1, 4)
+        # get deck characteristics
+        random_deck_characteristics = [random_tags, random_tribes, random_color_identity, random_price]
+        # score
+        score_multiplier = '0.'
+        for i in range(2):
+            score_multiplier += str(random.randint(0, 5))
+        score_multiplier = round(float(score_multiplier), 2)
+
         score = score_multiplier * min_value
+        key = [[random_id_1, random_id_2], random_deck_characteristics]
 
+        # add data
+        adjusted_inputs.append(key)
+        adjusted_outputs.append(score)
+        inputs.append(key)
+        outputs.append(0)
 
-
-
-
-
-
-
-    return {'inputs':inputs, 'outputs':outputs} , {'inputs':adjusted_inputs, 'outputs':adjusted_outputs}
+    return {'inputs': inputs, 'outputs': outputs}, {'inputs': adjusted_inputs, 'outputs': adjusted_outputs}
 
 def get_binary_score(output):
     cedh = output[0]
     salt = output[1]
     if not salt:
         salt = 1
-    adjusted_salt = math.log(salt, 5)
+    adjusted_salt = math.log(salt, 10)
     if cedh:
-        return adjusted_salt * 1.3
+        return round(adjusted_salt * 1.3 -1, 2)
     else:
-        return adjusted_salt
+        return round(adjusted_salt -1, 2)
