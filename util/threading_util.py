@@ -30,6 +30,7 @@ class ThreadingHandler():
             pbar.set_description(pbar_description)
             pbar.bar_format = bar_format
 
+
             # actually start a thread
             self.add_thread(target_function, args=(param))
 

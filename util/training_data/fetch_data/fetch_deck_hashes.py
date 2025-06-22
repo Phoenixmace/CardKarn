@@ -18,7 +18,7 @@ def add_all_hashes_by_commander(commander, hashes, lock):
     url_end = clean_name(commander)
     url = f'https://json.edhrec.com/pages/decks/{url_end}.json'.lower()
     for i in range(2):
-        response = requests.get(url, timeout=3)
+        response = requests.get(url)
         if response.status_code == 200:
             data = response.json()
             for index, key in enumerate(data['table']):
