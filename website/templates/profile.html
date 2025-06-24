@@ -111,7 +111,8 @@
       alert(result.message || 'Profile updated successfully');
 
       if (result.profile_picture_url) {
-        document.getElementById('profilePicture').src = result.profile_picture_url;
+        console.log(result.profile_picture_url);
+        document.getElementById('profilePicture').src = "../static/images/uploads/profile_pictures/"+result.profile_picture_url;
       }
     } catch (err) {
       alert('Error updating profile: ' + err.message);

@@ -63,14 +63,14 @@ def successful_login(username):
     connector, cursor = get_cursor(filename='users.db')
     cursor.execute('SELECT email, collection, decks, phone_number, id FROM users WHERE username = ?', (username,))
     response = cursor.fetchone()
-    upload_folder = os.path.join(current_app.root_path,'static\\images\\uploads\\profile_pictures')
+    upload_folder = current_app.config['UPLOAD_FOLDER'] + os.sep + 'profile_pictures'
     filename = str(response[4]) + '.png'
     user_url = os.path.join(upload_folder, filename)
     if os.path.exists(user_url):
-        profile_picture = user_url
+        profile_picture = filename
     else:
         profile_picture = None
-    session['user'] = {'name': username, 'email': response[0], 'phone': response[3], 'profile_picture':profile_picture, 'collection':["static\\images\\uploads\\profile_pictures\\example.png"], 'decks':response[2], 'id':response[4]}
+    session['user'] = {'name': username, 'email': response[0], 'phone': response[3], 'profile_picture':profile_picture, 'collection':["example.png"], 'decks':response[2], 'id':response[4]}
     url = url_for('user_bp.user_profile', username=username)
     return jsonify({
         'message': 'login successful',

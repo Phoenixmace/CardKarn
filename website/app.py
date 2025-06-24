@@ -4,8 +4,8 @@ from flask_cors import CORS
 import os
 # init
 app = Flask(__name__, template_folder=r"C:\Users\maxce\PycharmProjects\CardKarn\website\templates")
-app.secret_key = 'your-secret-key'  # Use a secure, random key in production
-UPLOAD_FOLDER = os.path.join(app.root_path, 'static/uploads')
+app.secret_key = 'your-secret-key'  # Use a secur, random key in production
+UPLOAD_FOLDER = r"C:\Users\maxce\PycharmProjects\CardKarn\website\static\images\uploads"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
