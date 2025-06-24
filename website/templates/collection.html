@@ -34,7 +34,7 @@
   console.log(currentUser.name);
 
   document.getElementById('profilePic').src = `../static/profile_pics/${currentUser.name}`;
-  document.getElementById('welcomeMessage').textContent = `Willkommen, ${currentUser.username}`;
+  document.getElementById('welcomeMessage').textContent = `Willkommen, ${currentUser.name}`;
 
   let cards = [];
 
@@ -77,7 +77,7 @@
       cardImage.src = `../static/cards/${card.name}.png`;
       cardImage.alt = card.name;
       cardImage.onerror = () => {
-        cardImage.src = '../static/cards/placeholder.png'; // Fallback if image is missing
+        cardImage.src = '../static/images/cards/placeholder.png'; // Fallback if image is missing
       };
 
       const cardInfo = document.createElement('p');

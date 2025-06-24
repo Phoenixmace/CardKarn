@@ -8,8 +8,10 @@ UPLOAD_FOLDER = os.path.join(config.data_folder_path, 'website', 'user_uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @user_bp.route('/collection/<username>')
+
 def user_collection(username):
-    return render_template('collection.html', username=username)
+    user = session.get('user')
+    return render_template('collection.html', username=username,user=user)
 @user_bp.route('/profile/<username>')
 def user_profile(username):
     user = session.get('user')
