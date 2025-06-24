@@ -13,7 +13,10 @@
 
   <div id="cardList"></div>
 </div>
-
+<script>
+  var currentUser = {{ user | tojson | safe }};
+  console.log(currentUser.name);
+</script>
 <script>
   document.getElementById('loadBtn').addEventListener('click', () => {
     const fileInput = document.getElementById('csvFile');
