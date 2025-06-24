@@ -61,6 +61,7 @@ def update_profile():
 
 @user_bp.route('/api/upload_collection', methods=['POST'])
 def upload_collection():
+    user = session.get('user')
     data = request.get_json()
     collection = data['csv_text']
     card_list = []
@@ -71,11 +72,20 @@ def upload_collection():
                 card_list.append({'id':path.split(os.sep)[-1], 'name':row.split(',')[2], 'number': row.split(',')[8]})
         except:
             pass
-
-    user = session.get('user')
-    user['collection'] = card_list
-    print(card_list)
+    connector, cursor = get_cursor(filename='users.db')
+    cursor.execute("UPDATE users SET collection = ? WHERE username = ?;", (str(card_list), user['name']))
+    connector.commit()
+    connector.close()
     return jsonify({
         'message': 'upload successful',
         'cards': card_list
+    }), 200
+
+@user_bp.route('/api/display_collection', methods=['POST'])
+def display_collection():
+    data = request.get_json()
+    collection = data['sort_by']
+    return jsonify({
+        'message': 'upload successful',
+        'cards': 'card_list'
     }), 200

@@ -35,7 +35,9 @@
     document.getElementById('profilePic').src = `../static/profile_pics/${currentUser.name}`;
     document.getElementById('welcomeMessage').textContent = `Willkommen, ${currentUser.name}`;
   }
-
+  if (currentUser.cards){
+    displayCards(currentUser.cards)
+  }
   let cards = [];
 
   // CSV Upload and Parsing
