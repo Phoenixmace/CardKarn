@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forum - Card Karn</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .forum-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #121212;
+            border-radius: 10px;
+        }
+
+        .forum-container h1 {
+            text-align: center;
+            color: #09e275;
+            margin-bottom: 20px;
+        }
+
+        .post {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .post p {
+            margin: 0;
+        }
+
+        .new-post-form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .new-post-form textarea {
+            resize: vertical;
+            min-height: 100px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #222;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .new-post-form button {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: #09e275;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .new-post-form button:hover {
+            background: #07c264;
+        }
+    </style>
+</head>
+<body>
+<div class="forum-container">
+    <h1>Card Karn Forum</h1>
+
+    <div id="posts">
+
+    </div>
+
+    <form id="postForm" class="new-post-form">
+        <textarea id="postContent" placeholder="Write your post..." required></textarea>
+        <button type="submit">Post</button>
+    </form>
+</div>
+
+<script>
+    const postForm = document.getElementById('postForm');
+    const postContent = document.getElementById('postContent');
+    const postsDiv = document.getElementById('posts');
+
+    const posts = [];
+
+    postForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const content = postContent.value.trim();
+        if (content !== '') {
+            posts.push(content);
+            displayPosts();
+            postContent.value = '';
+        }
+    });
+
+    function displayPosts() {
+        postsDiv.innerHTML = '';
+        posts.slice().reverse().forEach(post => {
+            const postElement = document.createElement('div');
+            postElement.className = 'post';
+            postElement.innerHTML = `<p>${post}</p>`;
+            postsDiv.appendChild(postElement);
+        });
+    }
+</script>
+</body>
+</html>
