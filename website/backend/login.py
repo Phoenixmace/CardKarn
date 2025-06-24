@@ -21,7 +21,7 @@ def login():
         if len(sql_result) == 0:
             return make_response(jsonify({'message': 'user not found'}), 404)
         elif password == sql_result[0]:
-            url = url_for('login_bp.user_collection', username=sql_result[1])
+            url = url_for('login_bp.user_profile', username=sql_result[1])
             return jsonify({'message': 'login successful', 'redirect_url': url}), 200
         else:
             return make_response(jsonify({'message': 'login failed'}), 401)
@@ -48,12 +48,15 @@ def register():
             cursor.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', (username, mail, password))
             connector.commit()
             connector.close()
-            url = url_for('login_bp.user_collection', username=username)
+            url = url_for('login_bp.user_profile', username=username)
             return jsonify({'message': 'login successful', 'redirect_url': url}), 200
     except Exception as e:
         print(e)
         return make_response(jsonify({'message': 'error registering', 'error': str(e)}), 500)
 
-@login_bp.route('/profile/<username>')
+@login_bp.route('/collection/<username>')
 def user_collection(username):
     return render_template('collection.html', username=username)
+@login_bp.route('/profile/<username>')
+def user_profile(username):
+    return render_template('profile.html', username=username)
