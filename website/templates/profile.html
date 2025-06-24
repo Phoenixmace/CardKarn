@@ -62,6 +62,15 @@
       background-color: #c0392b;
     }
 
+    .home-btn {
+      background-color: #3498db;
+      margin-top: 10px;
+    }
+
+    .home-btn:hover {
+      background-color: #2980b9;
+    }
+
     h1 {
       margin-bottom: 20px;
     }
@@ -79,18 +88,15 @@
 
   <button id="updateBtn">Update Profile</button>
   <button id="logoutBtn" class="logout-btn">Logout</button>
+  <button id="homeBtn" class="home-btn">Back to Home</button>
 </div>
 
 <script>
-
+  var currentUser = {{ user | tojson | safe }};
+  console.log(currentUser.name);
+</script>
+<script>
   // Handle profile update
-    var currentUser = {{ user | tojson | safe }};
-    // pfp
-    if (currentUser.profile_picture){
-              document.getElementById('profilePicture').src = "../static/images/uploads/profile_pictures/"+currentUser.profile_picture;
-
-    }
-
   document.getElementById('updateBtn').addEventListener('click', async () => {
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
@@ -116,7 +122,7 @@
 
       if (result.profile_picture_url) {
         console.log(result.profile_picture_url);
-        document.getElementById('profilePicture').src = "../static/images/uploads/profile_pictures/"+result.profile_picture_url;
+        document.getElementById('profilePicture').src = "../static/images/uploads/profile_pictures/" + result.profile_picture_url;
       }
     } catch (err) {
       alert('Error updating profile: ' + err.message);
@@ -135,6 +141,11 @@
     } catch (err) {
       alert('Error logging out: ' + err.message);
     }
+  });
+
+  // Handle back to home
+  document.getElementById('homeBtn').addEventListener('click', () => {
+    window.location.href = '/'; // Redirect to home index page
   });
 </script>
 </body>
