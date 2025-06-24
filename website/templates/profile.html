@@ -80,7 +80,10 @@
   <button id="updateBtn">Update Profile</button>
   <button id="logoutBtn" class="logout-btn">Logout</button>
 </div>
-
+<script>
+  var currentUser = {{ user | tojson | safe }};
+  console.log(currentUser.name);
+</script>
 <script>
 
   // Handle profile update

@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, make_response, redirect, url_for, render_template, session
+from flask import Blueprint, request, jsonify, make_response, redirect, current_app, url_for, render_template, session
 from util.database.sql_util import get_cursor
 import config
 import os
@@ -54,17 +54,23 @@ def register():
     except Exception as e:
         print(e)
         return make_response(jsonify({'message': 'error registering', 'error': str(e)}), 500)
+@login_bp.route('/api/logout', methods=['POST'])
+def logout():
+    session.pop('user', None)
+    return jsonify({'message': 'logout successful','redirect_url': '/'}), 200
 
 def successful_login(username):
     connector, cursor = get_cursor(filename='users.db')
-    cursor.execute('SELECT email, collection, decks, phone_number, id FROM users WHERE username = ?', (username))
+    cursor.execute('SELECT email, collection, decks, phone_number, id FROM users WHERE username = ?', (username,))
     response = cursor.fetchone()
-    profile_picture_path = os.path.join(config.data_folder_path, 'website', 'user_uploads', 'profile_pictures', f'{response[4]}.png')
-    if os.path.exists(profile_picture_path):
-        profile_picture = profile_picture_path
+    upload_folder = os.path.join(current_app.root_path,'static\\images\\uploads\\profile_pictures')
+    filename = str(response[4]) + '.png'
+    user_url = os.path.join(upload_folder, filename)
+    if os.path.exists(user_url):
+        profile_picture = user_url
     else:
         profile_picture = None
-    session['user'] = {'name': username, 'email': response[0], 'phone': response[3], 'profile_picture':profile_picture, 'collection':response[1], 'decks':response[2]}
+    session['user'] = {'name': username, 'email': response[0], 'phone': response[3], 'profile_picture':profile_picture, 'collection':["static\\images\\uploads\\profile_pictures\\example.png"], 'decks':response[2], 'id':response[4]}
     url = url_for('user_bp.user_profile', username=username)
     return jsonify({
         'message': 'login successful',

@@ -1,9 +1,13 @@
 from flask import Flask, request, jsonify, make_response, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+import os
 # init
 app = Flask(__name__, template_folder=r"C:\Users\maxce\PycharmProjects\CardKarn\website\templates")
 app.secret_key = 'your-secret-key'  # Use a secure, random key in production
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static/uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 
 # Import and register blueprint after app is created
 from backend.login import login_bp
