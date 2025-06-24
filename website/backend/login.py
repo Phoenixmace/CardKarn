@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, make_response, redirect, url_for
+from flask import Blueprint, request, jsonify, make_response, redirect, url_for, render_template
 from util.database.sql_util import get_cursor
 
 
@@ -16,12 +16,14 @@ def login():
             search_field = 'username'
         password = str(data['password'])
         connector, cursor  = get_cursor(filename='users.db')
-        cursor.execute(f'SELECT password FROM users WHERE {search_field} = ?', (input,))
+        cursor.execute(f'SELECT password, username FROM users WHERE {search_field} = ?', (input,))
         sql_result = cursor.fetchone()
+        print(sql_result[0])
         if len(sql_result) == 0:
             return make_response(jsonify({'message': 'user not found'}), 404)
         elif password == sql_result[0]:
-            return make_response(jsonify({'message': 'login successful'}), 200)
+            url = url_for('login_bp.user_collection', username=sql_result[1])
+            return jsonify({'message': 'login successful', 'redirect_url': url}), 200
         else:
             return make_response(jsonify({'message': 'login failed'}), 401)
 
@@ -47,10 +49,12 @@ def register():
             cursor.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', (username, mail, password))
             connector.commit()
             connector.close()
-            return jsonify({
-                'message': 'registration successful',
-                'redirect_url': url_for('profile', username=username)
-            }), 201
+            url = url_for('login_bp.user_collection', username=username)
+            return jsonify({'message': 'login successful', 'redirect_url': url}), 200
     except Exception as e:
         print(e)
         return make_response(jsonify({'message': 'error registering', 'error': str(e)}), 500)
+
+@login_bp.route('/profile/<username>')
+def user_collection(username):
+    return render_template('collection.html', username=username)
