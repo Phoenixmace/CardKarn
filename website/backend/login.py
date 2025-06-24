@@ -61,6 +61,7 @@ def logout():
 
 def successful_login(username):
     connector, cursor = get_cursor(filename='users.db')
+    user = session.get('user')
     cursor.execute('SELECT email, collection, decks, phone_number, id FROM users WHERE username = ?', (username,))
     response = cursor.fetchone()
     upload_folder = current_app.config['UPLOAD_FOLDER'] + os.sep + 'profile_pictures'
@@ -74,7 +75,7 @@ def successful_login(username):
     if not collection:
         collection = []
     session['user'] = {'name': username, 'email': response[0], 'phone': response[3], 'profile_picture':profile_picture, 'collection':list(collection), 'decks':response[2], 'id':response[4]}
-    url = url_for('user_bp.user_profile', username=username)
+    url = url_for('user_bp.user_profile', username=username, user = user)
     return jsonify({
         'message': 'login successful',
         'redirect_url': url
