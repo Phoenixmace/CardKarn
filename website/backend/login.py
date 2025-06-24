@@ -6,10 +6,10 @@ login_bp = Blueprint('login_bp', __name__)
 
 @login_bp.route('/api/login', methods=['POST'])
 def login():
-    from website.app import db
     try:
         data = request.get_json()
-        input = data['name']
+
+        input = data['identifier']
         if '@' in input:
             search_field = 'email'
         else:
@@ -18,7 +18,6 @@ def login():
         connector, cursor  = get_cursor(filename='users.db')
         cursor.execute(f'SELECT password, username FROM users WHERE {search_field} = ?', (input,))
         sql_result = cursor.fetchone()
-        print(sql_result[0])
         if len(sql_result) == 0:
             return make_response(jsonify({'message': 'user not found'}), 404)
         elif password == sql_result[0]:
