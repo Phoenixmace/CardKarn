@@ -28,13 +28,13 @@
   <!-- Card List -->
   <div id="cardList" class="card-list"></div>
 </div>
-
 <script>
-  var currentUser = {{ user | tojson | safe }};
-  console.log(currentUser.name);
+  const currentUser = {{ user | tojson | safe }};
 
-  document.getElementById('profilePic').src = `../static/profile_pics/${currentUser.name}`;
-  document.getElementById('welcomeMessage').textContent = `Willkommen, ${currentUser.name}`;
+  if (currentUser?.name) {
+    document.getElementById('profilePic').src = `../static/profile_pics/${currentUser.name}`;
+    document.getElementById('welcomeMessage').textContent = `Willkommen, ${currentUser.name}`;
+  }
 
   let cards = [];
 
@@ -43,51 +43,63 @@
     const fileInput = document.getElementById('csvFile');
     const file = fileInput.files[0];
 
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target.result;
-        const rows = text.split('\n').filter(row => row.trim() !== '');
-
-        // Build card array
-        cards = rows.map(row => {
-          const [name, quantity] = row.split(',').map(item => item.trim());
-          return { name, quantity: parseInt(quantity) };
-        });
-
-        displayCards(cards);
-      };
-      reader.readAsText(file);
-    } else {
-      alert('Bitte wähle eine CSV-Datei aus.');
+    if (!file) {
+      alert("Bitte wähle eine CSV-Datei aus.");
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target.result;
+
+      fetch('/api/upload_collection', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ csv_text: text })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Upload successful:", data);
+        cards = data.cards || [];
+        displayCards(cards);
+      })
+      .catch(err => {
+        console.error("Upload failed:", err);
+        alert("Fehler beim Hochladen der Sammlung.");
+      });
+    };
+
+    reader.readAsText(file);
   });
 
   // Display Cards
   function displayCards(cardArray) {
-    const cardList = document.getElementById('cardList');
-    cardList.innerHTML = '';
+  const cardListElement = document.getElementById('cardList'); // ✅ Get the actual DOM element
+  cardListElement.innerHTML = '';
+  console.log(cardArray); // ✅ Optional debug
 
-    cardArray.forEach(card => {
-      const cardDiv = document.createElement('div');
-      cardDiv.classList.add('card-item');
+  cardArray.forEach(card => {
+    const cardDiv = document.createElement('div');
+    cardDiv.classList.add('card-item');
 
-      const cardImage = document.createElement('img');
-      // Load card image using card name
-      cardImage.src = `../static/cards/${card.name}.png`;
-      cardImage.alt = card.name;
-      cardImage.onerror = () => {
-        cardImage.src = '../static/images/cards/placeholder.png'; // Fallback if image is missing
-      };
+    const cardImage = document.createElement('img');
+    console.log("Rendering card:", card.name); // ✅ Better debug
+    cardImage.src = `../static/images/cards/${card.id}`; // Make sure this path is correct
+    cardImage.alt = card.name;
+    cardImage.onerror = () => {
+      cardImage.src = '../static/images/cards/placeholder.png';
+    };
 
-      const cardInfo = document.createElement('p');
-      cardInfo.textContent = `${card.name} - Anzahl: ${card.quantity}`;
+    const cardInfo = document.createElement('p');
+    cardInfo.textContent = `${card.name} - Anzahl: ${card.number}`;
 
-      cardDiv.appendChild(cardImage);
-      cardDiv.appendChild(cardInfo);
-      cardList.appendChild(cardDiv);
-    });
-  }
+    cardDiv.appendChild(cardImage);
+    cardDiv.appendChild(cardInfo);
+    cardListElement.appendChild(cardDiv);
+  });
+}
 
   // Search Function
   document.getElementById('searchInput').addEventListener('input', (e) => {
@@ -101,6 +113,7 @@
     window.location.href = '/logout';
   }
 </script>
+
 
 <style>
   body {

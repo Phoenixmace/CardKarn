@@ -3,6 +3,7 @@ from util.database.sql_util import get_cursor
 from flask import current_app
 import os
 import config
+from website.backend.backend_util.images import card_images
 user_bp = Blueprint('user_bp', __name__)
 UPLOAD_FOLDER = os.path.join(config.data_folder_path, 'website', 'user_uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -58,3 +59,23 @@ def update_profile():
         'profile_picture_url': filename if profile_picture and os.path.exists(user_url) else None
     })
 
+@user_bp.route('/api/upload_collection', methods=['POST'])
+def upload_collection():
+    data = request.get_json()
+    collection = data['csv_text']
+    card_list = []
+    for row in collection.split('\n')[:50]:
+        try:
+            path = card_images.get_image_path(row.split(',')[10])
+            if path:
+                card_list.append({'id':path.split(os.sep)[-1], 'name':row.split(',')[2], 'number': row.split(',')[8]})
+        except:
+            pass
+
+    user = session.get('user')
+    user['collection'] = card_list
+    print(card_list)
+    return jsonify({
+        'message': 'upload successful',
+        'cards': card_list
+    }), 200

@@ -5,7 +5,7 @@ from util import data_util
 from PIL import Image
 def get_image_path(scryfall_id, version='normal', base='normal'):
     card = BaseCard({'scryfall_id': scryfall_id})
-    source_image_path = data_util.get_data_path('images')
+    source_image_path = r"C:\Users\maxce\PycharmProjects\CardKarn\website\static\images\cards"
     image_name = f'{scryfall_id}_{version}.jpg'
     image_path = source_image_path + os.sep + image_name
     if os.path.exists(image_path):
