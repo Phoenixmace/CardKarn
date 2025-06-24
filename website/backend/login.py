@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, make_response, redirect, url_for, render_template, session
 from util.database.sql_util import get_cursor
-
+import config
+import os
 
 login_bp = Blueprint('login_bp', __name__)
 
@@ -55,7 +56,15 @@ def register():
         return make_response(jsonify({'message': 'error registering', 'error': str(e)}), 500)
 
 def successful_login(username):
-    session['user'] = {'name': username}
+    connector, cursor = get_cursor(filename='users.db')
+    cursor.execute('SELECT email, collection, decks, phone_number, id FROM users WHERE username = ?', (username))
+    response = cursor.fetchone()
+    profile_picture_path = os.path.join(config.data_folder_path, 'website', 'user_uploads', 'profile_pictures', f'{response[4]}.png')
+    if os.path.exists(profile_picture_path):
+        profile_picture = profile_picture_path
+    else:
+        profile_picture = None
+    session['user'] = {'name': username, 'email': response[0], 'phone': response[3], 'profile_picture':profile_picture}
     url = url_for('user_bp.user_profile', username=username)
     return jsonify({
         'message': 'login successful',
