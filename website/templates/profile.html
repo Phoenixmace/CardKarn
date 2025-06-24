@@ -80,13 +80,17 @@
   <button id="updateBtn">Update Profile</button>
   <button id="logoutBtn" class="logout-btn">Logout</button>
 </div>
-<script>
-  var currentUser = {{ user | tojson | safe }};
-  console.log(currentUser.name);
-</script>
+
 <script>
 
   // Handle profile update
+    var currentUser = {{ user | tojson | safe }};
+    // pfp
+    if (currentUser.profile_picture){
+              document.getElementById('profilePicture').src = "../static/images/uploads/profile_pictures/"+currentUser.profile_picture;
+
+    }
+
   document.getElementById('updateBtn').addEventListener('click', async () => {
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;

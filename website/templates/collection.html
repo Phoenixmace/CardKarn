@@ -65,6 +65,8 @@
 <script>
   const currentUser = {{ user | tojson | safe }};
   let cards = [];
+  console.log(currentUser.cards);
+  displayCards(currentUser.name);
 
   if (currentUser?.name) {
     document.getElementById('profilePic').src = `../static/profile_pics/${currentUser.name}`;
