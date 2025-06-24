@@ -25,11 +25,25 @@
     <input type="text" id="searchInput" placeholder="Karte suchen...">
   </div>
 
+  <!-- Sorting Controls -->
+  <div class="sort-controls">
+    <select id="sortSelect">
+      <option value="rarity">Nach Seltenheit sortieren</option>
+      <option value="color">Nach Farbe sortieren</option>
+      <option value="price">Nach Preis sortieren</option>
+      <option value="mana_value">Nach Mana sortieren</option>
+    </select>
+    <button id="sortOrderBtn" onclick="toggleSortOrder()">Aufsteigend</button>
+    <button onclick="sortCards()">Sortieren</button>
+  </div>
+
   <!-- Card List -->
   <div id="cardList" class="card-list"></div>
 </div>
+
 <script>
   const currentUser = {{ user | tojson | safe }};
+  let ascending = true;
 
   if (currentUser?.name) {
     document.getElementById('profilePic').src = `../static/profile_pics/${currentUser.name}`;
@@ -59,16 +73,16 @@
         },
         body: JSON.stringify({ csv_text: text })
       })
-      .then(response => response.json())
-      .then(data => {
-        console.log("Upload successful:", data);
-        cards = data.cards || [];
-        displayCards(cards);
-      })
-      .catch(err => {
-        console.error("Upload failed:", err);
-        alert("Fehler beim Hochladen der Sammlung.");
-      });
+              .then(response => response.json())
+              .then(data => {
+                console.log("Upload successful:", data);
+                cards = data.cards || [];
+                displayCards(cards);
+              })
+              .catch(err => {
+                console.error("Upload failed:", err);
+                alert("Fehler beim Hochladen der Sammlung.");
+              });
     };
 
     reader.readAsText(file);
@@ -76,30 +90,30 @@
 
   // Display Cards
   function displayCards(cardArray) {
-  const cardListElement = document.getElementById('cardList'); // ✅ Get the actual DOM element
-  cardListElement.innerHTML = '';
-  console.log(cardArray); // ✅ Optional debug
+    const cardListElement = document.getElementById('cardList');
+    cardListElement.innerHTML = '';
+    console.log(cardArray);
 
-  cardArray.forEach(card => {
-    const cardDiv = document.createElement('div');
-    cardDiv.classList.add('card-item');
+    cardArray.forEach(card => {
+      const cardDiv = document.createElement('div');
+      cardDiv.classList.add('card-item');
 
-    const cardImage = document.createElement('img');
-    console.log("Rendering card:", card.name); // ✅ Better debug
-    cardImage.src = `../static/images/cards/${card.id}`; // Make sure this path is correct
-    cardImage.alt = card.name;
-    cardImage.onerror = () => {
-      cardImage.src = '../static/images/cards/placeholder.png';
-    };
+      const cardImage = document.createElement('img');
+      console.log("Rendering card:", card.name);
+      cardImage.src = `../static/images/cards/${card.id}`;
+      cardImage.alt = card.name;
+      cardImage.onerror = () => {
+        cardImage.src = '../static/images/cards/placeholder.png';
+      };
 
-    const cardInfo = document.createElement('p');
-    cardInfo.textContent = `${card.name} - Anzahl: ${card.number}`;
+      const cardInfo = document.createElement('p');
+      cardInfo.textContent = `${card.name} - Anzahl: ${card.number}`;
 
-    cardDiv.appendChild(cardImage);
-    cardDiv.appendChild(cardInfo);
-    cardListElement.appendChild(cardDiv);
-  });
-}
+      cardDiv.appendChild(cardImage);
+      cardDiv.appendChild(cardInfo);
+      cardListElement.appendChild(cardDiv);
+    });
+  }
 
   // Search Function
   document.getElementById('searchInput').addEventListener('input', (e) => {
@@ -108,12 +122,33 @@
     displayCards(filteredCards);
   });
 
+  // Sorting Function
+  function sortCards() {
+    const property = document.getElementById('sortSelect').value;
+    const sortedCards = [...cards];
+
+    if (property === 'price' || property === 'mana_value') {
+      sortedCards.sort((a, b) => ascending ? a[property] - b[property] : b[property] - a[property]);
+    } else {
+      sortedCards.sort((a, b) => {
+        return ascending ? a[property].localeCompare(b[property]) : b[property].localeCompare(a[property]);
+      });
+    }
+
+    displayCards(sortedCards);
+  }
+
+  // Toggle Ascending / Descending
+  function toggleSortOrder() {
+    ascending = !ascending;
+    document.getElementById('sortOrderBtn').textContent = ascending ? 'Aufsteigend' : 'Absteigend';
+  }
+
   // Logout Function
   function logout() {
     window.location.href = '/logout';
   }
 </script>
-
 
 <style>
   body {
@@ -154,6 +189,33 @@
     border-radius: 10px;
     border: none;
     font-size: 16px;
+  }
+
+  .sort-controls {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .sort-controls select {
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 14px;
+    margin-right: 10px;
+  }
+
+  .sort-controls button {
+    margin: 0 5px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: #2196F3;
+    color: white;
+    font-size: 14px;
+  }
+
+  .sort-controls button:hover {
+    background-color: #1976D2;
   }
 
   .card-list {
