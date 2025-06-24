@@ -43,7 +43,9 @@ with app.app_context():
 # index
 @app.route('/')
 def index():
+    print(session.get('user'))
     return render_template('index.html')
+
 @app.route('/api/homepage')
 def homepage():
     user = session.get('user')

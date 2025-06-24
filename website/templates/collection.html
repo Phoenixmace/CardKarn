@@ -32,21 +32,21 @@
     <label for="rarityFilter">Seltenheit:</label>
     <select id="rarityFilter">
       <option value="">Alle</option>
-      <option value="Common">Common</option>
-      <option value="Uncommon">Uncommon</option>
-      <option value="Rare">Rare</option>
-      <option value="Mythic">Mythic</option>
+      <option value="common">Common</option>
+      <option value="uncommon">Uncommon</option>
+      <option value="rare">Rare</option>
+      <option value="ythic are">Mythic Rare</option>
     </select>
 
     <label for="colorFilter">Farbe:</label>
     <select id="colorFilter">
       <option value="">Alle</option>
-      <option value="Red">Red</option>
-      <option value="Blue">Blue</option>
-      <option value="Green">Green</option>
-      <option value="Black">Black</option>
-      <option value="White">White</option>
-      <option value="Colorless">Colorless</option>
+      <option value="R">Red</option>
+      <option value="U">Blue</option>
+      <option value="G">Green</option>
+      <option value="B">Black</option>
+      <option value="W">White</option>
+      <option value="C">Colorless</option>
     </select>
 
     <label for="maxManaFilter">Max. Mana-Wert:</label>
@@ -67,7 +67,7 @@
   displayCards(currentUser.cards);
 
   if (currentUser?.name) {
-    document.getElementById('profilePic').src = `../static/profile_pics/${currentUser.name}`;
+    document.getElementById('profilePic').src = "../static/images/uploads/profile_pictures/" + currentUser.profile_picture;
     document.getElementById('welcomeMessage').textContent = `Willkommen, ${currentUser.name}`;
   }
 

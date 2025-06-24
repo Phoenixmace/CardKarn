@@ -67,12 +67,12 @@ def upload_collection():
     data = request.get_json()
     collection = data['csv_text']
     card_list = csv_conversion.convert_collection_to_list(collection)
-    user['cards'] = card_list
     connector, cursor = get_cursor(filename='users.db')
     cursor.execute("UPDATE users SET collection = ? WHERE username = ?;", (json.dumps(card_list), user['name']))
     connector.commit()
     connector.close()
-    print(card_list)
+    session['user']['cards'] = card_list
+    user['cards'] = card_list
     return jsonify({
         'message': 'Profile updated successfully',
         'cards': card_list

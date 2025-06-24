@@ -73,6 +73,7 @@ def successful_login(username):
     else:
         profile_picture = None
     collection = response[1]
+    print(collection)
     if not collection or len(collection) < 1:
         collection = []
     else:
