@@ -5,7 +5,7 @@ import os
 import json
 def convert_collection_to_list(collection):
     card_list = []
-    for row in collection.split('\n')[:50]:
+    for row in collection.split('\n')[:20]:
         try:
             path = card_images.get_image_path(row.split(',')[10], version='large')
             card_object = BaseCard({'scryfall_id':row.split(',')[10]})

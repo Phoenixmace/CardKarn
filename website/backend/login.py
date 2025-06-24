@@ -77,8 +77,9 @@ def successful_login(username):
         collection = []
     else:
         collection = json.loads(collection)
-
     session['user'] = {'name': username, 'email': response[0], 'phone': response[3], 'profile_picture':profile_picture, 'cards':collection, 'decks':response[2], 'id':response[4]}
+
+    print(user)
     url = url_for('user_bp.user_profile', username=username, user = user)
     return jsonify({
         'message': 'login successful',
