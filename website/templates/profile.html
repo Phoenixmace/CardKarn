@@ -2,170 +2,132 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Profile - Card Karn</title>
+  <title>Profile Page</title>
+  <link rel="stylesheet" href="../static/css/style.css" />
   <style>
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: url(website/static/images/fantasy-7454751_1280.jpg) no-repeat center center fixed;
+      background: url('../static/images/fantasy-bg.jpg') no-repeat center center fixed;
       background-size: cover;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       color: white;
     }
+
     .profile-container {
-      max-width: 500px;
+      max-width: 600px;
       margin: 50px auto;
-      background: rgba(0,0,0,0.7);
       padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.8);
-    }
-    h1 {
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 15px;
       text-align: center;
-      margin-bottom: 30px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
     }
+
     .profile-pic {
       width: 150px;
       height: 150px;
       border-radius: 50%;
       object-fit: cover;
-      border: 3px solid #fff;
-      display: block;
-      margin: 0 auto 20px;
-      cursor: pointer;
-    }
-    input[type="file"] {
-      display: none;
-    }
-    label.upload-btn {
-      display: block;
-      text-align: center;
-      background: #008CBA;
-      color: white;
-      padding: 8px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-bottom: 20px;
-      width: 180px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    form label {
-      display: block;
-      margin-bottom: 8px;
-    }
-    form input[type="text"],
-    form input[type="email"],
-    form input[type="tel"] {
-      width: 100%;
-      padding: 8px;
       margin-bottom: 15px;
-      border-radius: 6px;
-      border: none;
+      border: 3px solid #fff;
     }
+
+    input, button {
+      margin: 10px 0;
+      padding: 12px;
+      width: 80%;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
     button {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      background: #28a745;
-      border: none;
-      border-radius: 6px;
-      color: white;
-      font-size: 18px;
       cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
     }
+
     button:hover {
-      background: #218838;
+      background-color: #45a049;
     }
-    .message {
-      text-align: center;
-      margin-top: 15px;
+
+    .logout-btn {
+      background-color: #e74c3c;
+      margin-top: 20px;
+    }
+
+    .logout-btn:hover {
+      background-color: #c0392b;
+    }
+
+    h1 {
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
 <div class="profile-container">
-  <h1>My Profile</h1>
-  <img id="profilePic" class="profile-pic" src="" alt="Profile Picture" title="Click to change profile picture" />
-  <label for="profilePicInput" class="upload-btn">Change Profile Picture</label>
-  <input type="file" id="profilePicInput" accept="image/*" />
+  <h1>Profile Settings</h1>
+  <img id="profilePicture" src="../static/images/default-profile.png" alt="Profile Picture" class="profile-pic"><br>
+  <input type="file" id="newProfilePicture" accept="image/*"><br>
 
-  <form id="profileForm">
-    <label for="nameInput">Name:</label>
-    <input type="text" id="nameInput" required />
+  <input type="text" id="name" placeholder="Your Name"><br>
+  <input type="email" id="email" placeholder="Your Email"><br>
+  <input type="text" id="phone" placeholder="Your Phone Number"><br>
 
-    <label for="emailInput">Email:</label>
-    <input type="email" id="emailInput" required />
-
-    <label for="phoneInput">Phone Number:</label>
-    <input type="tel" id="phoneInput" />
-
-    <button type="submit">Save Changes</button>
-  </form>
-  <div class="message" id="message"></div>
+  <button id="updateBtn">Update Profile</button>
+  <button id="logoutBtn" class="logout-btn">Logout</button>
 </div>
+
 <script>
-  var currentUser = {{ user | tojson | safe }};
-  console.log(currentUser.name);
-</script>
-<script>
-  // Daten aus localStorage laden
-  console.log(currentUser.name);
-  console.log(currentUser.name);
 
-  const profilePic = document.getElementById("profilePic");
-  const profilePicInput = document.getElementById("profilePicInput");
-  const nameInput = document.getElementById("nameInput");
-  const emailInput = document.getElementById("emailInput");
-  const phoneInput = document.getElementById("phoneInput");
-  const profileForm = document.getElementById("profileForm");
-  const messageDiv = document.getElementById("message");
+  // Handle profile update
+  document.getElementById('updateBtn').addEventListener('click', async () => {
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    const pictureFile = document.getElementById('newProfilePicture').files[0];
 
-  if (true) {
-    profilePic.src = user.profilePic || "../static/images/default-profile.png";
-    nameInput.value = user.name || "";
-    emailInput.value = user.email || "";
-    phoneInput.value = user.phone || "";
-  } else {
-    alert("Kein Nutzer angemeldet!" + user);
-    window.location.href = "index.html";
-  }
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('email', email);
+    formData.append('phone', phone);
+    if (pictureFile) {
+      formData.append('profile_picture', pictureFile);
+    }
 
-  // Profilbild ändern (lokal)
-  profilePicInput.addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    try {
+      const response = await fetch('/api/update_profile', {
+        method: 'POST',
+        body: formData
+      });
 
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      profilePic.src = event.target.result;
+      const result = await response.json();
+      alert(result.message || 'Profile updated successfully');
 
-      // In user-Objekt aktualisieren und speichern
-      user.profilePic = event.target.result;
-      localStorage.setItem("currentUser", JSON.stringify(user));
-
-      showMessage("Profilbild aktualisiert!");
-    };
-    reader.readAsDataURL(file);
+      if (result.profile_picture_url) {
+        document.getElementById('profilePicture').src = result.profile_picture_url;
+      }
+    } catch (err) {
+      alert('Error updating profile: ' + err.message);
+    }
   });
 
-  // Formular speichern
-  profileForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    user.name = nameInput.value.trim();
-    user.email = emailInput.value.trim();
-    user.phone = phoneInput.value.trim();
-
-    localStorage.setItem("currentUser", JSON.stringify(user));
-    showMessage("Profil aktualisiert!");
+  // Handle logout
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    try {
+      const response = await fetch('/api/logout', { method: 'POST' });
+      if (response.ok) {
+        window.location.href = '/'; // Redirect to home page
+      } else {
+        alert('Logout failed.');
+      }
+    } catch (err) {
+      alert('Error logging out: ' + err.message);
+    }
   });
-
-  function showMessage(msg) {
-    messageDiv.textContent = msg;
-    setTimeout(() => {
-      messageDiv.textContent = "";
-    }, 3000);
-  }
 </script>
 </body>
 </html>
