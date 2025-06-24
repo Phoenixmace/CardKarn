@@ -54,7 +54,10 @@ def register():
     except Exception as e:
         print(e)
         return make_response(jsonify({'message': 'error registering', 'error': str(e)}), 500)
-
+@login_bp.route('/api/logout', methods=['POST'])
+def logout():
+    session.pop('user', None)
+    return jsonify({'message': 'logout successful','redirect_url': '/'}), 200
 def successful_login(username):
     connector, cursor = get_cursor(filename='users.db')
     cursor.execute('SELECT email, collection, decks, phone_number, id FROM users WHERE username = ?', (username))
