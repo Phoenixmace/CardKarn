@@ -1,151 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Profile Page</title>
-  <link rel="stylesheet" href="../static/css/style.css" />
-  <style>
-    body {
-      background: url('../static/images/fantasy-7454751_1280.jpg') no-repeat center center fixed;
-      background-size: cover;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: white;
-    }
-
-    .profile-container {
-      max-width: 600px;
-      margin: 50px auto;
-      padding: 30px;
-      background: rgba(0, 0, 0, 0.8);
-      border-radius: 15px;
-      text-align: center;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
-    }
-
-    .profile-pic {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 15px;
-      border: 3px solid #fff;
-    }
-
-    input, button {
-      margin: 10px 0;
-      padding: 12px;
-      width: 80%;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-
-    button {
-      cursor: pointer;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      font-weight: bold;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #45a049;
-    }
-
-    .logout-btn {
-      background-color: #e74c3c;
-      margin-top: 20px;
-    }
-
-    .logout-btn:hover {
-      background-color: #c0392b;
-    }
-
-    h1 {
-      margin-bottom: 20px;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>Meine Kartensammlung</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="profile-container">
-  <h1>Profile Settings</h1>
-  <img id="profilePicture" src="../static/images/default-profile.png" alt="Profile Picture" class="profile-pic"><br>
-  <input type="file" id="newProfilePicture" accept="image/*"><br>
+<div class="main">
+  <h1>Willkommen in deiner Sammlung</h1>
+  <input type="file" id="csvFile" accept=".csv">
+  <button id="loadBtn">CSV hochladen</button>
 
-  <input type="text" id="name" placeholder="Your Name"><br>
-  <input type="email" id="email" placeholder="Your Email"><br>
-  <input type="text" id="phone" placeholder="Your Phone Number"><br>
-
-  <button id="updateBtn">Update Profile</button>
-  <button id="logoutBtn" class="logout-btn">Logout</button>
+  <div id="cardList"></div>
 </div>
 <script>
   var currentUser = {{ user | tojson | safe }};
   console.log(currentUser.name);
 </script>
 <script>
-  // Load user profile data when the page loads
-  window.onload = async () => {
-    try {
-      const response = await fetch('/api/profile');
-      if (!response.ok) throw new Error('Not logged in');
+  document.getElementById('loadBtn').addEventListener('click', () => {
+    const fileInput = document.getElementById('csvFile');
+    const file = fileInput.files[0];
 
-      const data = await response.json();
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target.result;
+        const rows = text.split('\n').filter(row => row.trim() !== '');
+        const cardList = document.getElementById('cardList');
+        cardList.innerHTML = '';
 
-      document.getElementById('name').value = data.name || '';
-      document.getElementById('email').value = data.email || '';
-      document.getElementById('phone').value = data.phone || '';
-      document.getElementById('profilePicture').src = data.profile_picture || '../static/images/default-profile.png';
-    } catch (err) {
-      alert('Error loading profile: ' + err.message);
-      window.location.href = '/'; // Redirect to home if not logged in
-    }
-  };
-
-  // Handle profile update
-  document.getElementById('updateBtn').addEventListener('click', async () => {
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const phone = document.getElementById('phone').value;
-    const pictureFile = document.getElementById('newProfilePicture').files[0];
-
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('email', email);
-    formData.append('phone', phone);
-    if (pictureFile) {
-      formData.append('profile_picture', pictureFile);
-    }
-
-    try {
-      const response = await fetch('/api/update_profile', {
-        method: 'POST',
-        body: formData
-      });
-
-      const result = await response.json();
-      alert(result.message || 'Profile updated successfully');
-
-      if (result.profile_picture_url) {
-        document.getElementById('profilePicture').src = result.profile_picture_url;
-      }
-    } catch (err) {
-      alert('Error updating profile: ' + err.message);
-    }
-  });
-
-  // Handle logout
-  document.getElementById('logoutBtn').addEventListener('click', async () => {
-    try {
-      const response = await fetch('/api/logout', { method: 'POST' });
-      if (response.ok) {
-        window.location.href = '/'; // Redirect to home page
-      } else {
-        alert('Logout failed.');
-      }
-    } catch (err) {
-      alert('Error logging out: ' + err.message);
+        rows.forEach(row => {
+          const card = document.createElement('p');
+          card.textContent = row;
+          cardList.appendChild(card);
+        });
+      };
+      reader.readAsText(file);
+    } else {
+      alert('Bitte wähle eine CSV-Datei aus.');
     }
   });
 </script>

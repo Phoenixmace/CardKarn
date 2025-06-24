@@ -64,7 +64,7 @@ def successful_login(username):
         profile_picture = profile_picture_path
     else:
         profile_picture = None
-    session['user'] = {'name': username, 'email': response[0], 'phone': response[3], 'profile_picture':profile_picture}
+    session['user'] = {'name': username, 'email': response[0], 'phone': response[3], 'profile_picture':profile_picture, 'collection':response[1], 'decks':response[2]}
     url = url_for('user_bp.user_profile', username=username)
     return jsonify({
         'message': 'login successful',
