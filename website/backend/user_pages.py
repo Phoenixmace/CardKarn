@@ -16,7 +16,6 @@ def user_collection(username):
 @user_bp.route('/profile/<username>')
 def user_profile(username):
     user = session.get('user')
-    print(user)
     if not user or user['name'] != username:
         return redirect(url_for('login_bp.login'))
     return render_template('profile.html', user=user)
