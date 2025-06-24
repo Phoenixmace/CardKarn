@@ -73,12 +73,10 @@ def successful_login(username):
     else:
         profile_picture = None
     collection = response[1]
-    print(collection)
     if not collection or len(collection) < 1:
         collection = []
     else:
         collection = json.loads(collection)
-    print(type(collection))
 
     session['user'] = {'name': username, 'email': response[0], 'phone': response[3], 'profile_picture':profile_picture, 'cards':collection, 'decks':response[2], 'id':response[4]}
     url = url_for('user_bp.user_profile', username=username, user = user)
