@@ -106,7 +106,7 @@
 
 <script>
   // Daten aus localStorage laden
-  const user = JSON.parse(localStorage.getItem("currentUser"));
+  //const user = JSON.parse(localStorage.getItem("currentUser"));
 
   const profilePic = document.getElementById("profilePic");
   const profilePicInput = document.getElementById("profilePicInput");
@@ -116,13 +116,13 @@
   const profileForm = document.getElementById("profileForm");
   const messageDiv = document.getElementById("message");
 
-  if (user) {
+  if (true) {
     profilePic.src = user.profilePic || "../static/images/default-profile.png";
     nameInput.value = user.name || "";
     emailInput.value = user.email || "";
     phoneInput.value = user.phone || "";
   } else {
-    alert("Kein Nutzer angemeldet!");
+    alert("Kein Nutzer angemeldet!" + user);
     window.location.href = "index.html";
   }
 

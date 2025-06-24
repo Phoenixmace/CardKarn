@@ -5,7 +5,9 @@ from flask_cors import CORS
 app = Flask(__name__, template_folder=r"C:\Users\maxce\PycharmProjects\CardKarn\website\templates")
 # Import and register blueprint after app is created
 from backend.login import login_bp
+from backend.user_pages import user_bp
 app.register_blueprint(login_bp)
+app.register_blueprint(user_bp)
 CORS(app)  # Enable CORS for all routes
 
 # Use SQLite for development
