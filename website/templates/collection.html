@@ -93,7 +93,9 @@
               .then(data => {
                 console.log("Upload successful:", data);
                 cards = data.cards || [];
-                displayCards(cards);
+                console.log(data.cards);
+                console.log(typeof data.cards);
+                displayCards(data.cards);
               })
               .catch(err => {
                 console.error("Upload failed:", err);
@@ -107,6 +109,7 @@
   function displayCards(cardArray) {
     const cardListElement = document.getElementById('cardList');
     cardListElement.innerHTML = '';
+    console.log(cardArray)
     cardArray.forEach(card => {
       console.log(card);
       const cardDiv = document.createElement('div');

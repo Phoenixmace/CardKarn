@@ -1,10 +1,10 @@
 from flask import Blueprint, request, jsonify, make_response, redirect, url_for, render_template, session
-from util.database.sql_util import get_cursor
 from flask import current_app
 import os
 import config
+from util.database.sql_util import get_cursor
 import json
-from website.backend.backend_util.images import card_images
+from website.backend.backend_util import csv_conversion
 user_bp = Blueprint('user_bp', __name__)
 UPLOAD_FOLDER = os.path.join(config.data_folder_path, 'website', 'user_uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -12,7 +12,6 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 @user_bp.route('/collection')
 def user_collection(username=None):
     user = session.get('user')
-    print(user)
     if not user:
         return render_template('index.html')
     else:
@@ -67,29 +66,14 @@ def upload_collection():
     user = session.get('user')
     data = request.get_json()
     collection = data['csv_text']
-    card_list = []
-    for row in collection.split('\n')[:50]:
-        try:
-            path = card_images.get_image_path(row.split(',')[10])
-            if path:
-                card_list.append({'id':path.split(os.sep)[-1], 'name':row.split(',')[2], 'number': row.split(',')[8]})
-        except:
-            pass
+    card_list = csv_conversion.convert_collection_to_list(collection)
+    user['cards'] = card_list
     connector, cursor = get_cursor(filename='users.db')
     cursor.execute("UPDATE users SET collection = ? WHERE username = ?;", (json.dumps(card_list), user['name']))
     connector.commit()
     connector.close()
-    user['cards'] = card_list
+    print(card_list)
     return jsonify({
-        'message': 'upload successful',
+        'message': 'Profile updated successfully',
         'cards': card_list
-    }), 200
-
-@user_bp.route('/api/display_collection', methods=['POST'])
-def display_collection():
-    data = request.get_json()
-    collection = data['sort_by']
-    return jsonify({
-        'message': 'upload successful',
-        'cards': 'card_list'
-    }), 200
+    })
