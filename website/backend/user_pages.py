@@ -41,7 +41,7 @@ def update_profile():
     phone = request.form.get('phone')
     profile_picture = request.files.get('profile_picture')
 
-    upload_folder = os.path.join(current_app.root_path, 'static\\images\\uploads\\profile_pictures')
+    upload_folder = current_app.config['UPLOAD_FOLDER'] + os.sep + 'profile_pictures'
     if profile_picture:
         filename = str(user['id']) + '.png'
         user_url = os.path.join(upload_folder, filename)
@@ -53,6 +53,6 @@ def update_profile():
 
     return jsonify({
         'message': 'Profile updated successfully',
-        'profile_picture_url': user_url if profile_picture and os.path.exists(user_url) else None
+        'profile_picture_url': filename if profile_picture and os.path.exists(user_url) else None
     })
 
