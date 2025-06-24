@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Meine Kartensammlung</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="main">
+  <h1>Willkommen in deiner Sammlung</h1>
+  <input type="file" id="csvFile" accept=".csv">
+  <button id="loadBtn">CSV hochladen</button>
+
+  <div id="cardList"></div>
+</div>
+
+<script>
+  document.getElementById('loadBtn').addEventListener('click', () => {
+    const fileInput = document.getElementById('csvFile');
+    const file = fileInput.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target.result;
+        const rows = text.split('\n').filter(row => row.trim() !== '');
+        const cardList = document.getElementById('cardList');
+        cardList.innerHTML = '';
+
+        rows.forEach(row => {
+          const card = document.createElement('p');
+          card.textContent = row;
+          cardList.appendChild(card);
+        });
+      };
+      reader.readAsText(file);
+    } else {
+      alert('Bitte wähle eine CSV-Datei aus.');
+    }
+  });
+</script>
+</body>
+</html>
