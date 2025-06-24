@@ -25,16 +25,37 @@
     <input type="text" id="searchInput" placeholder="Karte suchen...">
   </div>
 
-  <!-- Sorting Controls -->
-  <div class="sort-controls">
-    <select id="sortSelect">
-      <option value="rarity">Nach Seltenheit sortieren</option>
-      <option value="color">Nach Farbe sortieren</option>
-      <option value="price">Nach Preis sortieren</option>
-      <option value="mana_value">Nach Mana sortieren</option>
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <h3>Filter</h3>
+
+    <label for="rarityFilter">Seltenheit:</label>
+    <select id="rarityFilter">
+      <option value="">Alle</option>
+      <option value="Common">Common</option>
+      <option value="Uncommon">Uncommon</option>
+      <option value="Rare">Rare</option>
+      <option value="Mythic">Mythic</option>
     </select>
-    <button id="sortOrderBtn" onclick="toggleSortOrder()">Aufsteigend</button>
-    <button onclick="sortCards()">Sortieren</button>
+
+    <label for="colorFilter">Farbe:</label>
+    <select id="colorFilter">
+      <option value="">Alle</option>
+      <option value="Red">Red</option>
+      <option value="Blue">Blue</option>
+      <option value="Green">Green</option>
+      <option value="Black">Black</option>
+      <option value="White">White</option>
+      <option value="Colorless">Colorless</option>
+    </select>
+
+    <label for="maxManaFilter">Max. Mana-Wert:</label>
+    <input type="number" id="maxManaFilter" placeholder="z.B. 5">
+
+    <label for="maxPriceFilter">Max. Preis:</label>
+    <input type="number" id="maxPriceFilter" placeholder="z.B. 10">
+
+    <button id="applyFiltersBtn">Filter anwenden</button>
   </div>
 
   <!-- Card List -->
@@ -43,16 +64,13 @@
 
 <script>
   const currentUser = {{ user | tojson | safe }};
-  let ascending = true;
+  let cards = [];
 
   if (currentUser?.name) {
     document.getElementById('profilePic').src = `../static/profile_pics/${currentUser.name}`;
     document.getElementById('welcomeMessage').textContent = `Willkommen, ${currentUser.name}`;
   }
 
-  let cards = [];
-
-  // CSV Upload and Parsing
   document.getElementById('loadBtn').addEventListener('click', () => {
     const fileInput = document.getElementById('csvFile');
     const file = fileInput.files[0];
@@ -68,9 +86,7 @@
 
       fetch('/api/upload_collection', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ csv_text: text })
       })
               .then(response => response.json())
@@ -88,18 +104,15 @@
     reader.readAsText(file);
   });
 
-  // Display Cards
   function displayCards(cardArray) {
     const cardListElement = document.getElementById('cardList');
     cardListElement.innerHTML = '';
-    console.log(cardArray);
 
     cardArray.forEach(card => {
       const cardDiv = document.createElement('div');
       cardDiv.classList.add('card-item');
 
       const cardImage = document.createElement('img');
-      console.log("Rendering card:", card.name);
       cardImage.src = `../static/images/cards/${card.id}`;
       cardImage.alt = card.name;
       cardImage.onerror = () => {
@@ -117,31 +130,32 @@
 
   // Search Function
   document.getElementById('searchInput').addEventListener('input', (e) => {
-    const searchValue = e.target.value.toLowerCase();
-    const filteredCards = cards.filter(card => card.name.toLowerCase().includes(searchValue));
-    displayCards(filteredCards);
+    applyFilters(); // Suchfeld wird auch als Filter betrachtet
   });
 
-  // Sorting Function
-  function sortCards() {
-    const property = document.getElementById('sortSelect').value;
-    const sortedCards = [...cards];
+  // Apply Filter
+  document.getElementById('applyFiltersBtn').addEventListener('click', () => {
+    applyFilters();
+  });
 
-    if (property === 'price' || property === 'mana_value') {
-      sortedCards.sort((a, b) => ascending ? a[property] - b[property] : b[property] - a[property]);
-    } else {
-      sortedCards.sort((a, b) => {
-        return ascending ? a[property].localeCompare(b[property]) : b[property].localeCompare(a[property]);
-      });
-    }
+  function applyFilters() {
+    const rarity = document.getElementById('rarityFilter').value;
+    const color = document.getElementById('colorFilter').value;
+    const maxMana = parseInt(document.getElementById('maxManaFilter').value);
+    const maxPrice = parseFloat(document.getElementById('maxPriceFilter').value);
+    const searchValue = document.getElementById('searchInput').value.toLowerCase();
 
-    displayCards(sortedCards);
-  }
+    const filteredCards = cards.filter(card => {
+      const matchesRarity = rarity ? card.rarity === rarity : true;
+      const matchesColor = color ? card.color === color : true;
+      const matchesMana = !isNaN(maxMana) ? card.mana_value <= maxMana : true;
+      const matchesPrice = !isNaN(maxPrice) ? card.price <= maxPrice : true;
+      const matchesSearch = card.name.toLowerCase().includes(searchValue);
 
-  // Toggle Ascending / Descending
-  function toggleSortOrder() {
-    ascending = !ascending;
-    document.getElementById('sortOrderBtn').textContent = ascending ? 'Aufsteigend' : 'Absteigend';
+      return matchesRarity && matchesColor && matchesMana && matchesPrice && matchesSearch;
+    });
+
+    displayCards(filteredCards);
   }
 
   // Logout Function
@@ -191,21 +205,25 @@
     font-size: 16px;
   }
 
-  .sort-controls {
-    text-align: center;
+  .filter-section {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 15px;
+    border-radius: 15px;
     margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
   }
 
-  .sort-controls select {
-    padding: 10px;
-    border-radius: 10px;
+  .filter-section label, .filter-section select, .filter-section input {
     font-size: 14px;
-    margin-right: 10px;
+    margin: 5px;
   }
 
-  .sort-controls button {
-    margin: 0 5px;
-    padding: 10px 15px;
+  .filter-section button {
+    padding: 10px 20px;
     border: none;
     border-radius: 10px;
     cursor: pointer;
@@ -214,7 +232,7 @@
     font-size: 14px;
   }
 
-  .sort-controls button:hover {
+  .filter-section button:hover {
     background-color: #1976D2;
   }
 
