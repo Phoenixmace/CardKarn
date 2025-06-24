@@ -31,4 +31,7 @@ def upload_file():
     file_path = os.path.join(UPLOAD_FOLDER, file.filename)
     file.save(file_path)
     return f'Datei {file.filename} erfolgreich gespeichert!', 200
+@user_bp.route('/update_profile', methods=['POST'])
+def update_profile():
+    print('hello')
 
