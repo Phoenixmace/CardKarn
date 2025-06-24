@@ -33,6 +33,9 @@
   var currentUser = {{ user | tojson | safe }};
   console.log(currentUser.name);
 
+  document.getElementById('profilePic').src = `../static/profile_pics/${currentUser.name}`;
+  document.getElementById('welcomeMessage').textContent = `Willkommen, ${currentUser.username}`;
+
   let cards = [];
 
   // CSV Upload and Parsing
@@ -101,7 +104,7 @@
 
 <style>
   body {
-    background: url('../static/images/fantasy_background.jpg') no-repeat center center fixed;
+    background: url('../static/images/fantasy-7454751_1280.jpg') no-repeat center center fixed;
     background-size: cover;
     font-family: Arial, sans-serif;
     color: white;
