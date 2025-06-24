@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, make_response, redirect, url_for, render_template
+from flask import Blueprint, request, jsonify, make_response, redirect, url_for, render_template, session
 from util.database.sql_util import get_cursor
 
 
@@ -21,8 +21,9 @@ def login():
         if len(sql_result) == 0:
             return make_response(jsonify({'message': 'user not found'}), 404)
         elif password == sql_result[0]:
-            url = url_for('user_bp.user_profile', username=sql_result[1])
-            return jsonify({'message': 'login successful', 'redirect_url': url,'currentUser': sql_result[1]}), 200
+            username = sql_result[1]
+            return successful_login(username)
+
         else:
             return make_response(jsonify({'message': 'login failed'}), 401)
 
@@ -48,9 +49,15 @@ def register():
             cursor.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', (username, mail, password))
             connector.commit()
             connector.close()
-            url = url_for('user_bp.user_profile', username=username)
-            return jsonify({'message': 'login successful', 'redirect_url': url,'user':{'username': username}}), 200
+            return successful_login(username)
     except Exception as e:
         print(e)
         return make_response(jsonify({'message': 'error registering', 'error': str(e)}), 500)
 
+def successful_login(username):
+    session['user'] = {'name': username}
+    url = url_for('user_bp.user_profile', username=username)
+    return jsonify({
+        'message': 'login successful',
+        'redirect_url': url
+    }), 200
