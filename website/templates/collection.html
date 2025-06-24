@@ -64,9 +64,7 @@
 
 <script>
   const currentUser = {{ user | tojson | safe }};
-  let cards = [];
-  console.log(currentUser.cards);
-  displayCards(currentUser.name);
+  displayCards(currentUser.cards);
 
   if (currentUser?.name) {
     document.getElementById('profilePic').src = `../static/profile_pics/${currentUser.name}`;
@@ -109,8 +107,8 @@
   function displayCards(cardArray) {
     const cardListElement = document.getElementById('cardList');
     cardListElement.innerHTML = '';
-
     cardArray.forEach(card => {
+      console.log(card);
       const cardDiv = document.createElement('div');
       cardDiv.classList.add('card-item');
 
@@ -162,7 +160,7 @@
 
   // Logout Function
   function logout() {
-    window.location.href = '/logout';
+    window.location.href = '/api/logout';
   }
 </script>
 

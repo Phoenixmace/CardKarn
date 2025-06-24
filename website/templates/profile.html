@@ -144,8 +144,15 @@
   });
 
   // Handle back to home
-  document.getElementById('homeBtn').addEventListener('click', () => {
-    window.location.href = 'index.html'; // Redirect to home index page
+  document.getElementById('homeBtn').addEventListener('click', async () => {
+    try {
+      const response = await fetch('/api/homepage', { method: 'POST' });
+
+      window.location.href = '/'; // Redirect to home page
+
+    } catch (err) {
+      alert('Error homing out: ' + err.message);
+    }
   });
 </script>
 </body>

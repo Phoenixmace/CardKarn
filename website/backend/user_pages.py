@@ -3,6 +3,7 @@ from util.database.sql_util import get_cursor
 from flask import current_app
 import os
 import config
+import json
 from website.backend.backend_util.images import card_images
 user_bp = Blueprint('user_bp', __name__)
 UPLOAD_FOLDER = os.path.join(config.data_folder_path, 'website', 'user_uploads')
@@ -75,9 +76,10 @@ def upload_collection():
         except:
             pass
     connector, cursor = get_cursor(filename='users.db')
-    cursor.execute("UPDATE users SET collection = ? WHERE username = ?;", (str(card_list), user['name']))
+    cursor.execute("UPDATE users SET collection = ? WHERE username = ?;", (json.dumps(card_list), user['name']))
     connector.commit()
     connector.close()
+    user['cards'] = card_list
     return jsonify({
         'message': 'upload successful',
         'cards': card_list

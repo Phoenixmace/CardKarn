@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, make_response, redirect, current_app, url_for, render_template, session
 from util.database.sql_util import get_cursor
 import config
+import json
 import os
 
 login_bp = Blueprint('login_bp', __name__)
@@ -72,9 +73,13 @@ def successful_login(username):
     else:
         profile_picture = None
     collection = response[1]
-    if not collection:
+    if not collection or len(collection) < 1:
         collection = []
-    session['user'] = {'name': username, 'email': response[0], 'phone': response[3], 'profile_picture':profile_picture, 'collection':list(collection), 'decks':response[2], 'id':response[4]}
+    else:
+        collection = json.loads(collection)
+    print(type(collection))
+
+    session['user'] = {'name': username, 'email': response[0], 'phone': response[3], 'profile_picture':profile_picture, 'cards':collection, 'decks':response[2], 'id':response[4]}
     url = url_for('user_bp.user_profile', username=username, user = user)
     return jsonify({
         'message': 'login successful',

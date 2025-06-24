@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, make_response, render_template
+from flask import Flask, request, jsonify, make_response, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import os
@@ -44,6 +44,10 @@ with app.app_context():
 @app.route('/')
 def index():
     return render_template('index.html')
+@app.route('/api/homepage')
+def homepage():
+    user = session.get('user')
+    return render_template('index.html', user=user)
 @app.route('/test', methods=['GET'])
 def test():
   return jsonify({'message': 'The server is running'})
