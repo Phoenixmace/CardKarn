@@ -54,7 +54,8 @@ def update_profile():
         session['user']['profile_picture'] = user_url
     else:
         user_url = None
-
+    connector, cursor = get_cursor(filename='users.db')
+    cursor.execute("UPDATE users SET email = ?, phone_number = ? WHERE username = ?;", (email, phone, user['name']))
 
     return jsonify({
         'message': 'Profile updated successfully',
