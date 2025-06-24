@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, make_response, redirect, url_for, render_template, session
 from util.database.sql_util import get_cursor
+from flask import current_app
 import os
 import config
 user_bp = Blueprint('user_bp', __name__)
@@ -31,7 +32,27 @@ def upload_file():
     file_path = os.path.join(UPLOAD_FOLDER, file.filename)
     file.save(file_path)
     return f'Datei {file.filename} erfolgreich gespeichert!', 200
-@user_bp.route('/update_profile', methods=['POST'])
+@user_bp.route('/api/update_profile', methods=['POST'])
 def update_profile():
-    print('hello')
+    user = session.get('user')
+    # Extract form data
+    name = request.form.get('name')
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+    profile_picture = request.files.get('profile_picture')
+
+    upload_folder = os.path.join(current_app.root_path, 'static\\images\\uploads\\profile_pictures')
+    if profile_picture:
+        filename = str(user['id']) + '.png'
+        user_url = os.path.join(upload_folder, filename)
+        profile_picture.save(os.path.join(upload_folder, filename))
+        session['user']['profile_picture'] = user_url
+    else:
+        user_url = None
+
+
+    return jsonify({
+        'message': 'Profile updated successfully',
+        'profile_picture_url': user_url if profile_picture and os.path.exists(user_url) else None
+    })
 
