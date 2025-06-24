@@ -117,27 +117,35 @@
     const endpoint = isRegistering ? '/api/register' : '/api/login';
 
     try {
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
+    const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
 
-        const result = await response.json();
+    const result = await response.json();
 
-        alert(result.message || 'Success');
+    if (response.ok) {
+        //alert(result.message || 'Login erfolgreich');
 
-        if (response.ok) {
-            authPopup.classList.add('hidden');
-            authForm.reset();
-            loginTab.click();
+        // Hide popup, reset form, etc.
+        authPopup.classList.add('hidden');
+        authForm.reset();
+        loginTab.click();
+
+        // 🔁 Redirect to profile page
+        if (result.redirect_url) {
+            window.location.href = result.redirect_url;
         }
-    } catch (err) {
-        alert('Fehler beim Absenden:\n' + err.message);
+    } else {
+        // Response not OK (e.g., 401 or 404)
+        alert(result.message || 'Login fehlgeschlagen');
     }
-});
+} catch (err) {
+    alert('Fehler beim Absenden:\n' + err.message);
+}})
 
     </script>
 </body>
