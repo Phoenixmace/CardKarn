@@ -25,9 +25,11 @@ def add_all_decks(threads, save_interval, fetched_data_name, number_of_decks):
 def add_deck(hash, name_data, binary_data, synergies,total_decks, lock, save_data, dataset_name, deck_characteristics):
     # get deck data
     url = f'https://edhrec.com/api/deckpreview/{hash}'
+    response_start = time.time()
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
+        #print(f'request took: {round(time.time() - response_start, 2)} seconds\n')
     else:
         #print(hash)
         return
@@ -101,9 +103,11 @@ def add_deck(hash, name_data, binary_data, synergies,total_decks, lock, save_dat
     id_decklist = [name_data[card] for card in decklist if card in name_data]
     ids_to_get = [card for card in decklist if card not in name_data and ' // ' not in card]
     double_sided_id = [card for card in decklist if card not in name_data and ' // ' in card]
+    #print(len(ids_to_get)+ len(double_sided_id))
     if len(ids_to_get) > 0 or len(double_sided_id) > 0:
-        new_ids = convert_names_to_ids(name_data, ids_to_get, double_sided_id, lock)
-        id_decklist += new_ids
+        if False: # reduce time
+            new_ids = convert_names_to_ids(name_data, ids_to_get, double_sided_id, lock)
+            id_decklist += new_ids
 
     # add to total decks
     for oracle_id in id_decklist:
@@ -133,6 +137,7 @@ def add_deck(hash, name_data, binary_data, synergies,total_decks, lock, save_dat
             json.dump(variable, open(datapath, 'w'), indent=4)
         lock.release()
 def convert_names_to_ids(name_data, ids_to_get, double_sided_id, lock):
+    conversion_start = time.time()
     double_sided_id = [f'\'%{card}%\'' for card in double_sided_id]
     # Prepare parameter placeholders
     placeholders_ids = ', '.join(['?'] * len(ids_to_get))
@@ -163,6 +168,7 @@ def convert_names_to_ids(name_data, ids_to_get, double_sided_id, lock):
     lock.release()
     return_ids = [id for id, card, B, U, G, R, W in all_cards]
     return_ids = tuple(return_ids)
+    print(f'conversion took: {round(time.time() - conversion_start, 2)} seconds\n')
     return list(return_ids)
 
 def add_synergy_to_var(combo, binary_data, synergies, total_decks, lock, price_category,cedh, color_identity, tribe, tags, salt, hash):

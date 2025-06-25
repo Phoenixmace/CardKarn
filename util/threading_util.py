@@ -1,4 +1,6 @@
 import threading
+import time
+
 from util.data_util import json_util
 from util.database import sql_util
 from tqdm import tqdm
@@ -14,18 +16,24 @@ class ThreadingHandler():
         self.lock = threading.Lock()
         self.threads = []
         self.thread_count = thread_count
+        self.failed_threads = []
     def add_thread(self, target, args=()):
         while len(self.threads) >= self.thread_count:
             self.threads = [t for t in self.threads if t.is_alive()]
         thread = threading.Thread(target=target, args=args)
         self.threads.append(thread)
-        thread.start()
+        try:
+            thread.start()
+        except Exception as e:
+            print(e)
+            self.failed_threads.append(thread)
 
-    def start_process(self, param_list,target_function, process_message=f'Processing', saving_instructions=None):# isntructions as [(filename, frequency, subfolders, json)] if not json search shared memory
-        bar_format = '{desc:<5.5} {percentage:3.0f}%|{bar:100}{r_bar}'.replace('5', str(len(process_message) +20))
-        for index, param in (pbar := tqdm(iterable=enumerate(param_list), desc=process_message, ascii="-#",bar_format=bar_format, total=len(param_list))):
+
+    def start_process(self, param_list,target_function, process_message=f'Processing', saving_instructions=None, delay=0.1):# isntructions as [(filename, frequency, subfolders, json)] if not json search shared memory
+        for index, param in (pbar := tqdm(iterable=enumerate(param_list), desc=process_message, ascii="-#", total=len(param_list))):
             # bar display
-            pbar_description = f'{len(self.threads)}/{self.thread_count} threads | {process_message}'
+            time.sleep(delay)
+            pbar_description = f'{len(self.threads)}/{self.thread_count} threads | {len(self.failed_threads)} failed Threads | {process_message}'
             bar_format = '{desc:<5.5}{percentage:3.0f}%|{bar:100}{r_bar}'.replace('5', str(len(pbar_description)+1))
             pbar.set_description(pbar_description)
             pbar.bar_format = bar_format
@@ -48,6 +56,5 @@ class ThreadingHandler():
                                 json_util.dump_data(saving_instruction[0], data=saving_instruction[3], subfolder=saving_instruction[2])
                         except:
                             print('something went wrong while saving data: ', saving_instruction[0])
-        for thread in self.threads:
+        for thread in tqdm(self.threads, desc='joining Threads'):
             thread.join()
-

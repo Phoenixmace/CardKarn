@@ -3,10 +3,13 @@ from util.data_util import data_util, json_util, dir_util
 import os
 from util.training_data.fetch_data import fetch_deck_hashes, gather_deck_data, create_raw_dataset
 import config
-
+import tqdm
 def get_synergies(threads=200, save_interval=10000, fetched_data_name='testing', number_of_decks=None, dummy_data=0.3):
     # setup folders
     root_folder_path = os.path.join(config.data_folder_path,'training_data','raw_datasets')
+    # get name data
+    if not os.path.exists(os.path.join(root_folder_path, 'general_data', 'name_data.json')):
+        get_name_data()
     general_data_folder_structure =     {
                                             'decklist_hashes.json':'[]',
                                             'name_data.json':'{}',
@@ -62,3 +65,23 @@ def get_synergies(threads=200, save_interval=10000, fetched_data_name='testing',
 
     # create raw datasets
     create_raw_dataset.create_raw_dataset(binary_data, synergies, total_decks, dataset_path, dummy_data, name_data, deck_characteristics)
+
+def get_name_data():
+    name_data = {}
+    from util.database import sql_card_operations
+    query = "SELECT oracle_id_front, name, black_in_color_identity, blue_in_color_identity, green_in_color_identity, red_in_color_identity, white_in_color_identity, scryfall_id FROM cards"
+    print('getting name data from database...')
+    all_cards = sql_card_operations.get_all_cards_by_query(query)
+    for id, card, B, U, G, R, W, scryfall_id in tqdm.tqdm(all_cards, desc='parsing name data from database:'):
+        if not id:
+            id = scryfall_id
+        if id and card:
+            for side_name in card.split(' // '):
+                name_data[side_name] = id
+            colors = ['B', 'U', 'G', 'R', 'W']
+            card_colors = [B, U, G, R, W]
+            name_data[id] = [colors[i] for i in range(5) if card_colors[i]]
+        else:
+            print(id, card)
+    print('dumping name data...')
+    json_util.dump_data('name_data.json', name_data, subfolder=['training_data','raw_datasets','general_data'])
