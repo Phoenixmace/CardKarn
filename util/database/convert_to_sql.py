@@ -58,11 +58,13 @@ def init_db(filename='cards.db'):
         layout TEXT,
         double_faced_card BOOLEAN,
         set_code TEXT,
-        release_date TEXT        
+        release_date TEXT,
+        mana_cost_front TEXT,
+        mana_cost_back TEXT
     )''')
 
     # insert values
-    with open(data_util.get_data_path("card_database.json", subfolder='database'), "r", encoding="utf-8") as f:
+    with open(r"C:\Users\maxce\RaspberryPi\Backups\Maturaarbeit\Data folder\source_card_database.json", "r", encoding="utf-8") as f:
         lines = f.readlines()
         line_number = 0
         num_lines = len(lines)
@@ -82,6 +84,8 @@ def init_db(filename='cards.db'):
                     typeline_back = card_dict['card_faces'][1]['type_line'] if 'type_line' in card_dict['card_faces'][1] else None
                     oracle_id_front = card_dict['card_faces'][0]['oracle_id'] if 'oracle_id' in card_dict['card_faces'][0] else None
                     oracle_id_back = card_dict['card_faces'][1]['oracle_id'] if 'oracle_id' in card_dict['card_faces'][1] else None
+                    mana_cost_front = card_dict['card_faces'][1]['mana_cost'] if 'mana_cost' in card_dict['card_faces'][1] else None
+                    mana_cost_back = card_dict['card_faces'][0]['mana_cost'] if 'mana_cost' in card_dict['card_faces'][0] else None
                 else:
                     cmc_front = card_dict['cmc'] if 'cmc' in card_dict else None
                     cmc_back = None
@@ -91,6 +95,9 @@ def init_db(filename='cards.db'):
                     typeline_back = None
                     oracle_id_front = card_dict['oracle_id'] if 'oracle_id' in card_dict else None
                     oracle_id_back = None
+                    mana_cost_front = card_dict['mana_cost'] if 'mana_cost' in card_dict else None
+                    mana_cost_back = None
+
                 values = {
                     'scryfall_id': card_dict['id'],
                     'name': card_dict['name'],
@@ -116,7 +123,10 @@ def init_db(filename='cards.db'):
                     'layout': card_dict['layout'],
                     'double_faced_card': 'card_faces' in card_dict,
                     'set_code': card_dict['set'],
-                    'release_date': card_dict['released_at']
+                    'release_date': card_dict['released_at'],
+                    'mana_cost_front': mana_cost_front,
+                    'mana_cost_back': mana_cost_back
+
                 }
 
                 # insert values in sql

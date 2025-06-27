@@ -1,3 +1,10 @@
-from util.training_data.fetch_data import synergy_gatherer
-synergy_gatherer.get_synergies(threads=350, save_interval=5000, number_of_decks=10000, fetched_data_name='10k_param_test')
-#create_new_model.create_new_card_model(1, 'full_import.json', threads=250, max_training_data_entries=250, name='testing_model')
+from util.machine_learning.tokenize import create_card_tokenizer, tokenize_cards
+from models.Card import BaseCard
+
+card = BaseCard({'name': 'Hengegate Pathway'})
+card2 = BaseCard({'name': 'Demonic Tutor'})
+
+create_card_tokenizer.create_oracle_tokenizer(name='oracle_test_tokenizer')
+create_card_tokenizer.create_card_tokenizer(name='card_test_tokenizer')
+for card in [card, card2]:
+    print(tokenize_cards.tokenize_card(card, oracle_tokenizer_name='oracle_test_tokenizer', card_model_name='card_test_tokenizer'))

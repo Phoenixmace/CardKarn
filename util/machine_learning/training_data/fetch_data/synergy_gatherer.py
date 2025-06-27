@@ -1,7 +1,6 @@
-import config
-from util.data_util import data_util, json_util, dir_util
+from util.data_util import json_util, dir_util
 import os
-from util.training_data.fetch_data import fetch_deck_hashes, gather_deck_data, create_raw_dataset
+from util.machine_learning.training_data.fetch_data import create_raw_dataset, fetch_deck_hashes, gather_deck_data
 import config
 import tqdm
 def get_synergies(threads=200, save_interval=10000, fetched_data_name='testing', number_of_decks=None, dummy_data=0.3):

@@ -1,7 +1,6 @@
 import time
 
 import requests
-from util.machine_learning import card_array
 from util.database import sql_card_operations
 import threading
 # [Source, Path, Side-related, Save to memory, Save to collection, Version-dependent, Only frontside matters, Data type]
@@ -62,18 +61,4 @@ class BaseCard():
         sql_card_operations.update_card(self.__dict__)
 
     def get_np_array(self, method=1, weights={}, load_existing=False, name=None):
-        if not hasattr(self, 'arrays'):
-            self.arrays = {}
-        if not name:
-            name = method
-        if str(name) in self.arrays and len(weights)==0 and load_existing:
-            return self.arrays[str(name)][0]
-        else:
-            array_data = card_array.get_array(self, method,name, **weights)
-            array = array_data['array']
-            weights = weights
-            method = method
-
-            self.arrays[str(name)] = [array, weights, method]
-            sql_card_operations.update_card(self.__dict__)
-            return array
+        pass
