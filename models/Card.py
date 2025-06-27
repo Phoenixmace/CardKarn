@@ -11,7 +11,7 @@ additional_attributes = ['number', 'language', 'finish']
 
 
 class BaseCard():
-    def __init__(self,search_params=None, update=False, card_json=None, wait_for_salt_score=False):
+    def __init__(self,search_params=None, update=False, card_json=None, wait_for_salt_score=False, get_salt = True):
         if card_json:
             self.__dict__ = card_json
         else:
@@ -23,7 +23,7 @@ class BaseCard():
             self.__dict__ = recieved_dict
 
         # set new data
-        if not hasattr(self, 'salt'):
+        if not hasattr(self, 'salt') and get_salt:
             self.set_salt(wait_for_salt_score)
 
 

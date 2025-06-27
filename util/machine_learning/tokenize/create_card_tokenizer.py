@@ -17,7 +17,7 @@ def create_oracle_tokenizer(name='oracle_tokenizer'):
         return combined_text
     tokenizer_path = get_data_path(f'{name}.pickle', ['neural_network', 'tokenizers'], allow_not_existing=True)
     texts = [combine_texts(card_texts) for card_texts in all_cards]
-    tokenizer = Tokenizer(num_words=10000)
+    tokenizer = Tokenizer(num_words=3000)
     tokenizer.fit_on_texts(texts)
     with open(tokenizer_path, 'wb') as handle:
         pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -42,7 +42,7 @@ def create_card_tokenizer(name='card_tokenizer'):
         string = ", ".join(string)
         texts.append(string)
 
-    tokenizer = Tokenizer(num_words=10000)
+    tokenizer = Tokenizer(num_words=3000)
     tokenizer.fit_on_texts(texts)
     with open(tokenizer_path, 'wb') as handle:
         pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)

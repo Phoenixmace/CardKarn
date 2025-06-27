@@ -2,7 +2,7 @@ import os
 from util.data_util.data_util import get_data_path
 import pickle
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-
+import numpy
 
 
 def tokenize_oracle_text(card, model_name):
@@ -51,11 +51,44 @@ def tokenize_general_card(card, oracle_tokenizer_name):
         return string
     card_string = create_card_strin(card)
     card_tokens = tokenizer.texts_to_sequences([card_string])
+
+    # other attributes
+    other_attributes = []
+    colors = ['B', 'U', 'G', 'R', 'W']
+    for color in colors:
+        if color in card.color_identity:
+            other_attributes.append(1)
+        else:
+            other_attributes.append(0)
+
+    if hasattr(card, 'power') and isinstance(card.power, str):
+        try:
+            other_attributes.append(int(card.power))
+        except:
+            other_attributes.append(0)
+    else:
+        other_attributes.append(0)
+
+    if hasattr(card, 'toughness') and isinstance(card.toughness, str):
+        try:
+            other_attributes.append(int(card.toughness))
+        except:
+            other_attributes.append(0)
+    else:
+        other_attributes.append(0)
+
+    if hasattr(card, 'game_changer') and card.game_changer:
+        other_attributes.append(1)
+    else:
+        other_attributes.append(0)
+    for attribute in other_attributes:
+        card_tokens = numpy.append(card_tokens, attribute)
+    # other attributes
     return card_tokens
 
 
 
-def tokenize_card(card, name='tokenizer', card_model_name=None, padding_max_oracle_length=30, oracle_tokenizer_name=None, padding_max_card_length=15):
+def tokenize_card(card, name='tokenizer', card_model_name=None, padding_max_oracle_length=25, oracle_tokenizer_name=None, padding_max_card_length=25):
     if not isinstance(card_model_name, str):
         card_model_name = f'card_{name}'
     if not isinstance(oracle_tokenizer_name, str):
@@ -69,5 +102,5 @@ def tokenize_card(card, name='tokenizer', card_model_name=None, padding_max_orac
         padded_card = pad_sequences([card_tokens], maxlen=padding_max_card_length)
         # choose a consistent MAX_LEN
 
-        return [padded_oracle, padded_card]
+        return padded_oracle, padded_card
 
