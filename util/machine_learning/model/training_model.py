@@ -73,7 +73,7 @@ def train_model(model_name, final_training_data_path,save_dataset_path, oracle_t
         card_1_json_inputs = [card_input.tolist() for card_input in card_1_inputs]
         card_2_json_inputs = [card_input.tolist() for card_input in card_2_inputs]
         print('dumping converted dataset...')
-        #json.dump({'card_1_inputs': card_1_json_inputs, 'card_2_inputs':card_2_json_inputs, 'outputs': outputs}, codecs.open(save_dataset_full_path, 'w'), indent=4)
+        json.dump({'card_1_inputs': card_1_json_inputs, 'card_2_inputs':card_2_json_inputs, 'outputs': outputs}, codecs.open(save_dataset_full_path, 'w'), indent=4)
         return card_1_inputs, card_2_inputs, outputs
     binary_card_1_inputs, binary_card_2_inputs, binary_outputs = prepare_inputs(binary_training_data_path, os.path.join(save_dataset_path, 'binary.json'))
     adjusted_card_1_inputs, adjusted_card_2_inputs, adjusted_outputs = prepare_inputs(adjusted_binary_training_data_path, os.path.join(save_dataset_path, 'adjusted_binary.json'))
