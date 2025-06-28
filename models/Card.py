@@ -14,13 +14,16 @@ class BaseCard():
     def __init__(self,search_params=None, update=False, card_json=None, wait_for_salt_score=False, get_salt = True):
         if card_json:
             self.__dict__ = card_json
+            self.is_valid = True
+
         else:
             recieved_dict = sql_card_operations.get_card_dict(search_params)
             if not recieved_dict:
                 print('failed to initiate card', search_params)
-                del self
+                self.is_valid = False
                 return
             self.__dict__ = recieved_dict
+            self.is_valid = True
 
         # set new data
         if not hasattr(self, 'salt') and get_salt:

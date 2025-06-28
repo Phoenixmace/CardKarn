@@ -123,7 +123,7 @@ def train_model(model_name, final_training_data_path,save_dataset_path, oracle_t
         assert len(X1) == len(y), "Inputs and outputs must have same number of samples"
 
         model.fit([X1, X2],y, batch_size=batch_size, epochs=epochs, validation_split=validation_split, verbose=1, shuffle=True)
-        save_path = os.path.join(model_save_path, f'{model_name}.h5')
+        save_path = os.path.join(model_save_path, f'{model_name}.keras')
         model.save(save_path)
 
         # testing
