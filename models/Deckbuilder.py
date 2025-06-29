@@ -55,7 +55,7 @@ def get_cards_from_database(commander, user_id='1'):
 
 def clean_name(name):
     if '//' in name:
-        url_end = name.split('//')[0]  # idea for var name Luc
+        url_end = name.split(' // ')[0]  # idea for var name Luc
     else:
         url_end = name
     replace_char_dict = {
