@@ -13,8 +13,8 @@ def store_token_ids(oracle_tokenizer_name='oracle_tokenizer', card_tokenizer_nam
         card_json = json.loads(card[1])
         card_object = BaseCard(card_json=card_json, get_salt=False)
         scryfall_id = card[0]
-        padded_oracle, padded_card = tokenize_card(card_object, oracle_tokenizer_name=oracle_tokenizer_name, card_model_name=card_tokenizer_name)
-        tokens = np.concatenate([padded_oracle, padded_card], axis=1)
+        padded_oracle, padded_card = card_object.get_np_array(oracle_tokenizer_name=oracle_tokenizer_name, card_tokenizer_name=card_tokenizer_name)
+        tokens = np.vstack([padded_oracle, padded_card])
         tokens = json.dumps(tokens.tolist())
         return [tokens, scryfall_id]
 

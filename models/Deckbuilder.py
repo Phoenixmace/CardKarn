@@ -1,3 +1,4 @@
+import math
 import os
 import sqlite3
 
@@ -96,6 +97,26 @@ def get_all_edhrec_cards(commander):
     all_cards = [card for card in all_cards if card.is_valid]
     return all_cards
 
+def evaluate_card_synergy(card, synergies, commander_synergies, price_penalty, budget_scaling_factor, decklist, card_weight):
+    # get commander_synergy
+    commander_synergy = commander_synergies.get(card.id, 0)
+
+    # get all card_synergies
+    synergy_score = []
+    for deck_card in decklist:
+        deck_card_id = deck_card.id
+        key = tuple(sorted((deck_card.id, card.id)))
+        deck_card_synergy = synergies.get(key, 0)
+        synergy_score.append(deck_card_synergy)
+    absolute_value = sum(synergy_score)/len(synergy_score)*card_weight
+    if price_penalty == False:
+        return absolute_value
+    else:
+        price_penalty = price_penalty ** budget_scaling_factor
+        relative_value = absolute_value / price_penalty
+        return relative_value
+
+
 
 
 
@@ -103,6 +124,7 @@ class Deckbuilder:
     def __init__(self, commander_name, budget, model_name, tag=None, tribe=None, card_weight=1, user_id='1'):
         self.commander_name = commander_name
         self.budget = budget
+        self.card_weight = card_weight
         self.model_name = model_name
         self.tag = tag
         self.tribe = tribe
@@ -113,16 +135,74 @@ class Deckbuilder:
             return
 
     def build_deck(self):
-        # load model
-        edhrec_card_objects = get_all_edhrec_cards(self.commander_object)
-        collection_card_ids = get_cards_from_database(self.commander_object, self.user_id)
         model_path = os.path.join(config.data_folder_path, 'neural_network', 'models', f'{self.model_name}.keras')
+        # load model
         if not os.path.exists(model_path):
             print('model not found')
             return
         model = load_model(model_path)
 
+        # get cards
+        edhrec_card_objects = get_all_edhrec_cards(self.commander_object)
+        collection_card = get_cards_from_database(self.commander_object, self.user_id)
+
+        synergies = {}
+        commander_synergies ={}
+        commander_tokens = self.commander_object.get_np_array()
+        for card in edhrec_card_objects:
+            card_tokens = card.get_np_array()
+            prediction = model.predict([card_tokens, commander_tokens])[0][0]
+            commander_synergies[card.id] = prediction
+
+        for card in collection_card:
+            card_tokens = card.get_np_array()
+            prediction = model.predict([card_tokens, commander_tokens])[0][0]
+            commander_synergies[card.id] = prediction
+
+        for card1 in edhrec_card_objects:
+            for card2 in collection_card:
+                key = tuple(sorted((card1.id, card2.id)))  # sorted so (a, b) == (b, a)
+                if key not in synergies:
+                    tokens1 = np.expand_dims(card1.get_np_array(), axis=0)  # shape becomes (1, 50)
+                    tokens2 = np.expand_dims(card2.get_np_array(), axis=0)
+                    prediction = model.predict([tokens1, tokens2])[0][0]
+                    synergies[key] = prediction
+        generated_deck = self.generate_deck(edhrec_card_objects, collection_card, synergies, commander_synergies)
+    def generate_deck(self, edhrec_cards, collection_cards, synergies, commander_synergies,price_penalty_weight = 0.35):
+        # get factors
+        budget = self.budget
+        if budget <= 0: # eliminate math error
+            budget_scaling_factor = 1
+        else:
+            budget_scaling_factor = ((4-math.log10(budget))/4)
 
 
 
+
+        commander = self.commander_object
+        deck_list = []
+        deck_cost = 0
+        for i in range(65):
+            highest_synergy = 0
+            highest_synergy_card = None
+            for card in edhrec_cards:
+                if 'Land' in card.type_line:
+                    continue
+                prices = card.prices
+                price = min(prices.values())
+                price_penalty = price_penalty_weight * (math.log10(price) + 1)
+                card_score = evaluate_card_synergy(card, synergies,commander_synergies, price_penalty, budget_scaling_factor, deck_list, self.card_weight)
+                if card_score > highest_synergy and card.id not in deck_list:
+                    highest_synergy = card_score
+                    highest_synergy_card = card
+            for card in collection_cards:
+                if 'Land' in card.type_line:
+                    continue
+                card_score = evaluate_card_synergy(card, synergies,commander_synergies, False, budget_scaling_factor, deck_list, self.card_weight)
+                if card_score > highest_synergy and card.id not in deck_list:
+                    highest_synergy = card_score
+                    highest_synergy_card = card
+            print(f'added {highest_synergy_card.name} with score {highest_synergy}')
+        for card in deck_list:
+            print(card.name)
 

@@ -1,8 +1,10 @@
+import json
 import time
-
+from util.machine_learning.tokenize import tokenize_cards
 import requests
 from util.database import sql_card_operations
 import threading
+import numpy as np
 # [Source, Path, Side-related, Save to memory, Save to collection, Version-dependent, Only frontside matters, Data type]
 non_scryfall_attributes = ['salt']
 additional_attributes = ['number', 'language', 'finish']
@@ -63,5 +65,23 @@ class BaseCard():
     def store_base_card_dict(self):
         sql_card_operations.update_card(self.__dict__)
 
-    def get_np_array(self, method=1, weights={}, load_existing=False, name=None):
-        pass
+    def get_np_array(self, method=1, weights={}, name=None,  oracle_tokenizer_name='oracle_tokenizer', card_tokenizer_name='card_tokenizer'):
+        if not hasattr(self, 'tokenized'):
+            self.tokenized = {}
+        elif name in self.tokenized:
+            two_arrays = np.array(json.loads(self.tokenized[name]))
+            combined = np.concatenate([two_arrays[0], two_arrays[1]])
+            return combined# shape (50,)
+
+        if not name:
+            name = str(method)
+        oracle_tokenized, card_tokenized = tokenize_cards.tokenize_card(self, oracle_tokenizer_name=oracle_tokenizer_name, card_model_name=card_tokenizer_name)
+        tokens = np.vstack([oracle_tokenized, card_tokenized])
+        tokens = json.dumps(tokens.tolist())
+        self.tokenized[name] = tokens
+        self.store_base_card_dict()
+        combined = np.concatenate([oracle_tokenized, card_tokenized])  # shape (50,)
+        return combined
+
+
+
