@@ -2,6 +2,9 @@ import math
 import os
 import sqlite3
 
+from tqdm import tqdm
+from itertools import combinations
+
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 import numpy as np
 from keras.models import load_model
@@ -81,7 +84,7 @@ def get_all_edhrec_cards(commander):
             return cards
 
         json_dict = data['container']['json_dict']
-        for list in json_dict['cardlists'][1:]:
+        for list in json_dict['cardlists'][1:2]:
             for card in list['cardviews']:
                 cards.append(card['name'])
         return cards
@@ -141,7 +144,7 @@ class Deckbuilder:
         np_array_name = '1'
         # get cards
         edhrec_card_objects = get_all_edhrec_cards(self.commander_object)
-        collection_card = get_cards_from_database(self.commander_object, self.user_id)[:50]
+        collection_card = get_cards_from_database(self.commander_object, self.user_id)
         synergies = {}
         commander_synergies ={}
 
@@ -173,23 +176,28 @@ class Deckbuilder:
         for card, pred in zip(all_cards, predictions):
             commander_synergies[card.id] = float(pred[0])  # or pred if it's just a scalar
         # get card synergies
-        oracle_1_inputs = []
-        card_1_inputs = []
-        oracle_2_inputs = []
-        card_2_inputs = []
-        keys = []
-        for card1 in all_cards:
-            oracle_arr, card_arr = card1.get_np_array(name=np_array_name)
-            for card2 in all_cards:
-                key = tuple(sorted((card1.id, card2.id)))  # sorted so (a, b) == (b, a)
-                if key not in keys:
-                    keys.append(key)
-                    oracle_arr_2, card_arr_2 = card2.get_np_array(name=np_array_name)
-                    oracle_1_inputs.append(oracle_arr)  # (25,)
-                    card_1_inputs.append(card_arr)
-                    oracle_2_inputs.append(oracle_arr_2)  # (25,)
-                    card_2_inputs.append(card_arr_2)
+        def generate_unique_card_pairs(cards, np_array_name):
+            keys = set()
+            oracle_1_inputs = []
+            card_1_inputs = []
+            oracle_2_inputs = []
+            card_2_inputs = []
 
+            for card1, card2 in tqdm(combinations(cards, 2), desc="Generating unique card pairs", total=len(cards) * (len(cards) - 1) / 2):
+                key = tuple(sorted((card1.id, card2.id)))
+
+                oracle_arr1, card_arr1 = card1.get_np_array(name=np_array_name)
+                oracle_arr2, card_arr2 = card2.get_np_array(name=np_array_name)
+
+                oracle_1_inputs.append(oracle_arr1)
+                card_1_inputs.append(card_arr1)
+                oracle_2_inputs.append(oracle_arr2)
+                card_2_inputs.append(card_arr2)
+                keys.add(key)
+
+            return oracle_1_inputs, card_1_inputs, oracle_2_inputs, card_2_inputs, keys
+
+        oracle_1_inputs, card_1_inputs, oracle_2_inputs, card_2_inputs, keys = generate_unique_card_pairs(all_cards, np_array_name)
 
         oracle_1_inputs = np.array(oracle_1_inputs)  # shape (N, 25)
         card_1_inputs = np.array(card_1_inputs)  # shape (N, 25)
@@ -201,7 +209,7 @@ class Deckbuilder:
             card_1_inputs,
             oracle_2_inputs,
             card_2_inputs
-        ], batch_size=32)
+        ], batch_size=32, verbose=2)
 
         for pred, key in zip(predictions, keys):
             synergies[key] = float(pred[0])

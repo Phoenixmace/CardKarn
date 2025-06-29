@@ -13,7 +13,7 @@ additional_attributes = ['number', 'language', 'finish']
 
 
 class BaseCard():
-    def __init__(self,search_params=None, update=False, card_json=None, wait_for_salt_score=False, get_salt = True):
+    def __init__(self,search_params=None, update=False, card_json=None, wait_for_salt_score=False, get_salt = False):
         self.is_valid = True
         if card_json:
             self.__dict__ = card_json
