@@ -84,11 +84,12 @@ def get_all_edhrec_cards(commander):
             return cards
 
         json_dict = data['container']['json_dict']
-        for list in json_dict['cardlists'][1:2]:
+        for list in json_dict['cardlists'][1:]:
             for card in list['cardviews']:
                 cards.append(card['name'])
         return cards
     base_cards = get_cards(url)
+
     expensive_cards = get_cards(expensive_url)
     all_cards = list(set(base_cards + expensive_cards))
     all_cards = [BaseCard({'name': card}) for card in all_cards]
@@ -145,6 +146,17 @@ class Deckbuilder:
         # get cards
         edhrec_card_objects = get_all_edhrec_cards(self.commander_object)
         collection_card = get_cards_from_database(self.commander_object, self.user_id)
+        # remove duplicates
+        unique_cards = []
+        seen_names = set()
+
+        for card in collection_card:
+            if card.name not in seen_names:
+                unique_cards.append(card)
+                seen_names.add(card.name)
+        collection_card = unique_cards
+
+
         synergies = {}
         commander_synergies ={}
 
@@ -209,7 +221,7 @@ class Deckbuilder:
             card_1_inputs,
             oracle_2_inputs,
             card_2_inputs
-        ], batch_size=32, verbose=2)
+        ], batch_size=32, verbose=1)
 
         for pred, key in zip(predictions, keys):
             synergies[key] = float(pred[0])
@@ -237,12 +249,12 @@ class Deckbuilder:
                     price = float(price.replace('$', ''))
                     if price < 0:
                         #print(f'no price found for {card.name}')
-                        price = 10
+                        price = 40
                 except:
-                    price = 10
+                    price = 40
                     #print(f'no price found for {card.name}')
 
-                if 'Land' in card.type_line or card.name in [decklist_card.name for decklist_card in deck_list if decklist_card is not None] or budget < price+ deck_cost:
+                if (card.name in [decklist_card.name for decklist_card in deck_list if decklist_card is not None]) or not hasattr(card, 'type_line') or 'Land' in card.type_line or budget < price + deck_cost:
                     continue
                 price_penalty = price_penalty_weight * (math.log10(price) + 1)
                 if price_penalty < 0:
@@ -254,7 +266,7 @@ class Deckbuilder:
                     highest_synergy_card = card
                     highest_price = price
             for card in collection_cards:
-                if 'Land' in card.type_line or card.name in [decklist_card.name for decklist_card in deck_list if decklist_card is not None]:
+                if (card.name in [decklist_card.name for decklist_card in deck_list if decklist_card is not None]) or not hasattr(card, 'type_line') or 'Land' in card.type_line:
                     continue
                 card_score = evaluate_card_synergy(card, synergies,commander_synergies, False, budget_scaling_factor, deck_list, self.card_weight)
                 if card_score > highest_synergy:
@@ -273,7 +285,10 @@ class Deckbuilder:
                 #print(e)
                 pass
 
-
+        print(f'''
+Budget: {budget}
+Deck Cost: {deck_cost}
+Decklist:''')
         for card in deck_list:
             print(f'1 {card.name}')
 
