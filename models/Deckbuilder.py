@@ -46,14 +46,9 @@ def get_cards_from_database(commander, user_id='1'):
         if result:
             json_dicts.append(result[0])
     all_card_objects = [BaseCard(card_json=json.loads(json_dict)) for json_dict in json_dicts]
+    all_cards = [card for card in all_card_objects if card.is_valid and card is not None and card.legalities['commander'] == 'legal']
 
-    return all_card_objects
-
-
-
-
-
-
+    return all_cards
 
 def clean_name(name):
     if '//' in name:
@@ -86,7 +81,7 @@ def get_all_edhrec_cards(commander):
             return cards
 
         json_dict = data['container']['json_dict']
-        for list in json_dict['cardlists']:
+        for list in json_dict['cardlists'][1:]:
             for card in list['cardviews']:
                 cards.append(card['name'])
         return cards
@@ -94,20 +89,26 @@ def get_all_edhrec_cards(commander):
     expensive_cards = get_cards(expensive_url)
     all_cards = list(set(base_cards + expensive_cards))
     all_cards = [BaseCard({'name': card}) for card in all_cards]
-    all_cards = [card for card in all_cards if card.is_valid]
+    all_cards = [card for card in all_cards if card.is_valid and card is not None]
     return all_cards
 
 def evaluate_card_synergy(card, synergies, commander_synergies, price_penalty, budget_scaling_factor, decklist, card_weight):
     # get commander_synergy
     commander_synergy = commander_synergies.get(card.id, 0)
-
     # get all card_synergies
     synergy_score = []
     for deck_card in decklist:
-        deck_card_id = deck_card.id
         key = tuple(sorted((deck_card.id, card.id)))
+
         deck_card_synergy = synergies.get(key, 0)
+        if deck_card_synergy == 0:
+            print('no synergy found for ', key)
         synergy_score.append(deck_card_synergy)
+    if len(synergy_score) == 0:
+        synergy_score.append(0)
+
+    synergy_score.append(commander_synergy)
+    synergy_score = sorted(synergy_score, reverse=True)
     absolute_value = sum(synergy_score)/len(synergy_score)*card_weight
     if price_penalty == False:
         return absolute_value
@@ -115,10 +116,6 @@ def evaluate_card_synergy(card, synergies, commander_synergies, price_penalty, b
         price_penalty = price_penalty ** budget_scaling_factor
         relative_value = absolute_value / price_penalty
         return relative_value
-
-
-
-
 
 class Deckbuilder:
     def __init__(self, commander_name, budget, model_name, tag=None, tribe=None, card_weight=1, user_id='1'):
@@ -144,65 +141,131 @@ class Deckbuilder:
         np_array_name = '1'
         # get cards
         edhrec_card_objects = get_all_edhrec_cards(self.commander_object)
-        collection_card = get_cards_from_database(self.commander_object, self.user_id)
-
+        collection_card = get_cards_from_database(self.commander_object, self.user_id)[:50]
         synergies = {}
         commander_synergies ={}
-        commander_tokens = self.commander_object.get_np_array(name=np_array_name)
-        for card in edhrec_card_objects:
-            card_tokens = card.get_np_array(name=np_array_name)
-            prediction = model.predict([card_tokens, commander_tokens])[0][0]
-            commander_synergies[card.id] = prediction
 
-        for card in collection_card:
-            card_tokens = card.get_np_array(name=np_array_name)
-            prediction = model.predict([card_tokens, commander_tokens])[0][0]
-            commander_synergies[card.id] = prediction
+        all_cards = edhrec_card_objects + collection_card
 
-        for card1 in edhrec_card_objects:
-            for card2 in collection_card:
+        oracle_inputs = []
+        card_inputs = []
+
+        # get commander synergies
+        for card in all_cards:
+            oracle_arr, card_arr = card.get_np_array(name=np_array_name)  # shape (2, 25)
+            oracle_inputs.append(oracle_arr)  # (25,)
+            card_inputs.append(card_arr)  # (25,)
+        # Convert to NumPy arrays with batch shape
+        oracle_inputs = np.array(oracle_inputs)  # shape (N, 25)
+        card_inputs = np.array(card_inputs)  # shape (N, 25)
+
+        # Commander data is same for all, repeat N times
+        commander_oracle, commander_card = self.commander_object.get_np_array(name=np_array_name)
+        commander_oracle_inputs = np.repeat([commander_oracle], len(edhrec_card_objects + collection_card), axis=0)  # shape (N, 25)
+        commander_card_inputs = np.repeat([commander_card], len(edhrec_card_objects + collection_card), axis=0)  # shape (N, 25)
+        # Predict in one call
+        predictions = model.predict([
+            oracle_inputs,
+            card_inputs,
+            commander_oracle_inputs,
+            commander_card_inputs
+        ], batch_size=32)
+        for card, pred in zip(all_cards, predictions):
+            commander_synergies[card.id] = float(pred[0])  # or pred if it's just a scalar
+        # get card synergies
+        oracle_1_inputs = []
+        card_1_inputs = []
+        oracle_2_inputs = []
+        card_2_inputs = []
+        keys = []
+        for card1 in all_cards:
+            oracle_arr, card_arr = card1.get_np_array(name=np_array_name)
+            for card2 in all_cards:
                 key = tuple(sorted((card1.id, card2.id)))  # sorted so (a, b) == (b, a)
-                if key not in synergies:
-                    tokens1 = np.expand_dims(card1.get_np_array(name=np_array_name), axis=0)  # shape becomes (1, 50)
-                    tokens2 = np.expand_dims(card2.get_np_array(name=np_array_name), axis=0)
-                    prediction = model.predict([tokens1, tokens2])[0][0]
-                    synergies[key] = prediction
+                if key not in keys:
+                    keys.append(key)
+                    oracle_arr_2, card_arr_2 = card2.get_np_array(name=np_array_name)
+                    oracle_1_inputs.append(oracle_arr)  # (25,)
+                    card_1_inputs.append(card_arr)
+                    oracle_2_inputs.append(oracle_arr_2)  # (25,)
+                    card_2_inputs.append(card_arr_2)
+
+
+        oracle_1_inputs = np.array(oracle_1_inputs)  # shape (N, 25)
+        card_1_inputs = np.array(card_1_inputs)  # shape (N, 25)
+        oracle_2_inputs = np.array(oracle_2_inputs)  # shape (N, 25)
+        card_2_inputs = np.array(card_2_inputs)  # shape (N, 25)
+
+        predictions = model.predict([
+            oracle_1_inputs,
+            card_1_inputs,
+            oracle_2_inputs,
+            card_2_inputs
+        ], batch_size=32)
+
+        for pred, key in zip(predictions, keys):
+            synergies[key] = float(pred[0])
         generated_deck = self.generate_deck(edhrec_card_objects, collection_card, synergies, commander_synergies)
     def generate_deck(self, edhrec_cards, collection_cards, synergies, commander_synergies,price_penalty_weight = 0.35):
         # get factors
         budget = self.budget
+        budget_category = 2
         if budget <= 0: # eliminate math error
             budget_scaling_factor = 1
         else:
-            budget_scaling_factor = ((4-math.log10(budget))/4)
+            budget_scaling_factor = ((4-math.log10(budget_category))/4)
 
-
-
-
-        commander = self.commander_object
         deck_list = []
         deck_cost = 0
         for i in range(65):
+            deck_list =[card for card in deck_list if card is not None]
             highest_synergy = 0
             highest_synergy_card = None
+            highest_price = 0
             for card in edhrec_cards:
-                if 'Land' in card.type_line:
-                    continue
                 prices = card.prices
-                price = min(prices.values())
+                try:
+                    price = min([value for key, value in prices.items() if value and key not in ['tix']])
+                    price = float(price.replace('$', ''))
+                    if price < 0:
+                        #print(f'no price found for {card.name}')
+                        price = 10
+                except:
+                    price = 10
+                    #print(f'no price found for {card.name}')
+
+                if 'Land' in card.type_line or card.name in [decklist_card.name for decklist_card in deck_list if decklist_card is not None] or budget < price+ deck_cost:
+                    continue
                 price_penalty = price_penalty_weight * (math.log10(price) + 1)
+                if price_penalty < 0:
+                    price_penalty = 0
                 card_score = evaluate_card_synergy(card, synergies,commander_synergies, price_penalty, budget_scaling_factor, deck_list, self.card_weight)
-                if card_score > highest_synergy and card.id not in deck_list:
+
+                if card_score > highest_synergy:
                     highest_synergy = card_score
                     highest_synergy_card = card
+                    highest_price = price
             for card in collection_cards:
-                if 'Land' in card.type_line:
+                if 'Land' in card.type_line or card.name in [decklist_card.name for decklist_card in deck_list if decklist_card is not None]:
                     continue
                 card_score = evaluate_card_synergy(card, synergies,commander_synergies, False, budget_scaling_factor, deck_list, self.card_weight)
-                if card_score > highest_synergy and card.id not in deck_list:
+                if card_score > highest_synergy:
                     highest_synergy = card_score
                     highest_synergy_card = card
-            print(f'added {highest_synergy_card.name} with score {highest_synergy}')
+                    highest_price = 0
+            try:
+                if highest_synergy_card is None:
+                    continue
+                #print(f'added {highest_synergy_card.name} with score {highest_synergy}')
+                deck_list.append(highest_synergy_card)
+                deck_cost += highest_price
+
+            except Exception as e:
+                #print(highest_synergy_card)
+                #print(e)
+                pass
+
+
         for card in deck_list:
-            print(card.name)
+            print(f'1 {card.name}')
 

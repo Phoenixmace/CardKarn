@@ -59,13 +59,16 @@ def train_model(model_name, final_training_data_path,save_dataset_path, oracle_t
                 index = i-1
                 output = raw_outputs[index]
                 raw_input = raw_inputs[index]
-                cards = raw_input[0]
+                if isinstance(raw_input[0], list):
+                    cards = raw_input[0]
+                else:
+                    cards = raw_input
                 card_1_oracle_id = cards[0]
                 card_2_oracle_id = cards[1]
 
                 card_1_tokens = array_dict.get(card_1_oracle_id)
                 card_2_tokens = array_dict.get(card_2_oracle_id)
-
+                #print(card_1_tokens, card_1_oracle_id)
                 if card_1_tokens is None or card_2_tokens is None:
                     failed_iterations +=1
                     #print(f"{round(100*(failed_iterations/i), 2)}% of iterations failed")
@@ -82,6 +85,8 @@ def train_model(model_name, final_training_data_path,save_dataset_path, oracle_t
                     continue
 
                 if output is not None:
+                    if output < 0:
+                        output = 0
                     card_1_inputs.append(card_1_array_2d)
                     card_2_inputs.append(card_2_array_2d)
                     outputs.append(output)
@@ -102,7 +107,7 @@ def train_model(model_name, final_training_data_path,save_dataset_path, oracle_t
 
         return card_1_inputs, card_2_inputs, outputs
     #binary_card_1_inputs, binary_card_2_inputs, binary_outputs = prepare_inputs(binary_training_data_path, os.path.join(save_dataset_path, 'binary.json'))
-    adjusted_card_1_inputs, adjusted_card_2_inputs, adjusted_outputs = prepare_inputs(adjusted_binary_training_data_path, os.path.join(save_dataset_path, 'adjusted_binary.json'))
+    adjusted_card_1_inputs, adjusted_card_2_inputs, adjusted_outputs = prepare_inputs(adjusted_binary_training_data_path, os.path.join(save_dataset_path, 'synergies.json'))
 
     def create_model(card_1_inputs, card_2_inputs, outputs, model_name, oracle_tokenizer_name, card_tokenizer_name):
         # Inputs for card 1
