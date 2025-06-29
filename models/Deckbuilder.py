@@ -141,21 +141,21 @@ class Deckbuilder:
             print('model not found')
             return
         model = load_model(model_path)
-
+        np_array_name = '1'
         # get cards
         edhrec_card_objects = get_all_edhrec_cards(self.commander_object)
         collection_card = get_cards_from_database(self.commander_object, self.user_id)
 
         synergies = {}
         commander_synergies ={}
-        commander_tokens = self.commander_object.get_np_array()
+        commander_tokens = self.commander_object.get_np_array(name=np_array_name)
         for card in edhrec_card_objects:
-            card_tokens = card.get_np_array()
+            card_tokens = card.get_np_array(name=np_array_name)
             prediction = model.predict([card_tokens, commander_tokens])[0][0]
             commander_synergies[card.id] = prediction
 
         for card in collection_card:
-            card_tokens = card.get_np_array()
+            card_tokens = card.get_np_array(name=np_array_name)
             prediction = model.predict([card_tokens, commander_tokens])[0][0]
             commander_synergies[card.id] = prediction
 
@@ -163,8 +163,8 @@ class Deckbuilder:
             for card2 in collection_card:
                 key = tuple(sorted((card1.id, card2.id)))  # sorted so (a, b) == (b, a)
                 if key not in synergies:
-                    tokens1 = np.expand_dims(card1.get_np_array(), axis=0)  # shape becomes (1, 50)
-                    tokens2 = np.expand_dims(card2.get_np_array(), axis=0)
+                    tokens1 = np.expand_dims(card1.get_np_array(name=np_array_name), axis=0)  # shape becomes (1, 50)
+                    tokens2 = np.expand_dims(card2.get_np_array(name=np_array_name), axis=0)
                     prediction = model.predict([tokens1, tokens2])[0][0]
                     synergies[key] = prediction
         generated_deck = self.generate_deck(edhrec_card_objects, collection_card, synergies, commander_synergies)

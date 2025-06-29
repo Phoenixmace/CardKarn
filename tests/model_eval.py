@@ -75,6 +75,6 @@ bad_synergies = [
     ("Ajani's Pridemate", "Annihilating Fire"),      # Anti-synergy (removal on life-gain payoff)
     ("Goblin Piledriver", "Wall of Omens"),          # Aggro tribal vs passive draw
 ]
-model_path = r"C:\Users\maxce\Shared Folder\Code\Maturaarbeit\data_folder\neural_network\models\binary_small_testing_model.keras"
+model_path = r"C:\Users\maxce\Shared Folder\Code\Maturaarbeit\data_folder\neural_network\models\adjusted_binary_small_testing_model.keras"
 evaluate_synergy(model_path, good_synergies)
 evaluate_synergy(model_path, bad_synergies)

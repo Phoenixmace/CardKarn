@@ -12,8 +12,8 @@ from tqdm import tqdm
 import codecs
 
 def train_model(model_name, final_training_data_path,save_dataset_path, oracle_tokenizer_name='oracle_tokenizer', card_tokenizer_name='card_tokenizer', model_save_path=r"C:\Users\maxce\Shared Folder\Code\Maturaarbeit\data_folder\neural_network\models", dataset_amount=1):
-    binary_training_data_path = os.path.join(final_training_data_path, 'binary.json')
-    #adjusted_binary_training_data_path = os.path.join(final_training_data_path, 'adjusted_binary.json')
+    #binary_training_data_path = os.path.join(final_training_data_path, 'binary.json')
+    adjusted_binary_training_data_path = os.path.join(final_training_data_path, 'adjusted_binary.json')
 
     # get all arrays
     array_dict = {}
@@ -33,6 +33,7 @@ def train_model(model_name, final_training_data_path,save_dataset_path, oracle_t
         raw_data = json.load(open(filepath, 'r'))
         raw_inputs = raw_data['inputs']
         raw_outputs = raw_data['outputs']
+
 
         # shuffle
         combined = list(zip(raw_inputs, raw_outputs))
@@ -100,8 +101,8 @@ def train_model(model_name, final_training_data_path,save_dataset_path, oracle_t
             }, f_out, indent=4)
 
         return card_1_inputs, card_2_inputs, outputs
-    binary_card_1_inputs, binary_card_2_inputs, binary_outputs = prepare_inputs(binary_training_data_path, os.path.join(save_dataset_path, 'binary.json'))
-    #adjusted_card_1_inputs, adjusted_card_2_inputs, adjusted_outputs = prepare_inputs(adjusted_binary_training_data_path, os.path.join(save_dataset_path, 'adjusted_binary.json'))
+    #binary_card_1_inputs, binary_card_2_inputs, binary_outputs = prepare_inputs(binary_training_data_path, os.path.join(save_dataset_path, 'binary.json'))
+    adjusted_card_1_inputs, adjusted_card_2_inputs, adjusted_outputs = prepare_inputs(adjusted_binary_training_data_path, os.path.join(save_dataset_path, 'adjusted_binary.json'))
 
     def create_model(card_1_inputs, card_2_inputs, outputs, model_name, oracle_tokenizer_name, card_tokenizer_name):
         # Inputs for card 1
@@ -141,8 +142,8 @@ def train_model(model_name, final_training_data_path,save_dataset_path, oracle_t
         model.compile(optimizer='adam', loss='mse')
 
         return model
-    binary_model = create_model(binary_card_1_inputs, binary_card_2_inputs, binary_outputs, model_name, oracle_tokenizer_name, card_tokenizer_name)
-    #adjusted_binary_model = create_model(adjusted_card_1_inputs, adjusted_card_2_inputs, adjusted_outputs, model_name, oracle_tokenizer_name, card_tokenizer_name)
+    #binary_model = create_model(binary_card_1_inputs, binary_card_2_inputs, binary_outputs, model_name, oracle_tokenizer_name, card_tokenizer_name)
+    adjusted_binary_model = create_model(adjusted_card_1_inputs, adjusted_card_2_inputs, adjusted_outputs, model_name, oracle_tokenizer_name, card_tokenizer_name)
 
     def train_model(model, card_1_inputs, card_2_inputs, outputs, model_name, batch_size=32, epochs=10, validation_split=0.1):
         X1 = numpy.array(card_1_inputs)  # shape (samples, 2, 25)
@@ -213,5 +214,5 @@ def train_model(model_name, final_training_data_path,save_dataset_path, oracle_t
         for i in range(len(synergy_testing_names)):  # preview first 5
             print(f"Predicted Synergy of {synergy_testing_names[i][0]} + {synergy_testing_names[i][1]}: {predictions[i][0]:.4f}")
 
-    train_model(binary_model, binary_card_1_inputs, binary_card_2_inputs, binary_outputs, f'binary_{model_name}', batch_size=32, epochs=10, validation_split=0.1)
-    #train_model(adjusted_binary_model, adjusted_card_1_inputs, adjusted_card_2_inputs, adjusted_outputs, f'adjusted_binary_{model_name}', batch_size=32, epochs=10, validation_split=0.1)
+    #train_model(binary_model, binary_card_1_inputs, binary_card_2_inputs, binary_outputs, f'binary_{model_name}', batch_size=32, epochs=10, validation_split=0.1)
+    train_model(adjusted_binary_model, adjusted_card_1_inputs, adjusted_card_2_inputs, adjusted_outputs, f'adjusted_binary_{model_name}', batch_size=32, epochs=10, validation_split=0.1)
