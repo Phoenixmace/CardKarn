@@ -34,13 +34,14 @@ def get_cards_from_database(commander, user_id='1'):
         'R': 'red_in_color_identity',
         'G': 'green_in_color_identity'
     }
-    if len(color_idendity) >0:
+    if len(color_idendity) < 5:
         color_query_section = [item for key, item in colors_dict.items() if key not in color_idendity]
         color_query_section = ' AND NOT '.join(color_query_section)
-        color_query_section = f' NOT {color_query_section}'
+        color_query_section = f' AND NOT {color_query_section}'
     else:
         color_query_section = ''
-    query = f'''SELECT json FROM cards WHERE commander_legal and scryfall_id = ? and {color_query_section} LIMIT 1'''
+    query = f'''SELECT json FROM cards WHERE commander_legal and scryfall_id = ? {color_query_section} LIMIT 1'''
+    print(query)
     conn, cursor = get_cursor('cards.db')
     json_dicts = []
     for id in params:
