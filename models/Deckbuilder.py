@@ -80,22 +80,38 @@ def get_all_edhrec_cards(commander):
         response = requests.get(edhrec_url)
         if response.status_code == 200:
             data = response.json()
+
         else:
             print('Error getting Data: ', edhrec_url)
             return cards
 
+        # type_distribution
+        type_distribution = {
+            'creature': data.get('creature', 0),
+            'enchantment': data.get('enchantment', 0),
+            'instant': data.get('instant', 0),
+            'land': data.get('nonbasic', 0),
+            'basic': data.get('basic', 0),
+            'sorcery': data.get('sorcery', 0),
+            'artifact': data.get('artifact', 0),
+            'battle': data.get('battle', 0),
+            'planeswalker': data.get('planeswalker', 0),
+
+        }
         json_dict = data['container']['json_dict']
-        for list in json_dict['cardlists'][1:]:
+        for list in json_dict['cardlists'][1:2]:
             for card in list['cardviews']:
                 cards.append(card['name'])
-        return cards
-    base_cards = get_cards(url)
+        return cards, type_distribution
+    base_cards, type_distribution = get_cards(url)
 
-    expensive_cards = get_cards(expensive_url)
+
+
+    expensive_cards, unused_type_distribution = get_cards(expensive_url)
     all_cards = list(set(base_cards + expensive_cards))
     all_cards = [BaseCard({'name': card}) for card in all_cards]
     all_cards = [card for card in all_cards if card.is_valid and card is not None]
-    return all_cards
+    return all_cards, type_distribution
 
 def evaluate_card_synergy(card, synergies, commander_synergies, price_penalty, budget_scaling_factor, decklist, card_weight):
     # get commander_synergy
@@ -145,8 +161,8 @@ class Deckbuilder:
         model = load_model(model_path)
         np_array_name = '1'
         # get cards
-        edhrec_card_objects = get_all_edhrec_cards(self.commander_object)
-        collection_card = get_cards_from_database(self.commander_object, self.user_id)
+        edhrec_card_objects, type_distribution = get_all_edhrec_cards(self.commander_object)
+        collection_card = get_cards_from_database(self.commander_object, self.user_id)[:200]
         # remove duplicates
         unique_cards = []
         seen_names = set()
@@ -226,8 +242,9 @@ class Deckbuilder:
 
         for pred, key in zip(predictions, keys):
             synergies[key] = float(pred[0])
-        generated_deck = self.generate_deck(edhrec_card_objects, collection_card, synergies, commander_synergies)
-    def generate_deck(self, edhrec_cards, collection_cards, synergies, commander_synergies,price_penalty_weight = 0.35):
+        generated_deck = self.generate_deck(edhrec_card_objects, collection_card, synergies, commander_synergies, type_distribution)
+
+    def generate_deck(self, edhrec_cards, collection_cards, synergies, commander_synergies, type_distribution, price_penalty_weight = 0.35):
         # get factors
         budget = self.budget
         budget_category = 2
@@ -238,54 +255,59 @@ class Deckbuilder:
 
         deck_list = []
         deck_cost = 0
-        for i in range(65):
-            deck_list =[card for card in deck_list if card is not None]
-            highest_synergy = 0
-            highest_synergy_card = None
-            highest_price = 0
-            for card in edhrec_cards:
-                prices = card.prices
-                try:
-                    price = min([value for key, value in prices.items() if value and key not in ['tix']])
-                    price = float(price.replace('$', ''))
-                    if price < 0:
-                        #print(f'no price found for {card.name}')
+
+        def add_card_type(type, exclude_basics, number, deck_cost, deck_list):
+            for i in range(number):
+                deck_list =[card for card in deck_list if card is not None]
+                highest_synergy = 0
+                highest_synergy_card = None
+                highest_price = 0
+                for card in edhrec_cards:
+                    is_type_condition_met = hasattr(card, 'type_line') and ('basic' not in card.type_line.lower() or not exclude_basics) and type in card.type_line.lower()
+                    prices = card.prices
+                    try:
+                        price = min([value for key, value in prices.items() if value and key not in ['tix']])
+                        price = float(price.replace('$', ''))
+                        if price < 0:
+                            #print(f'no price found for {card.name}')
+                            price = 40
+                    except:
                         price = 40
-                except:
-                    price = 40
-                    #print(f'no price found for {card.name}')
+                        #print(f'no price found for {card.name}')
 
-                if (card.name in [decklist_card.name for decklist_card in deck_list if decklist_card is not None]) or not hasattr(card, 'type_line') or 'Land' in card.type_line or budget < price + deck_cost:
-                    continue
-                price_penalty = price_penalty_weight * (math.log10(price) + 1)
-                if price_penalty < 0:
-                    price_penalty = 0
-                card_score = evaluate_card_synergy(card, synergies,commander_synergies, price_penalty, budget_scaling_factor, deck_list, self.card_weight)
+                    if (card.name in [decklist_card.name for decklist_card in deck_list if decklist_card is not None]) or not is_type_condition_met or budget < price + deck_cost:
+                        continue
+                    price_penalty = price_penalty_weight * (math.log10(price) + 1)
+                    if price_penalty < 0:
+                        price_penalty = 0
+                    card_score = evaluate_card_synergy(card, synergies,commander_synergies, price_penalty, budget_scaling_factor, deck_list, self.card_weight)
 
-                if card_score > highest_synergy:
-                    highest_synergy = card_score
-                    highest_synergy_card = card
-                    highest_price = price
-            for card in collection_cards:
-                if (card.name in [decklist_card.name for decklist_card in deck_list if decklist_card is not None]) or not hasattr(card, 'type_line') or 'Land' in card.type_line:
-                    continue
-                card_score = evaluate_card_synergy(card, synergies,commander_synergies, False, budget_scaling_factor, deck_list, self.card_weight)
-                if card_score > highest_synergy:
-                    highest_synergy = card_score
-                    highest_synergy_card = card
-                    highest_price = 0
-            try:
-                if highest_synergy_card is None:
-                    continue
-                #print(f'added {highest_synergy_card.name} with score {highest_synergy}')
-                deck_list.append(highest_synergy_card)
-                deck_cost += highest_price
+                    if card_score > highest_synergy:
+                        highest_synergy = card_score
+                        highest_synergy_card = card
+                        highest_price = price
+                for card in collection_cards:
+                    if (card.name in [decklist_card.name for decklist_card in deck_list if decklist_card is not None]) or not is_type_condition_met:
+                        continue
+                    card_score = evaluate_card_synergy(card, synergies,commander_synergies, False, budget_scaling_factor, deck_list, self.card_weight)
+                    if card_score > highest_synergy:
+                        highest_synergy = card_score
+                        highest_synergy_card = card
+                        highest_price = 0
+                try:
+                    if highest_synergy_card is None:
+                        continue
+                    print(f'added {highest_synergy_card.name} with score {highest_synergy}')
+                    deck_list.append(highest_synergy_card)
+                    deck_cost += highest_price
 
-            except Exception as e:
-                #print(highest_synergy_card)
-                #print(e)
-                pass
-
+                except Exception as e:
+                    print(highest_synergy_card)
+                    #print(e)
+                    pass
+            return deck_list, deck_cost
+        for type, number in type_distribution.items():
+            deck_list, deck_cost = add_card_type(type, type=='basic', number, deck_cost, deck_list)
         print(f'''
 Budget: {budget}
 Deck Cost: {deck_cost}
