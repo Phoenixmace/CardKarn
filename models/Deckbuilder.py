@@ -40,7 +40,6 @@ def get_cards_from_database(commander, user_id='1'):
     else:
         color_query_section = ''
     query = f'''SELECT json FROM cards WHERE commander_legal and scryfall_id = ? {color_query_section} LIMIT 1'''
-    print(query)
     conn, cursor = get_cursor('cards.db')
     json_dicts = []
     for id in params:
@@ -317,13 +316,13 @@ class Deckbuilder:
                     pass
             return deck_list, deck_cost, cards_to_buy
         for type, number in type_distribution.items():
-            print(type, number)
+            #print(type, number)
             deck_list, deck_cost, cards_to_buy = add_card_type(type, type!='basic', number, deck_cost, deck_list, cards_to_buy)
 
         # add basics
         basic_number = 99-len(deck_list)
         basics = []
-        each_type_to_add = int(basic_number/len(self.commander_object.color_identity)-0.49)
+        each_type_to_add = int(round(basic_number/len(self.commander_object.color_identity)-0.49),0)
         basics_dict = {
             'W': 'Plains',
             'U': 'Island',
