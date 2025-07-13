@@ -99,7 +99,7 @@ def get_all_edhrec_cards(commander):
 
         }
         json_dict = data['container']['json_dict']
-        for list in json_dict['cardlists'][1:2]:
+        for list in json_dict['cardlists'][1:]:
             for card in list['cardviews']:
                 cards.append(card['name'])
         return cards, type_distribution
@@ -162,7 +162,7 @@ class Deckbuilder:
         np_array_name = '1'
         # get cards
         edhrec_card_objects, type_distribution = get_all_edhrec_cards(self.commander_object)
-        collection_card = get_cards_from_database(self.commander_object, self.user_id)[:200]
+        collection_card = get_cards_from_database(self.commander_object, self.user_id)
         # remove duplicates
         unique_cards = []
         seen_names = set()
@@ -242,7 +242,8 @@ class Deckbuilder:
 
         for pred, key in zip(predictions, keys):
             synergies[key] = float(pred[0])
-        generated_deck = self.generate_deck(edhrec_card_objects, collection_card, synergies, commander_synergies, type_distribution)
+        deck_list, deck_cost, cards_to_buy = self.generate_deck(edhrec_card_objects, collection_card, synergies, commander_synergies, type_distribution)
+        self.print_deck(deck_list, deck_cost, cards_to_buy)
 
     def generate_deck(self, edhrec_cards, collection_cards, synergies, commander_synergies, type_distribution, price_penalty_weight = 0.35):
         # get factors
@@ -255,13 +256,15 @@ class Deckbuilder:
 
         deck_list = []
         deck_cost = 0
-
-        def add_card_type(type, exclude_basics, number, deck_cost, deck_list):
+        cards_to_buy = []
+        def add_card_type(type, exclude_basics, number, deck_cost, deck_list, cards_to_buy):
             for i in range(number):
                 deck_list =[card for card in deck_list if card is not None]
                 highest_synergy = 0
                 highest_synergy_card = None
                 highest_price = 0
+
+                # iterate edhrec
                 for card in edhrec_cards:
                     is_type_condition_met = hasattr(card, 'type_line') and ('basic' not in card.type_line.lower() or not exclude_basics) and type in card.type_line.lower()
                     prices = card.prices
@@ -286,6 +289,7 @@ class Deckbuilder:
                         highest_synergy = card_score
                         highest_synergy_card = card
                         highest_price = price
+                # iterate collection
                 for card in collection_cards:
                     if (card.name in [decklist_card.name for decklist_card in deck_list if decklist_card is not None]) or not is_type_condition_met:
                         continue
@@ -297,21 +301,35 @@ class Deckbuilder:
                 try:
                     if highest_synergy_card is None:
                         continue
-                    print(f'added {highest_synergy_card.name} with score {highest_synergy}')
+                    #print(f'added {highest_synergy_card.name} with score {highest_synergy}')
                     deck_list.append(highest_synergy_card)
                     deck_cost += highest_price
+                    if highest_price != 0:
+                        cards_to_buy.append([highest_synergy_card, highest_price])
 
                 except Exception as e:
                     print(highest_synergy_card)
                     #print(e)
                     pass
-            return deck_list, deck_cost
+            return deck_list, deck_cost, cards_to_buy
         for type, number in type_distribution.items():
-            deck_list, deck_cost = add_card_type(type, type=='basic', number, deck_cost, deck_list)
+            print(type, number)
+            deck_list, deck_cost, cards_to_buy = add_card_type(type, type!='basic', number, deck_cost, deck_list, cards_to_buy)
         print(f'''
 Budget: {budget}
 Deck Cost: {deck_cost}
 Decklist:''')
-        for card in deck_list:
-            print(f'1 {card.name}')
+        return deck_list, deck_cost, cards_to_buy
 
+    def print_deck(self, decklist, deck_cost, cards_to_buy):
+        print(f'''''')
+        owned_category = '[Owned{noPrice}] '
+        print(f'1 {self.commander_object.name}[Commander' + '{top}]')
+        for card, price in cards_to_buy:
+            print(f'1 {card.name} {owned_category}')
+        for card in decklist:
+            if card.name not in [card.name for card, _ in cards_to_buy]:
+                print(f'1 {card.name}')
+        print(f'''
+Deck Cost: {deck_cost}
+''')
