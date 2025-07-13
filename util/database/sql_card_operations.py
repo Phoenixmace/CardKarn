@@ -7,11 +7,11 @@ def get_card_dict(search_params:dict):
     cursor = cursor[1]
 
     # direct search
-    query = 'SELECT json FROM cards WHERE ' + ' AND '.join([f'{key}=?' for key in search_params])
+    query = 'SELECT json FROM cards WHERE commander_legal=1 AND ' + ' AND '.join([f'{key}=?' for key in search_params])
     params = tuple(search_params.values())
     # double sided cards
     if 'name' in search_params:
-        query = query + f' OR (name Like ? and name LIKE \'%//%\') '
+        query = query + f' OR (name Like ? and name LIKE \'%//%\' AND commander_legal=1 ) '
         params = params + ("%"+search_params["name"]+"%",)
 
     cursor.execute(query, params)
