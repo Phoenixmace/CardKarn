@@ -7,7 +7,6 @@ from itertools import combinations
 
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 import numpy as np
-from keras.models import load_model
 import config
 from models.Card import BaseCard
 import requests
@@ -34,7 +33,6 @@ def get_cards_from_database(commander, user_id='1'):
         'R': 'red_in_color_identity',
         'G': 'green_in_color_identity'
     }
-    print(color_idendity)
     if len(color_idendity) < 5:
         color_query_section = [item for key, item in colors_dict.items() if key not in color_idendity]
         color_query_section = ' AND NOT '.join(color_query_section)
@@ -110,7 +108,7 @@ def get_all_edhrec_cards(commander):
 
     expensive_cards, unused_type_distribution = get_cards(expensive_url)
     all_cards = list(set(base_cards + expensive_cards))
-    all_cards = [BaseCard({'name': card}) for card in all_cards]
+    all_cards = [BaseCard({'name': card}) for card in tqdm(all_cards, desc='fetching edhrec card objects')]
     all_cards = [card for card in all_cards if card.is_valid and card is not None]
     return all_cards, type_distribution
 
@@ -159,6 +157,7 @@ class Deckbuilder:
         if not os.path.exists(model_path):
             print('model not found')
             return
+        from keras.models import load_model
         model = load_model(model_path)
         np_array_name = '1'
         # get cards
@@ -264,7 +263,7 @@ class Deckbuilder:
                 highest_synergy = 0
                 highest_synergy_card = None
                 highest_price = 0
-                owned_card = False
+
                 # iterate edhrec
                 for card in edhrec_cards:
                     is_type_condition_met = hasattr(card, 'type_line') and ('basic' not in card.type_line.lower() or not exclude_basics) and type in card.type_line.lower()
@@ -290,29 +289,26 @@ class Deckbuilder:
                         highest_synergy = card_score
                         highest_synergy_card = card
                         highest_price = price
+
                 # iterate collection
                 for card in collection_cards:
-                    if card.name == 'Swiftfoot Boots':
-                        print('hello worlds')
                     if (card.name in [decklist_card.name for decklist_card in deck_list if decklist_card is not None]) or not is_type_condition_met:
                         continue
                     card_score = evaluate_card_synergy(card, synergies,commander_synergies, False, budget_scaling_factor, deck_list, self.card_weight)
-                    if card_score > highest_synergy or card.name == highest_synergy_card.name:
+                    if card_score > highest_synergy:
                         highest_synergy = card_score
                         highest_synergy_card = card
                         highest_price = 0
-                        owned_card = True
-                        print('I own this card', card.name, card.id)
                 try:
                     if highest_synergy_card is None:
                         continue
-                    #print(f'added {highest_synergy_card.name} with score {highest_synergy}')
+                    #print(highest_synergy_card.name, owned_card, highest_synergy_card.id)
                     deck_list.append(highest_synergy_card)
+                    check_owned = highest_synergy_card.name in [card.name for card in collection_cards]
+                    owned_card = check_owned
                     if not owned_card:
-                        #print('I dont own', highest_synergy_card.name, highest_synergy_card.id)
-                        cards_to_buy.append([highest_synergy_card, highest_price])
-                    else:
                         deck_cost += highest_price
+                        cards_to_buy.append([highest_synergy_card, highest_price])
 
 
                 except Exception as e:
@@ -327,7 +323,7 @@ class Deckbuilder:
         # add basics
         basic_number = 99-len(deck_list)
         basics = []
-        each_type_to_add = int(basic_number/len(self.commander_object.color_identity)-0.5)
+        each_type_to_add = int(basic_number/len(self.commander_object.color_identity)-0.49)
         basics_dict = {
             'W': 'Plains',
             'U': 'Island',
@@ -348,12 +344,12 @@ class Deckbuilder:
         owned_category = '[Owned{noPrice}] '
         print(f'1 {self.commander_object.name}[Commander' + '{top}]')
         for basic, number in basics:
-            print(f'{number} {basic}')
+            print(f'{number} {basic} {owned_category}')
         for card, price in cards_to_buy:
-            print(f'1 {card.name} {owned_category}')
+            print(f'1 {card.name}')
         for card in decklist:
             if card.name not in [card.name for card, _ in cards_to_buy]:
-                print(f'1 {card.name}')
+                print(f'1 {card.name} {owned_category}')
         print(f'''
 Deck Cost: {deck_cost}
 ''')
