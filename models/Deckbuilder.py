@@ -68,7 +68,7 @@ def clean_name(name):
         url_end = url_end.replace(char, replace_char_dict[char])
     return url_end
 
-def get_all_edhrec_cards(commander):
+def get_all_edhrec_cards(commander, no_budget = False):
     edhrec_name = clean_name(commander.name)
     url = f'https://json.edhrec.com/pages/commanders/{edhrec_name}'.lower()
     expensive_url = f'{url}/expensive.json'
@@ -97,7 +97,11 @@ def get_all_edhrec_cards(commander):
 
         }
         json_dict = data['container']['json_dict']
-        for list in json_dict['cardlists'][1:]:
+        if no_budget:
+            lists =  json_dict['cardlists'][1:1]
+        else:
+            lists =  json_dict['cardlists'][1:]
+        for list in lists:
             for card in list['cardviews']:
                 cards.append(card['name'])
         return cards, type_distribution
@@ -160,7 +164,10 @@ class Deckbuilder:
         model = load_model(model_path)
         np_array_name = '1'
         # get cards
-        edhrec_card_objects, type_distribution = get_all_edhrec_cards(self.commander_object)
+        if self.budget > 1:
+            edhrec_card_objects, type_distribution = get_all_edhrec_cards(self.commander_object)
+        else:
+            edhrec_card_objects, type_distribution = get_all_edhrec_cards(self.commander_object, no_budget = True)
         collection_card = get_cards_from_database(self.commander_object, self.user_id)
         # remove duplicates
         unique_cards = []
@@ -243,6 +250,7 @@ class Deckbuilder:
             synergies[key] = float(pred[0])
         deck_list, deck_cost, cards_to_buy, basics = self.generate_deck(edhrec_card_objects, collection_card, synergies, commander_synergies, type_distribution)
         self.print_deck(deck_list, deck_cost, cards_to_buy, basics)
+        return deck_list, basics,
 
     def generate_deck(self, edhrec_cards, collection_cards, synergies, commander_synergies, type_distribution, price_penalty_weight = 0.35):
         # get factors
@@ -291,6 +299,7 @@ class Deckbuilder:
 
                 # iterate collection
                 for card in collection_cards:
+                    is_type_condition_met = hasattr(card, 'type_line') and ('basic' not in card.type_line.lower() or not exclude_basics) and type in card.type_line.lower()
                     if (card.name in [decklist_card.name for decklist_card in deck_list if decklist_card is not None]) or not is_type_condition_met:
                         continue
                     card_score = evaluate_card_synergy(card, synergies,commander_synergies, False, budget_scaling_factor, deck_list, self.card_weight)
@@ -311,7 +320,7 @@ class Deckbuilder:
 
 
                 except Exception as e:
-                    print(highest_synergy_card)
+                    #print(highest_synergy_card)
                     #print(e)
                     pass
             return deck_list, deck_cost, cards_to_buy
@@ -322,7 +331,8 @@ class Deckbuilder:
         # add basics
         basic_number = 99-len(deck_list)
         basics = []
-        each_type_to_add = int(round(basic_number/len(self.commander_object.color_identity)-0.49),0)
+
+        each_type_to_add = int(basic_number/len(self.commander_object.color_identity))
         basics_dict = {
             'W': 'Plains',
             'U': 'Island',
@@ -330,12 +340,15 @@ class Deckbuilder:
             'R': 'Mountain',
             'G': 'Forest'
         }
-        for color in self.commander_object.color_identity:
-            basics.append([basics_dict.get(color, 'Plains'), each_type_to_add])
-        # add final basics
-        last_basics = basic_number%len(self.commander_object.color_identity)
-        for i in range(last_basics):
-            basics[i][1] += 1
+        if len(self.commander_object.color_identity) == 1:
+            basics.append([basics_dict.get(self.commander_object.color_identity[0], 'Plains'), basic_number])
+        else:
+            for color in self.commander_object.color_identity:
+                basics.append([basics_dict.get(color, 'Plains'), each_type_to_add])
+            # add final basics
+            last_basics = basic_number%len(self.commander_object.color_identity)
+            for i in range(last_basics):
+                basics[i][1] += 1
         return deck_list, deck_cost, cards_to_buy, basics
 
     def print_deck(self, decklist, deck_cost, cards_to_buy, basics):
