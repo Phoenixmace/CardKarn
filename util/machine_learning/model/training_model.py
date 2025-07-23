@@ -11,7 +11,7 @@ from tensorflow.keras.models import Model
 from tqdm import tqdm
 import codecs
 
-def train_model(model_name, final_training_data_path,save_dataset_path, oracle_tokenizer_name='oracle_tokenizer', card_tokenizer_name='card_tokenizer', model_save_path=r"C:\Users\maxce\Shared Folder\Code\Maturaarbeit\data_folder\neural_network\models", dataset_amount=1):
+def train_model(model_name, final_training_data_path,save_dataset_path, oracle_tokenizer_name='oracle_tokenizer', card_tokenizer_name='card_tokenizer', model_save_path=r"D:\Coding\Maturaarbeit\data_folder\neural_network\models", dataset_amount=1):
     #binary_training_data_path = os.path.join(final_training_data_path, 'binary.json')
     adjusted_binary_training_data_path = os.path.join(final_training_data_path, 'adjusted_binary.json')
 
@@ -95,15 +95,16 @@ def train_model(model_name, final_training_data_path,save_dataset_path, oracle_t
                 print(e)
                 #quit()
         print(f"{round(100 * (failed_iterations / int(len(raw_inputs)*dataset_amount)), 2)}% of iterations failed")
-        card_1_json_inputs = [card_input.tolist() for card_input in card_1_inputs]
-        card_2_json_inputs = [card_input.tolist() for card_input in card_2_inputs]
-        print('dumping converted dataset...')
-        with codecs.open(save_dataset_full_path, 'w', encoding='utf-8') as f_out:
-            json.dump({
-                'card_1_inputs': card_1_json_inputs,
-                'card_2_inputs': card_2_json_inputs,
-                'outputs': outputs
-            }, f_out, indent=4)
+        if False:
+            card_1_json_inputs = [card_input.tolist() for card_input in card_1_inputs]
+            card_2_json_inputs = [card_input.tolist() for card_input in card_2_inputs]
+            print('dumping converted dataset...')
+            with codecs.open(save_dataset_full_path, 'w', encoding='utf-8') as f_out:
+                json.dump({
+                    'card_1_inputs': card_1_json_inputs,
+                    'card_2_inputs': card_2_json_inputs,
+                    'outputs': outputs
+                }, f_out, indent=4)
 
         return card_1_inputs, card_2_inputs, outputs
     #binary_card_1_inputs, binary_card_2_inputs, binary_outputs = prepare_inputs(binary_training_data_path, os.path.join(save_dataset_path, 'binary.json'))
