@@ -115,7 +115,7 @@ def get_all_edhrec_cards(commander, no_budget = False):
     all_cards = [card for card in all_cards if card.is_valid and card is not None]
     return all_cards, type_distribution
 
-def evaluate_card_synergy(card, synergies, commander_synergies, price_penalty, budget_scaling_factor, decklist, card_weight):
+def evaluate_card_synergy(card, synergies, commander_synergies, price_penalty, budget_scaling_factor, decklist, card_weight=0.3):
     # get commander_synergy
     commander_synergy = commander_synergies.get(card.id, 0)
     # get all card_synergies
@@ -208,9 +208,13 @@ class Deckbuilder:
             commander_oracle_inputs,
             commander_card_inputs
         ], batch_size=32)
+        synerg = []
         for card, pred in zip(all_cards, predictions):
-            commander_synergies[card.id] = float(pred[0])  # or pred if it's just a scalar
-        # get card synergies
+            synerg.append([card, pred[0]])
+            commander_synergies[card.id] = float(pred[0])
+        synerg.sort(key=lambda x: x[1], reverse=True)
+        for synergyief in synerg:
+            print(synergyief[0].name, synergyief[1])
         def generate_unique_card_pairs(cards, np_array_name):
             keys = set()
             oracle_1_inputs = []
@@ -353,15 +357,19 @@ class Deckbuilder:
 
     def print_deck(self, decklist, deck_cost, cards_to_buy, basics):
         print(f'''''')
+        deck_string = f'''Deck Cost: {deck_cost}\nCommander: {self.commander_object.name}\nBudget: {self.budget}\n\nDecklist:\n'''
         owned_category = '[Owned{noPrice}] '
-        print(f'1 {self.commander_object.name}[Commander' + '{top}]')
+        deck_string += f'1 {self.commander_object.name}[Commander' + '{top}]\n'
         for basic, number in basics:
-            print(f'{number} {basic} {owned_category}')
+            deck_string += f'{number} {basic} {owned_category}\n'
         for card, price in cards_to_buy:
-            print(f'1 {card.name}')
+            deck_string += f'1 {card.name}' + '\n'
         for card in decklist:
             if card.name not in [card.name for card, _ in cards_to_buy]:
-                print(f'1 {card.name} {owned_category}')
-        print(f'''
-Deck Cost: {deck_cost}
-''')
+                deck_string += f'1 {card.name} {owned_category}' + '\n'
+        print(deck_string)
+        self.save_deck(deck_string)
+    def save_deck(self, string):
+        path = os.path.join(config.data_folder_path, 'Decks', f'{self.commander_name}_{self.model_name}.txt')
+        with open(path, 'w') as f:
+            f.write(string)

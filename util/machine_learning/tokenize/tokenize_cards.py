@@ -1,9 +1,15 @@
 import os
 from util.data_util.data_util import get_data_path
 import pickle
-from tensorflow.keras.preprocessing.sequence import pad_sequences
 import numpy
-
+try:
+    from tensorflow.keras.preprocessing.sequence import pad_sequences
+except:
+    try:
+        from keras.api.preprocessing.sequence import pad_sequences as pad_sequences
+    except:
+        print('Could not import tf')
+        exit()
 
 def tokenize_oracle_text(card, model_name):
     tokenizer_path = get_data_path(f'{model_name}.pickle', ['neural_network', 'tokenizers'], allow_not_existing=True)
